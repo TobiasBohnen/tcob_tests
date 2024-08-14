@@ -41,6 +41,15 @@ TEST_CASE("Core.POD.Color")
             REQUIRE(p.A == 0xcc);
             REQUIRE(p.value() == col);
         }
+        {
+            u32   col {0xffeedd};
+            color p {color::FromRGB(col)};
+            REQUIRE(p.R == 0xff);
+            REQUIRE(p.G == 0xee);
+            REQUIRE(p.B == 0xdd);
+            REQUIRE(p.A == 0xff);
+            REQUIRE(p.value() == (col << 8 | 255));
+        }
     }
 
     SUBCASE("Equality")
