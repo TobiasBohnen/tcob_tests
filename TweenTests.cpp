@@ -81,7 +81,7 @@ TEST_CASE("Core.Tween.LinearFunction")
         linear_tween<f32> contr {milliseconds {100}, {10.f, 50.f}};
 
         contr.Value.Changed.connect([&out](f32 newVal) { out = newVal; });
-        contr.start(playback_style::Looped);
+        contr.start(playback_mode::Looped);
 
         contr.update(90ms);
         REQUIRE(out == 46.f);
@@ -98,7 +98,7 @@ TEST_CASE("Core.Tween.LinearFunction")
         linear_tween<u32> contr {milliseconds {100}, {10, 50}};
 
         contr.Value.Changed.connect([&out](u32 newVal) { out = newVal; });
-        contr.start(playback_style::Looped);
+        contr.start(playback_mode::Looped);
 
         contr.update(90ms);
         REQUIRE(out == static_cast<u32>(10 + static_cast<f64>((50 - 10) * (90. / 100.))));
@@ -115,7 +115,7 @@ TEST_CASE("Core.Tween.LinearFunction")
         linear_tween<u32> contr {milliseconds {100}, {0, 50}};
 
         contr.Value.Changed.connect([&out](u32 newVal) { out = newVal; });
-        contr.start(playback_style::Looped);
+        contr.start(playback_mode::Looped);
 
         contr.update(10ms);
         REQUIRE(out == 5);
@@ -720,7 +720,7 @@ TEST_CASE("Core.Tween.Animation")
         frame_animation_tween contr {ani.get_duration(), {ani}};
         contr.add_output(&out);
 
-        contr.start(playback_style::Normal);
+        contr.start(playback_mode::Normal);
         contr.update(10ms);
         REQUIRE(out == "0");
         contr.update(10ms);
@@ -745,7 +745,7 @@ TEST_CASE("Core.Tween.Animation")
         frame_animation_tween contr {ani.get_duration() * 2, {ani}};
         contr.add_output(&out);
 
-        contr.start(playback_style::Alternated);
+        contr.start(playback_mode::Alternated);
         contr.update(1ms);
         REQUIRE(out == "0");
         contr.update(101ms);
@@ -776,7 +776,7 @@ TEST_CASE("Core.Tween.PlaybackModes")
         linear_tween<f32> contr {milliseconds {100}, {0.f, 50.f}};
         contr.Value.Changed.connect([&out](f32 val) { out.push_back(val); });
 
-        contr.start(playback_style::Normal);
+        contr.start(playback_mode::Normal);
         for (i32 i {0}; i < 10; i++) {
             contr.update(20ms);
         }
@@ -794,7 +794,7 @@ TEST_CASE("Core.Tween.PlaybackModes")
         linear_tween<f32> contr {milliseconds {100}, {0.f, 50.f}};
         contr.Value.Changed.connect([&out](f32 val) { out.push_back(val); });
 
-        contr.start(playback_style::Looped);
+        contr.start(playback_mode::Looped);
         for (i32 i {0}; i < 10; i++) {
             contr.update(20ms);
         }
@@ -817,7 +817,7 @@ TEST_CASE("Core.Tween.PlaybackModes")
         linear_tween<f32> contr {milliseconds {100}, {0.f, 50.f}};
         contr.Value.Changed.connect([&out](f32 val) { out.push_back(val); });
 
-        contr.start(playback_style::Reversed);
+        contr.start(playback_mode::Reversed);
         for (i32 i {0}; i < 10; i++) {
             contr.update(20ms);
         }
@@ -836,7 +836,7 @@ TEST_CASE("Core.Tween.PlaybackModes")
         linear_tween<f32> contr {milliseconds {100}, {0.f, 50.f}};
         contr.Value.Changed.connect([&out](f32 val) { out.push_back(val); });
 
-        contr.start(playback_style::ReversedLooped);
+        contr.start(playback_mode::ReversedLooped);
         for (i32 i {0}; i < 10; i++) {
             contr.update(20ms);
         }
@@ -860,7 +860,7 @@ TEST_CASE("Core.Tween.PlaybackModes")
         linear_tween<f32> contr {milliseconds {100}, {0.f, 50.f}};
         contr.Value.Changed.connect([&out](f32 val) { out.push_back(val); });
 
-        contr.start(playback_style::Alternated);
+        contr.start(playback_mode::Alternated);
         for (i32 i {0}; i < 10; i++) {
             contr.update(10ms);
         }
@@ -883,7 +883,7 @@ TEST_CASE("Core.Tween.PlaybackModes")
         linear_tween<f32> contr {milliseconds {100}, {0.f, 50.f}};
         contr.Value.Changed.connect([&out](f32 val) { out.push_back(val); });
 
-        contr.start(playback_style::AlternatedLooped);
+        contr.start(playback_mode::AlternatedLooped);
         for (i32 i {0}; i < 20; i++) {
             contr.update(10ms);
         }
