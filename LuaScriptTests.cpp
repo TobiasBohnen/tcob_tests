@@ -1169,7 +1169,11 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Hook")
 
         set_hook(func);
         auto res = run(
-            "x = 100; print(x); y = x * 200; print(y); return 1000",
+            "x = 100 \n"
+            "print(x) \n"
+            "y = x * 200 \n"
+            "print(y) \n"
+            "return 1000",
             "TEST");
 
         REQUIRE(linecount == 5);
@@ -1194,7 +1198,11 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Hook")
 
         set_hook(func2);
         res = run(
-            "x = 100; print(x); y = x * 200; print(y); return 1000",
+            "x = 100 \n"
+            "print(x) \n"
+            "y = x * 200 \n"
+            "print(y) \n"
+            "return 1000",
             "TEST");
 
         REQUIRE(linecount == 0);
@@ -1202,7 +1210,11 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Hook")
 
         remove_hook();
         res = run(
-            "x = 100; print(x); y = x * 200; print(y); return 1000",
+            "x = 100 \n"
+            "print(x) \n"
+            "y = x * 200 \n"
+            "print(y) \n"
+            "return 1000",
             "TEST");
 
         REQUIRE(linecount == 0);
@@ -1232,7 +1244,11 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Hook")
 
         set_hook(func);
         auto res = run(
-            "x = 100; print(x); y = x * 200; print(y); return 1000",
+            "x = 100 \n"
+            "print(x) \n"
+            "y = x * 200 \n"
+            "print(y) \n"
+            "return 1000",
             "TEST");
 
         REQUIRE_FALSE(res);
