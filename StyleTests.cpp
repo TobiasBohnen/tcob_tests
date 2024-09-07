@@ -2,11 +2,16 @@
 
 TEST_CASE("GFX.UI.Styles")
 {
-    flags fl_hover {.Focus = false, .Active = false, .Hover = true, .Checked = false, .Disabled = false};
-    flags fl_focus {.Focus = true, .Active = false, .Hover = false, .Checked = false, .Disabled = false};
-    flags fl_focus_hover {.Focus = true, .Active = false, .Hover = true, .Checked = false, .Disabled = false};
-    flags fl_active {.Focus = false, .Active = true, .Hover = false, .Checked = false, .Disabled = false};
-    flags fl_active_hover {.Focus = false, .Active = true, .Hover = true, .Checked = false, .Disabled = false};
+    style_flags sfl_hover {.Hover = true};
+    style_flags sfl_focus {.Focus = true};
+    style_flags sfl_focus_hover {.Focus = true, .Hover = true};
+    style_flags sfl_active {.Active = true};
+
+    widget_flags fl_hover {.Focus = false, .Active = false, .Hover = true, .Checked = false, .Disabled = false};
+    widget_flags fl_focus {.Focus = true, .Active = false, .Hover = false, .Checked = false, .Disabled = false};
+    widget_flags fl_focus_hover {.Focus = true, .Active = false, .Hover = true, .Checked = false, .Disabled = false};
+    widget_flags fl_active {.Focus = false, .Active = true, .Hover = false, .Checked = false, .Disabled = false};
+    widget_flags fl_active_hover {.Focus = false, .Active = true, .Hover = true, .Checked = false, .Disabled = false};
 
     std::string name = "button";
 
@@ -17,7 +22,7 @@ TEST_CASE("GFX.UI.Styles")
         auto             button  = s.create<background_style>(name, {});
         button->Background       = colors::Black;
         // button:hover
-        auto button_hover        = s.create<background_style>(name, fl_hover);
+        auto button_hover        = s.create<background_style>(name, sfl_hover);
         button_hover->Background = colors::White;
 
         // button:focus > button
@@ -34,7 +39,7 @@ TEST_CASE("GFX.UI.Styles")
         auto             button        = s.create<background_style>(name, {});
         button->Background             = colors::Black;
         // button:focus:hover
-        auto button_focus_hover        = s.create<background_style>(name, fl_focus_hover);
+        auto button_focus_hover        = s.create<background_style>(name, sfl_focus_hover);
         button_focus_hover->Background = colors::Red;
 
         // button:focus > button
@@ -53,13 +58,13 @@ TEST_CASE("GFX.UI.Styles")
         auto             button   = s.create<background_style>(name, {});
         button->Background        = colors::Black;
         // button:active
-        auto button_active        = s.create<background_style>(name, fl_active);
+        auto button_active        = s.create<background_style>(name, sfl_active);
         button_active->Background = colors::White;
         // button:focus
-        auto button_focus         = s.create<background_style>(name, fl_focus);
+        auto button_focus         = s.create<background_style>(name, sfl_focus);
         button_focus->Background  = colors::Red;
         // button:hover
-        auto button_hover         = s.create<background_style>(name, fl_hover);
+        auto button_hover         = s.create<background_style>(name, sfl_hover);
         button_hover->Background  = colors::Yellow;
 
         // button:hover > button:hover
@@ -76,20 +81,20 @@ TEST_CASE("GFX.UI.Styles")
         auto             style {s.create<button>(name, {})};
         style->Background = color {1, 1, 1, 1};
 
-        auto hoverStyle {s.create<button>(name, fl_hover)};
+        auto hoverStyle {s.create<button>(name, sfl_hover)};
         *hoverStyle       = *style;
         style->Background = color {3, 3, 3, 3};
 
-        auto incHoverStyle {s.create<button>(name, fl_hover, {{"inc_button", true}})};
+        auto incHoverStyle {s.create<button>(name, sfl_hover, {{"inc_button", true}})};
         *incHoverStyle            = *hoverStyle;
         incHoverStyle->Background = color {5, 5, 5, 5};
-        auto incActiveStyle {s.create<button>(name, fl_active, {{"inc_button", true}})};
+        auto incActiveStyle {s.create<button>(name, sfl_active, {{"inc_button", true}})};
         *incActiveStyle            = *hoverStyle;
         incActiveStyle->Background = color {6, 6, 6, 6};
 
-        auto decHoverStyle {s.create<button>(name, fl_hover, {{"dec_button", true}})};
+        auto decHoverStyle {s.create<button>(name, sfl_hover, {{"dec_button", true}})};
         *decHoverStyle = *hoverStyle;
-        auto decActiveStyle {s.create<button>(name, fl_active, {{"dec_button", true}})};
+        auto decActiveStyle {s.create<button>(name, sfl_active, {{"dec_button", true}})};
         *decActiveStyle = *hoverStyle;
 
         REQUIRE(std::get<color>(dynamic_cast<button::style*>(s.get(name, fl_hover, {{"inc_button", true}}))->Background)
@@ -109,20 +114,20 @@ TEST_CASE("GFX.UI.Styles")
         auto             style {s.create<button>(name, {})};
         style->Background = color {1, 1, 1, 1};
 
-        auto hoverStyle {s.create<button>(name, fl_hover)};
+        auto hoverStyle {s.create<button>(name, sfl_hover)};
         *hoverStyle       = *style;
         style->Background = color {3, 3, 3, 3};
 
-        auto incHoverStyle {s.create<button>(name, fl_hover, {{"value", 80}, {"value", 100}})};
+        auto incHoverStyle {s.create<button>(name, sfl_hover, {{"value", 80}, {"value", 100}})};
         *incHoverStyle            = *hoverStyle;
         incHoverStyle->Background = color {5, 5, 5, 5};
-        auto incActiveStyle {s.create<button>(name, fl_active, {{"value", 80}, {"value", 100}})};
+        auto incActiveStyle {s.create<button>(name, sfl_active, {{"value", 80}, {"value", 100}})};
         *incActiveStyle            = *hoverStyle;
         incActiveStyle->Background = color {6, 6, 6, 6};
 
-        auto decHoverStyle {s.create<button>(name, fl_hover, {{"value", 40}, {"value", 60}})};
+        auto decHoverStyle {s.create<button>(name, sfl_hover, {{"value", 40}, {"value", 60}})};
         *decHoverStyle = *hoverStyle;
-        auto decActiveStyle {s.create<button>(name, fl_active, {{"value", 40}, {"value", 60}})};
+        auto decActiveStyle {s.create<button>(name, sfl_active, {{"value", 40}, {"value", 60}})};
         *decActiveStyle = *hoverStyle;
 
         REQUIRE(std::get<color>(dynamic_cast<button::style*>(s.get(name, fl_hover, {{"value", 80}}))->Background)
