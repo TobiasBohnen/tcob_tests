@@ -23,7 +23,6 @@ set(TEST_SRCFILES
   CameraTests.cpp
   ColorTests.cpp
   CSVTests.cpp
-  FlatMapTests.cpp
   FontFamilyTests.cpp
   HelperTests.cpp
   ImageTests.cpp
