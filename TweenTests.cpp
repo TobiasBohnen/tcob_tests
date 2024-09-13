@@ -644,12 +644,17 @@ TEST_CASE("Core.Tween.SawtoothWaveFunction")
     }
 }
 
-TEST_CASE("Core.Tween.LinearChainFunction")
+TEST_CASE("Core.Tween.Curve")
 {
     {
-        f32                     out {0};
-        std::vector<f32>        points {{0, 10, 5, 25, 10}};
-        linear_chain_tween<f32> contr {milliseconds {1000}, {points}};
+        f32                           out {0};
+        std::vector<curve_point<f32>> points {
+            {0.0f, 0},
+            {0.25f, 10},
+            {0.5f, 5},
+            {0.75f, 25},
+            {1.0f, 10}};
+        curve_tween<f32> contr {milliseconds {1000}, {points}};
         contr.add_output(&out);
 
         contr.start();
@@ -673,9 +678,40 @@ TEST_CASE("Core.Tween.LinearChainFunction")
         REQUIRE(out == Approx(10.0f).epsilon(0.0001f));
     }
     {
-        point_f                     out1;
-        std::vector<point_f>        points {{0.f, 0.f}, {10.f, 20.f}, {20.f, 10.f}, {40.f, 0.f}, {40.f, 80.f}};
-        linear_chain_tween<point_f> contr {milliseconds {1000}, {points}};
+        f32                           out {0};
+        std::vector<curve_point<f32>> points {
+            {0.00f, 00.f},
+            {0.10f, 10.f},
+            {0.90f, 05.f},
+            {1.00f, 02.f}};
+        curve_tween<f32> contr {milliseconds {1000}, {points}};
+        contr.add_output(&out);
+
+        contr.start();
+
+        REQUIRE(out == Approx(00.00f).epsilon(0.0001f));
+        contr.update(100ms);
+        REQUIRE(out == Approx(10.00f).epsilon(0.0001f));
+        contr.update(200ms);
+        REQUIRE(out == Approx(08.75f).epsilon(0.0001f));
+        contr.update(200ms);
+        REQUIRE(out == Approx(07.50f).epsilon(0.0001f));
+        contr.update(200ms);
+        REQUIRE(out == Approx(06.25f).epsilon(0.0001f));
+        contr.update(200ms);
+        REQUIRE(out == Approx(05.00f).epsilon(0.0001f));
+        contr.update(100ms);
+        REQUIRE(out == Approx(02.00f).epsilon(0.0001f));
+    }
+    {
+        point_f                           out1;
+        std::vector<curve_point<point_f>> points {
+            {0.00f, {00.f, 00.f}},
+            {0.25f, {10.f, 20.f}},
+            {0.50f, {20.f, 10.f}},
+            {0.75f, {40.f, 00.f}},
+            {1.00f, {40.f, 80.f}}};
+        curve_tween<point_f> contr {milliseconds {1000}, {points}};
         contr.add_output(&out1);
 
         contr.start();
@@ -690,6 +726,44 @@ TEST_CASE("Core.Tween.LinearChainFunction")
         contr.update(125ms);
         REQUIRE(out1.X == Approx(15.0f).epsilon(0.0001f));
         REQUIRE(out1.Y == Approx(15.0f).epsilon(0.0001f));
+        contr.update(125ms);
+        REQUIRE(out1.X == Approx(20.0f).epsilon(0.0001f));
+        REQUIRE(out1.Y == Approx(10.0f).epsilon(0.0001f));
+        contr.update(125ms);
+        REQUIRE(out1.X == Approx(30.0f).epsilon(0.0001f));
+        REQUIRE(out1.Y == Approx(05.0f).epsilon(0.0001f));
+        contr.update(125ms);
+        REQUIRE(out1.X == Approx(40.0f).epsilon(0.0001f));
+        REQUIRE(out1.Y == Approx(00.0f).epsilon(0.0001f));
+        contr.update(125ms);
+        REQUIRE(out1.X == Approx(40.0f).epsilon(0.0001f));
+        REQUIRE(out1.Y == Approx(40.0f).epsilon(0.0001f));
+        contr.update(125ms);
+        REQUIRE(out1.X == Approx(40.0f).epsilon(0.0001f));
+        REQUIRE(out1.Y == Approx(80.0f).epsilon(0.0001f));
+    }
+    {
+        point_f                           out1;
+        std::vector<curve_point<point_f>> points {
+            {0.00f, {00.f, 00.f}},
+            {0.50f, {20.f, 10.f}},
+            {0.75f, {40.f, 00.f}},
+            {1.00f, {40.f, 80.f}}};
+        curve_tween<point_f> contr {milliseconds {1000}, {points}};
+        contr.add_output(&out1);
+
+        contr.start();
+        REQUIRE(out1.X == Approx(00.0f).epsilon(0.0001f));
+        REQUIRE(out1.Y == Approx(00.0f).epsilon(0.0001f));
+        contr.update(125ms);
+        REQUIRE(out1.X == Approx(05.0f).epsilon(0.0001f));
+        REQUIRE(out1.Y == Approx(02.5f).epsilon(0.0001f));
+        contr.update(125ms);
+        REQUIRE(out1.X == Approx(10.0f).epsilon(0.0001f));
+        REQUIRE(out1.Y == Approx(05.0f).epsilon(0.0001f));
+        contr.update(125ms);
+        REQUIRE(out1.X == Approx(15.0f).epsilon(0.0001f));
+        REQUIRE(out1.Y == Approx(7.5f).epsilon(0.0001f));
         contr.update(125ms);
         REQUIRE(out1.X == Approx(20.0f).epsilon(0.0001f));
         REQUIRE(out1.Y == Approx(10.0f).epsilon(0.0001f));
