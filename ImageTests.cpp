@@ -205,3 +205,27 @@ TEST_CASE("GFX.Image.GetSetPixel")
         REQUIRE(image.get_pixel({2, 2}) == colors::RebeccaPurple);
     }
 }
+
+TEST_CASE("GFX.Image.CountColors")
+{
+    SUBCASE("RGB")
+    {
+        image img {image::CreateEmpty({10, 10}, image::format::RGB)};
+        img.set_pixel({4, 4}, colors::White);
+        REQUIRE(img.count_colors() == 2);
+        img.set_pixel({6, 6}, colors::Red);
+        REQUIRE(img.count_colors() == 3);
+        img.set_pixel({7, 7}, colors::Blue);
+        REQUIRE(img.count_colors() == 4);
+    }
+    SUBCASE("RGBA")
+    {
+        image img {image::CreateEmpty({10, 10}, image::format::RGBA)};
+        img.set_pixel({4, 4}, colors::White);
+        REQUIRE(img.count_colors() == 2);
+        img.set_pixel({6, 6}, colors::Red);
+        REQUIRE(img.count_colors() == 3);
+        img.set_pixel({7, 7}, colors::Blue);
+        REQUIRE(img.count_colors() == 4);
+    }
+}
