@@ -366,11 +366,23 @@ TEST_CASE("Core.POD.Point")
         REQUIRE(point_f::Zero.distance_to(point_f::Zero) == 0.f);
         REQUIRE(point_f {8, 11}.distance_to(point_f {5, 7}) == 5.f);
     }
-    SUBCASE("distance_to")
+    SUBCASE("as_normalized")
     {
         REQUIRE(point_f::Zero.as_normalized() == point_f::Zero);
         REQUIRE(point_f {3, 4}.as_normalized() == point_f {0.6f, 0.8f});
         REQUIRE(point_f {7, 24}.as_normalized() == point_f {0.28f, 0.96f});
+    }
+    SUBCASE("angle_to")
+    {
+        point_f p {10, 10};
+        REQUIRE(p.angle_to({10, 5}) == degree_f {0});
+        REQUIRE(p.angle_to({15, 5}) == degree_f {45});
+        REQUIRE(p.angle_to({15, 10}) == degree_f {90});
+        REQUIRE(p.angle_to({15, 15}) == degree_f {135});
+        REQUIRE(p.angle_to({10, 15}) == degree_f {180});
+        REQUIRE(p.angle_to({5, 15}) == degree_f {225});
+        REQUIRE(p.angle_to({5, 10}) == degree_f {270});
+        REQUIRE(p.angle_to({5, 5}) == degree_f {315});
     }
     SUBCASE("Format")
     {
