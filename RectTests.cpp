@@ -327,17 +327,17 @@ TEST_CASE("Core.POD.Rect")
         {
             rect_f r1 {10, 20, 50, 50};
             rect_f r2 {50, 50, 30, 30};
-            REQUIRE(r1.as_intersected(r2) == rect_f {50, 50, 10, 20});
+            REQUIRE(r1.as_intersection_with(r2) == rect_f {50, 50, 10, 20});
         }
         {
             rect_f r1 {10, 20, 50, 50};
             rect_f r2 {0, 0, 30, 30};
-            REQUIRE(r1.as_intersected(r2) == rect_f {10, 20, 20, 10});
+            REQUIRE(r1.as_intersection_with(r2) == rect_f {10, 20, 20, 10});
         }
         {
             rect_f r1 {10, 10, 30, 30};
             rect_f r2 {0, 0, 60, 60};
-            REQUIRE(r1.as_intersected(r2) == r1);
+            REQUIRE(r1.as_intersection_with(r2) == r1);
         }
     }
 
@@ -388,7 +388,7 @@ TEST_CASE("Core.POD.Rect")
     {
         rect_i r1 {10, 20, 30, 40};
 
-        rect_i r2 {r1.with_position({200, 300})};
+        rect_i r2 {r1.as_moved_to({200, 300})};
         REQUIRE(r2.X == 200);
         REQUIRE(r2.Y == 300);
         REQUIRE(r2.Width == 30);
@@ -398,7 +398,7 @@ TEST_CASE("Core.POD.Rect")
     {
         rect_i r1 {10, 20, 30, 40};
 
-        rect_i r2 {r1.with_size({200, 300})};
+        rect_i r2 {r1.as_resized_to({200, 300})};
         REQUIRE(r2.X == 10);
         REQUIRE(r2.Y == 20);
         REQUIRE(r2.Width == 200);
