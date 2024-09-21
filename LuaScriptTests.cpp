@@ -623,7 +623,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Coroutines")
 
 TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Enums")
 {
-    enum class testEnum {
+    enum class testEnum : u8 {
         True,
         False,
         FileNotFound
