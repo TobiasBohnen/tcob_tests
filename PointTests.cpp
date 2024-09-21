@@ -368,21 +368,21 @@ TEST_CASE("Core.POD.Point")
     }
     SUBCASE("as_normalized")
     {
-        REQUIRE(point_f::Zero.as_normalized() == point_f::Zero);
-        REQUIRE(point_f {3, 4}.as_normalized() == point_f {0.6f, 0.8f});
-        REQUIRE(point_f {7, 24}.as_normalized() == point_f {0.28f, 0.96f});
+        REQUIRE(point_f::Zero.as_normalized() == point_d::Zero);
+        REQUIRE(point_f {3, 4}.as_normalized() == point_d {0.6, 0.8});
+        REQUIRE(point_f {7, 24}.as_normalized() == point_d {0.28, 0.96});
     }
     SUBCASE("angle_to")
     {
-        point_f p {10, 10};
-        REQUIRE(p.angle_to({10, 5}) == degree_f {0});
-        REQUIRE(p.angle_to({15, 5}) == degree_f {45});
-        REQUIRE(p.angle_to({15, 10}) == degree_f {90});
-        REQUIRE(p.angle_to({15, 15}) == degree_f {135});
-        REQUIRE(p.angle_to({10, 15}) == degree_f {180});
-        REQUIRE(p.angle_to({5, 15}) == degree_f {225});
-        REQUIRE(p.angle_to({5, 10}) == degree_f {270});
-        REQUIRE(p.angle_to({5, 5}) == degree_f {315});
+        point_d p {10, 10};
+        REQUIRE(p.angle_to({10, 5}) == degree_d {0});
+        REQUIRE(p.angle_to({15, 5}) == degree_d {45});
+        REQUIRE(p.angle_to({15, 10}) == degree_d {90});
+        REQUIRE(p.angle_to({15, 15}) == degree_d {135});
+        REQUIRE(p.angle_to({10, 15}) == degree_d {180});
+        REQUIRE(p.angle_to({5, 15}) == degree_d {225});
+        REQUIRE(p.angle_to({5, 10}) == degree_d {270});
+        REQUIRE(p.angle_to({5, 5}) == degree_d {315});
     }
     SUBCASE("Format")
     {
