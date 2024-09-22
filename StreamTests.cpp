@@ -203,18 +203,33 @@ TEST_CASE("IO.Stream.ReadString")
 
 TEST_CASE("IO.Stream.Open")
 {
-    std::string const file {"test.Open"};
+    SUBCASE("ifstream::Open")
+    {
+        std::string const file {"test.Open"};
 
-    io::delete_file(file);
-    REQUIRE_FALSE(io::exists(file));
+        io::delete_file(file);
+        REQUIRE_FALSE(io::exists(file));
 
-    auto stream0 {io::ifstream::Open(file)};
-    REQUIRE_FALSE(stream0);
+        auto stream0 {io::ifstream::Open(file)};
+        REQUIRE_FALSE(stream0);
 
-    PrepareFile(file);
+        PrepareFile(file);
 
-    auto stream1 {io::ifstream::Open(file)};
-    REQUIRE(stream1);
+        auto stream1 {io::ifstream::Open(file)};
+        REQUIRE(stream1);
+        REQUIRE(stream1->is_valid());
+    }
+    SUBCASE("ctor")
+    {
+        std::string const file {"test.OpenBlob"};
+
+        io::delete_file(file);
+        REQUIRE_FALSE(io::exists(file));
+
+        io::ifstream stream0 {file};
+        REQUIRE_FALSE(stream0);
+        REQUIRE_FALSE(stream0.is_valid());
+    }
 }
 
 TEST_CASE("IO.Stream.Appending")
