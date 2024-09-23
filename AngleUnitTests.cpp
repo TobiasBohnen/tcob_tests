@@ -105,27 +105,55 @@ TEST_CASE("Core.POD.AngleUnits")
     }
     SUBCASE("normalize")
     {
+        SUBCASE("FullTurnSymmetric")
         {
-            REQUIRE((degree_f {10} - degree_f {90}).as_normalized() == degree_f {-80});
-            REQUIRE((degree_f {350} + degree_f {90}).as_normalized() == degree_f {80});
-            REQUIRE((degree_f {350} * 3).as_normalized() == degree_f {330});
-            REQUIRE((degree_f {720}).as_normalized() == degree_f {0});
-            REQUIRE((degree_f {-720}).as_normalized() == degree_f {0});
+            auto mode {angle_normalize::FullTurnSymmetric};
+            {
+                REQUIRE((degree_f {10} - degree_f {90}).as_normalized(mode) == degree_f {-80});
+                REQUIRE((degree_f {350} + degree_f {90}).as_normalized(mode) == degree_f {80});
+                REQUIRE((degree_f {350} * 3).as_normalized(mode) == degree_f {330});
+                REQUIRE((degree_f {720}).as_normalized(mode) == degree_f {0});
+                REQUIRE((degree_f {-720}).as_normalized(mode) == degree_f {0});
+            }
+            {
+                REQUIRE((radian_f {TAU_F} * 3).as_normalized(mode).Value == Approx(radian_f {TAU_F}.Value));
+                REQUIRE((radian_f {TAU_F} + radian_f {TAU_F / 2}).as_normalized(mode).Value == Approx(radian_f {TAU_F / 2}.Value));
+            }
+            {
+                REQUIRE((turn_f {0.1f} - turn_f {0.8f}).as_normalized(mode) == turn_f {-0.7f});
+                REQUIRE((turn_f {0.25f} * 6).as_normalized(mode) == turn_f {0.5f});
+            }
+            {
+                REQUIRE((gradian_f {10} - gradian_f {90}).as_normalized(mode) == gradian_f {-80});
+                REQUIRE((gradian_f {350} + gradian_f {90}).as_normalized(mode) == gradian_f {40});
+                REQUIRE((gradian_f {350} * 3).as_normalized(mode) == gradian_f {250});
+                REQUIRE((gradian_f {800}).as_normalized(mode) == gradian_f {0});
+                REQUIRE((gradian_f {-800}).as_normalized(mode) == gradian_f {0});
+            }
         }
+        SUBCASE("HalfTurnSymmetric")
         {
-            REQUIRE((radian_f {TAU_F} * 3).as_normalized().Value == Approx(radian_f {TAU_F}.Value));
-            REQUIRE((radian_f {TAU_F} + radian_f {TAU_F / 2}).as_normalized().Value == Approx(radian_f {TAU_F / 2}.Value));
+            auto mode {angle_normalize::HalfTurnSymmetric};
+            {
+                REQUIRE((degree_f {10} - degree_f {90}).as_normalized(mode) == degree_f {-80});
+                REQUIRE((degree_f {350} + degree_f {90}).as_normalized(mode) == degree_f {80});
+                REQUIRE((degree_f {350} * 3).as_normalized(mode) == degree_f {-30});
+                REQUIRE((degree_f {720}).as_normalized(mode) == degree_f {0});
+                REQUIRE((degree_f {-720}).as_normalized(mode) == degree_f {0});
+                REQUIRE((degree_f {190}).as_normalized(mode) == degree_f {-170});
+            }
         }
+        SUBCASE("PositiveFullTurn")
         {
-            REQUIRE((turn_f {0.1f} - turn_f {0.8f}).as_normalized() == turn_f {-0.7f});
-            REQUIRE((turn_f {0.25f} * 6).as_normalized() == turn_f {0.5f});
-        }
-        {
-            REQUIRE((gradian_f {10} - gradian_f {90}).as_normalized() == gradian_f {-80});
-            REQUIRE((gradian_f {350} + gradian_f {90}).as_normalized() == gradian_f {40});
-            REQUIRE((gradian_f {350} * 3).as_normalized() == gradian_f {250});
-            REQUIRE((gradian_f {800}).as_normalized() == gradian_f {0});
-            REQUIRE((gradian_f {-800}).as_normalized() == gradian_f {0});
+            auto mode {angle_normalize::PositiveFullTurn};
+            {
+                REQUIRE((degree_f {10} - degree_f {90}).as_normalized(mode) == degree_f {280});
+                REQUIRE((degree_f {350} + degree_f {90}).as_normalized(mode) == degree_f {80});
+                REQUIRE((degree_f {350} * 3).as_normalized(mode) == degree_f {330});
+                REQUIRE((degree_f {720}).as_normalized(mode) == degree_f {0});
+                REQUIRE((degree_f {-720}).as_normalized(mode) == degree_f {0});
+                REQUIRE((degree_f {370}).as_normalized(mode) == degree_f {10});
+            }
         }
     }
     SUBCASE("literals")
