@@ -35,6 +35,7 @@ set(TEST_SRCFILES
   PointTests.cpp
   PropertyTests.cpp
   RandomTests.cpp
+  RayTests.cpp
   ResultTests.cpp
   RectTests.cpp
   SignalTests.cpp
