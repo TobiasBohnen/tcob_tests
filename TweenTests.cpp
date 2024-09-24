@@ -453,15 +453,15 @@ TEST_CASE("Core.Tween.CircularFunction")
 
         contr.start();
         contr.update(0ms);
-        REQUIRE_MESSAGE(out.equals(point_f {1.0f, 0.0f}, 0.01f), out);
+        REQUIRE_MESSAGE(out.equals(point_f {0.0f, -1.0f}, 0.01f), out); // 0
         contr.update(250ms);
-        REQUIRE_MESSAGE(out.equals(point_f {0.0f, 1.0f}, 0.01f), out);
+        REQUIRE_MESSAGE(out.equals(point_f {1.0f, 0.0f}, 0.01f), out);  // 90
         contr.update(250ms);
-        REQUIRE_MESSAGE(out.equals(point_f {-1.0f, 0.0f}, 0.01f), out);
+        REQUIRE_MESSAGE(out.equals(point_f {0.0f, 1.0f}, 0.01f), out);  // 180
         contr.update(250ms);
-        REQUIRE_MESSAGE(out.equals(point_f {0.0f, -1.0f}, 0.01f), out);
+        REQUIRE_MESSAGE(out.equals(point_f {-1.0f, 0.0f}, 0.01f), out); // 270
         contr.update(250ms);
-        REQUIRE_MESSAGE(out.equals(point_f {1.0f, 0.0f}, 0.01f), out);
+        REQUIRE_MESSAGE(out.equals(point_f {0.0f, -1.0f}, 0.01f), out); // 360
     }
 }
 
