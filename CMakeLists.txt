@@ -1,3 +1,5 @@
+set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
+
 Include(FetchContent)
 
 FetchContent_Declare(
