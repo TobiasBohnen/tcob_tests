@@ -6,12 +6,7 @@ FetchContent_Declare(
   GIT_TAG v2.4.11
 )
 
-FetchContent_GetProperties(doctest)
-
-if(NOT doctest_POPULATED)
-  FetchContent_Populate(doctest)
-  add_subdirectory(${doctest_SOURCE_DIR} ${doctest_BINARY_DIR} EXCLUDE_FROM_ALL)
-endif()
+FetchContent_MakeAvailable(doctest)
 
 mark_as_advanced(FORCE DOCTEST_NO_INSTALL DOCTEST_USE_STD_HEADERS DOCTEST_WITH_MAIN_IN_STATIC_LIB DOCTEST_WITH_TESTS)
 
