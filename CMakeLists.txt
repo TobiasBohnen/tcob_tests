@@ -72,7 +72,7 @@ endif()
 
 target_sources(tcob_tests PRIVATE ${TEST_SRCFILES})
 
-target_link_libraries(tcob_tests PRIVATE doctest::doctest PUBLIC ${TCOB_LIBS} PRIVATE tcob_extlibs)
+target_link_libraries(tcob_tests PRIVATE doctest::doctest PUBLIC ${TCOB_LIBS} PRIVATE tcob_extlibs) # link to static/object libraries to prevent CI hiccups
 
 target_include_directories(tcob_tests PRIVATE . PRIVATE ../../tcob/include)
 
@@ -80,6 +80,9 @@ target_compile_options(tcob_tests PRIVATE
   $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<BOOL:TCOB_USE_DEFAULT_MSVC_OPTIONS>>: /W4>
   $<$<CXX_COMPILER_ID:Clang>: -Wall -Wextra -Wno-switch-default -Wno-unsafe-buffer-usage -Wno-c++20-compat -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-float-equal -Wno-old-style-cast -Wno-header-hygiene -Wno-ctad-maybe-unsupported -Wno-exit-time-destructors -Wno-global-constructors -Wno-double-promotion>
   $<$<CXX_COMPILER_ID:GNU>: -Wall -Wextra -pedantic>
+)
+target_link_options(tcob_tests PRIVATE
+  $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<BOOL:TCOB_USE_DEFAULT_MSVC_OPTIONS>>: /ignore:4217,4286>
 )
 
 set_target_properties(tcob_tests PROPERTIES
