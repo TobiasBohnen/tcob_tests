@@ -253,10 +253,11 @@ TEST_CASE("Data.Json.TestSuite")
         auto const arrStatus {arr.load(file) == load_status::Ok};
 
         auto const success {objStatus || arrStatus};
-        auto const shouldSucceed {io::get_stem(file)[0] == 'y'};
+        auto const first {io::get_stem(file)[0]};
+        auto const shouldSucceed {first == 'y'};
 
         if (success != shouldSucceed) {
-            FAIL(file);
+            FAIL_CHECK(std::format("{}:{}", first, file));
         }
     }
 }
