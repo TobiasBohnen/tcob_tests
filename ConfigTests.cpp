@@ -35,7 +35,7 @@ TEST_CASE("Data.Config.Get")
 
         REQUIRE(t.try_get<bool>(b, "section1", "valueSec", "b"));
     }
-    SUBCASE("as function")
+    SUBCASE("'as' function")
     {
         REQUIRE(t.as<bool>("section1", "valueBool") == true);
         REQUIRE(t.as<std::string>("section1", "valueStr") == "test123");
@@ -503,6 +503,25 @@ TEST_CASE("Data.Config.Array")
         REQUIRE(arr.get_type(4) == type::Array);
         REQUIRE(arr.get_type(5) == type::Object);
         REQUIRE(arr.get_type(6) == type::Null);
+    }
+
+    SUBCASE("'make' function")
+    {
+        {
+            array   pointArr {1, 2};
+            point_f point {pointArr.make<point_f, f32, f32>()};
+            REQUIRE(point == point_f {1, 2});
+        }
+        {
+            array   pointArr {1, 2};
+            point_f point {pointArr.make<point_f, f32, f32>(0, 1)};
+            REQUIRE(point == point_f {1, 2});
+        }
+        {
+            array   pointArr {"x", 12, false, 23};
+            point_f point {pointArr.make<point_f, f32, f32>(1, 3)};
+            REQUIRE(point == point_f {12, 23});
+        }
     }
 }
 
@@ -1127,13 +1146,13 @@ TEST_CASE("Data.Config.Schema")
     }
 }
 
-enum class TestEnum0 {
+enum class TestEnum0 : u8 {
     True         = 0,
     False        = 1,
     FileNotFound = 2
 };
 
-enum class TestEnum1 {
+enum class TestEnum1 : u8 {
     True         = 0,
     False        = 1,
     FileNotFound = 2
