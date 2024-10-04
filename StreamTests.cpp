@@ -264,7 +264,7 @@ TEST_CASE("IO.Stream.Seeking")
 {
     std::vector<char> data {'1', '2', '3', '4', '5'};
 
-    auto seekCurrent {[](istream& str) {
+    auto seekCurrent {[](io::istream& str) {
         REQUIRE(str.read<char>() == '1');
 
         REQUIRE(str.seek(1, io::seek_dir::Current));
@@ -273,7 +273,7 @@ TEST_CASE("IO.Stream.Seeking")
         REQUIRE(str.seek(-2, io::seek_dir::Current));
         REQUIRE(str.read<char>() == '2');
     }};
-    auto seekBegin {[](istream& str) {
+    auto seekBegin {[](io::istream& str) {
         REQUIRE(str.seek(0, io::seek_dir::Begin));
         REQUIRE(str.read<char>() == '1');
 
@@ -285,7 +285,7 @@ TEST_CASE("IO.Stream.Seeking")
 
         REQUIRE_FALSE(str.seek(-1, io::seek_dir::Begin));
     }};
-    auto seekEnd {[](istream& str) {
+    auto seekEnd {[](io::istream& str) {
         REQUIRE(str.seek(-1, io::seek_dir::End));
         REQUIRE(str.read<char>() == '5');
 
