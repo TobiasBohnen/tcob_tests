@@ -684,3 +684,25 @@ TEST_CASE("Data.Ini.Literals")
     REQUIRE(t.as<f64>("section1", "valueSec", "c", "l") == 1);
     REQUIRE(t.as<f64>("section1", "valueArr", 2) == 9);
 }
+
+TEST_CASE("Data.Ini.Settings")
+{
+    std::string const iniString =
+        R"($kvp : $path | $ref @ $comment ;# $section <> $object -- $array ++
+            key1: 123
+            <section1>
+            key1: 456
+            <section2|sub>
+            key1: - a: 789 -
+            key2: + 1,2,3,4 +
+        )";
+
+    {
+        object t;
+        REQUIRE(t.parse(iniString, EXT));
+        REQUIRE(t["key1"].as<f64>() == 123);
+        REQUIRE(t["section1"]["key1"].as<f64>() == 456);
+        REQUIRE(t["section2"]["sub"]["key1"]["a"].as<f64>() == 789);
+        REQUIRE(t["section2"]["sub"]["key2"].as<array>() == array {1, 2, 3, 4});
+    }
+}

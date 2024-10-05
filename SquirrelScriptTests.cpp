@@ -446,7 +446,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Container")
 
 TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Enums")
 {
-    enum class testEnum {
+    enum class testEnum : u8 {
         True,
         False,
         FileNotFound
