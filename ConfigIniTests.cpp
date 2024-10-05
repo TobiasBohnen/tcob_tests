@@ -719,4 +719,18 @@ TEST_CASE("Data.Ini.Settings")
         REQUIRE(t["key2"]["b"].as<i64>() == 234);
         REQUIRE(t["key2"]["c"].as<string>() == "ok");
     }
+    {
+        std::string const iniString =
+            R"(! kvp==
+            key1= 123
+            key2= {a=123,b=234,c=ok}
+        )";
+
+        object t;
+        REQUIRE(t.parse(iniString, EXT));
+        REQUIRE(t["key1"].as<f64>() == 123);
+        REQUIRE(t["key2"]["a"].as<i64>() == 123);
+        REQUIRE(t["key2"]["b"].as<i64>() == 234);
+        REQUIRE(t["key2"]["c"].as<string>() == "ok");
+    }
 }

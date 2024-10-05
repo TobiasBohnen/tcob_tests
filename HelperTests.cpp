@@ -83,43 +83,53 @@ TEST_CASE("Core.Helper.SplitStrings")
 {
     {
         std::string test = "1,2,3,4,5,6";
-        REQUIRE(helper::split(test, ',') == std::vector<std::string> {"1", "2", "3", "4", "5", "6"});
+        REQUIRE(helper::split(test, ',') == std::vector<std::string_view> {"1", "2", "3", "4", "5", "6"});
     }
     {
         std::string test = "1, 2, 3, 4, 5, 6";
-        REQUIRE(helper::split(test, ',') == std::vector<std::string> {"1", " 2", " 3", " 4", " 5", " 6"});
+        REQUIRE(helper::split(test, ',') == std::vector<std::string_view> {"1", " 2", " 3", " 4", " 5", " 6"});
     }
     {
         std::string test = "1,2,3,4,5,";
-        REQUIRE(helper::split(test, ',') == std::vector<std::string> {"1", "2", "3", "4", "5"});
+        REQUIRE(helper::split(test, ',') == std::vector<std::string_view> {"1", "2", "3", "4", "5"});
     }
 }
+
+TEST_CASE("Core.Helper.SplitOnceStrings")
+{
+    {
+        std::string test = "1,2,3,4,5,6";
+        REQUIRE(helper::split_once(test, ',') == std::pair<std::string_view, std::string_view> {"1", "2,3,4,5,6"});
+    }
+}
+
 TEST_CASE("Core.Helper.SplitPreserveStrings")
 {
     {
         std::string test = "1,2,{234,12},5";
-        REQUIRE(helper::split_preserve_brackets(test, ',') == std::vector<std::string> {"1", "2", "{234,12}", "5"});
+        REQUIRE(helper::split_preserve_brackets(test, ',') == std::vector<std::string_view> {"1", "2", "{234,12}", "5"});
     }
     {
         std::string test   = "1,{123,{3,4,5,<6>}}";
         auto        result = helper::split_preserve_brackets(test, ',');
-        REQUIRE(result == std::vector<std::string> {"1", "{123,{3,4,5,<6>}}"});
+        REQUIRE(result == std::vector<std::string_view> {"1", "{123,{3,4,5,<6>}}"});
         result = helper::split_preserve_brackets(result[1], ',');
-        REQUIRE(result == std::vector<std::string> {"{123,{3,4,5,<6>}}"});
+        REQUIRE(result == std::vector<std::string_view> {"{123,{3,4,5,<6>}}"});
         result = helper::split_preserve_brackets(result[0].substr(1, result[0].length() - 2), ',');
-        REQUIRE(result == std::vector<std::string> {"123", "{3,4,5,<6>}"});
+        REQUIRE(result == std::vector<std::string_view> {"123", "{3,4,5,<6>}"});
         result = helper::split_preserve_brackets(result[1].substr(1, result[1].length() - 2), ',');
-        REQUIRE(result == std::vector<std::string> {"3", "4", "5", "<6>"});
+        REQUIRE(result == std::vector<std::string_view> {"3", "4", "5", "<6>"});
     }
     {
         std::string test = "{1,2},\"3,4\",(5,6),<7,8>,[8,9]";
-        REQUIRE(helper::split_preserve_brackets(test, ',') == std::vector<std::string> {"{1,2}", "\"3,4\"", "(5,6)", "<7,8>", "[8,9]"});
+        REQUIRE(helper::split_preserve_brackets(test, ',') == std::vector<std::string_view> {"{1,2}", "\"3,4\"", "(5,6)", "<7,8>", "[8,9]"});
     }
     {
         std::string test = "{1,2},\"3,4\",(5,6),<7,8>,[8,9]";
-        REQUIRE(helper::split_preserve_brackets(test, ',') == std::vector<std::string> {"{1,2}", "\"3,4\"", "(5,6)", "<7,8>", "[8,9]"});
+        REQUIRE(helper::split_preserve_brackets(test, ',') == std::vector<std::string_view> {"{1,2}", "\"3,4\"", "(5,6)", "<7,8>", "[8,9]"});
     }
 }
+
 TEST_CASE("Core.Helper.WildcardMatch")
 {
     SUBCASE("w/o wildcard")
