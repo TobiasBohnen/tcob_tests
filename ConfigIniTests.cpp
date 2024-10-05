@@ -687,8 +687,9 @@ TEST_CASE("Data.Ini.Literals")
 
 TEST_CASE("Data.Ini.Settings")
 {
-    std::string const iniString =
-        R"($kvp : $path | $ref @ $comment ;# $section <> $object -- $array ++
+    {
+        std::string const iniString =
+            R"(! kvp=: path=| ref=@ comment=;# section=<> object=-- array=++
             key1: 123
             <section1>
             key1: 456
@@ -697,12 +698,25 @@ TEST_CASE("Data.Ini.Settings")
             key2: + 1,2,3,4 +
         )";
 
-    {
         object t;
         REQUIRE(t.parse(iniString, EXT));
         REQUIRE(t["key1"].as<f64>() == 123);
         REQUIRE(t["section1"]["key1"].as<f64>() == 456);
         REQUIRE(t["section2"]["sub"]["key1"]["a"].as<f64>() == 789);
         REQUIRE(t["section2"]["sub"]["key2"].as<array>() == array {1, 2, 3, 4});
+    }
+    {
+        std::string const iniString =
+            R"(! kvp=:
+            key1: 123
+            key2: {a:123,b:234,c:ok}
+        )";
+
+        object t;
+        REQUIRE(t.parse(iniString, EXT));
+        REQUIRE(t["key1"].as<f64>() == 123);
+        REQUIRE(t["key2"]["a"].as<i64>() == 123);
+        REQUIRE(t["key2"]["b"].as<i64>() == 234);
+        REQUIRE(t["key2"]["c"].as<string>() == "ok");
     }
 }
