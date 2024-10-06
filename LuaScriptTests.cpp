@@ -161,42 +161,10 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Closures")
 
 TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
 {
-    std::function testFuncVector = []() {
-        return std::vector<std::string> {"1", "2", "3", "4", "5"};
-    };
-
-    std::function testFuncArray = []() {
-        return std::array<std::string, 5> {"1", "2", "3", "4", "5"};
-    };
-
-    std::function testFuncPairPara = [](std::pair<std::string, i32> const& pair) {
-        return pair.second;
-    };
-
-    std::function testFuncTuple = [](double d) {
-        return std::tuple(d * 5, std::to_string(d));
-    };
-
-    std::function testFuncMap = []() {
-        return std::map<std::string, i32> {
-            {"abc", 123},
-            {"def", 234}};
-    };
-    std::function testFuncUMap = []() {
-        return std::unordered_map<std::string, i32> {
-            {"abc", 123}, {"def", 234}};
-    };
-
-    global["test"]["Tuple"]    = &testFuncTuple;
-    global["test"]["Map"]      = &testFuncMap;
-    global["test"]["UMap"]     = &testFuncUMap;
-    global["test"]["Vector"]   = &testFuncVector;
-    global["test"]["Array"]    = &testFuncArray;
-    global["test"]["PairPara"] = &testFuncPairPara;
-
     SUBCASE("tuple return from cpp")
     {
-        auto res = run("a, b = test.Tuple(5.22)");
+        global["test"]["Tuple"] = +[](double d) { return std::tuple(d * 5, std::to_string(d)); };
+        auto res                = run("a, b = test.Tuple(5.22)");
         REQUIRE(res);
         f64  a = global["a"].as<f64>();
         auto b = global["b"].as<std::string>();
@@ -205,7 +173,8 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
     }
     SUBCASE("map return from cpp")
     {
-        auto res = run("x = test.Map()");
+        global["test"]["Map"] = +[]() { return std::map<std::string, i32> {{"abc", 123}, {"def", 234}}; };
+        auto res              = run("x = test.Map()");
         REQUIRE(res);
         auto x = global["x"].as<std::map<std::string, i32>>();
         REQUIRE(x["abc"] == 123);
@@ -213,7 +182,8 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
     }
     SUBCASE("unordered_map return from cpp")
     {
-        auto res = run("x = test.UMap()");
+        global["test"]["UMap"] = +[]() { return std::unordered_map<std::string, i32> {{"abc", 123}, {"def", 234}}; };
+        auto res               = run("x = test.UMap()");
         REQUIRE(res);
         auto x = global["x"].as<std::unordered_map<std::string, i32>>();
         REQUIRE(x["abc"] == 123);
@@ -221,7 +191,8 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
     }
     SUBCASE("vector return from cpp")
     {
-        auto res = run("x = test.Vector()");
+        global["test"]["Vector"] = +[]() { return std::vector<std::string> {"1", "2", "3", "4", "5"}; };
+        auto res                 = run("x = test.Vector()");
         REQUIRE(res);
         auto vec = global["x"].as<std::vector<std::string>>();
         REQUIRE(vec[0] == "1");
@@ -229,7 +200,8 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
     }
     SUBCASE("array return from cpp")
     {
-        auto res = run("x = test.Array()");
+        global["test"]["Array"] = +[]() { return std::array<std::string, 5> {"1", "2", "3", "4", "5"}; };
+        auto res                = run("x = test.Array()");
         REQUIRE(res);
         auto vec = global["x"].as<std::array<std::string, 5>>();
         REQUIRE(vec[0] == "1");
@@ -237,10 +209,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
     }
     SUBCASE("vector parameter")
     {
-        auto res = run(
-            "function foo(x) "
-            "   return x[2] * x[4] "
-            "end ");
+        auto res = run("function foo(x) return x[2] * x[4] end");
         REQUIRE(res);
         std::vector vec {1, 2, 3, 4, 5};
         auto        func = global["foo"].as<function<i32>>();
@@ -253,15 +222,28 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
     }
     SUBCASE("tuple parameter")
     {
-        auto res = run(
-            "function foo(x, y, z) "
-            "   if z then return x * y else return 10 end "
-            "end ");
-        REQUIRE(res);
-        auto tup  = std::make_tuple(4, 2, true);
-        auto func = global["foo"].as<function<i32>>();
-        i32  a    = func(tup);
-        REQUIRE(a == 4 * 2);
+        {
+            auto res = run(
+                "function foo(x, y, z) "
+                "   if z then return x * y else return 10 end "
+                "end ");
+            REQUIRE(res);
+            auto tup  = std::make_tuple(4, 2, true);
+            auto func = global["foo"].as<function<i32>>();
+            i32  a    = func(tup);
+            REQUIRE(a == 4 * 2);
+        }
+        {
+            auto res = run(
+                "function foo(a, x, y, z, b) "
+                "   if z then return x * y else return 10 end "
+                "end ");
+            REQUIRE(res);
+            auto tup  = std::make_tuple(4, 2, true);
+            auto func = global["foo"].as<function<i32>>();
+            i32  a    = func(1, tup, 2);
+            REQUIRE(a == 4 * 2);
+        }
     }
     SUBCASE("tuple of tuple parameter")
     {
@@ -275,12 +257,21 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
         i32  a    = func(tup);
         REQUIRE(a == 4 * 2);
     }
-    SUBCASE("pair parameter")
+    SUBCASE("tuple of pair parameter")
     {
         auto res = run(
-            "function foo(x, y) "
-            "   return x * y "
+            "function foo(x, y, z) "
+            "   if z then return x * y else return 10 end "
             "end ");
+        REQUIRE(res);
+        auto tup  = std::make_tuple(std::make_pair(4, 2), true);
+        auto func = global["foo"].as<function<i32>>();
+        i32  a    = func(tup);
+        REQUIRE(a == 4 * 2);
+    }
+    SUBCASE("pair parameter")
+    {
+        auto res = run("function foo(x, y) return x * y end");
         REQUIRE(res);
         auto tup  = std::make_pair(4, 2.4f);
         auto func = global["foo"].as<function<f32>>();
@@ -289,10 +280,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
     }
     SUBCASE("map parameter")
     {
-        auto res = run(
-            "function foo(x) "
-            "   return x.test "
-            "end ");
+        auto res = run("function foo(x) return x.test end");
         REQUIRE(res);
         auto map  = std::map<std::string, i32> {{"test", 123}};
         auto func = global["foo"].as<function<i32>>();
@@ -360,8 +348,9 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
     }
     SUBCASE("pair parameter")
     {
-        auto func = global["test"]["PairPara"].as<function<i32>>();
-        i32  a    = func(std::pair {"ok"s, 4});
+        global["test"]["PairPara"] = +[](std::pair<std::string, i32> const& pair) { return pair.second; };
+        auto func                  = global["test"]["PairPara"].as<function<i32>>();
+        i32  a                     = func(std::pair {"ok"s, 4});
         REQUIRE(a == 4);
     }
     SUBCASE("get/set set")
