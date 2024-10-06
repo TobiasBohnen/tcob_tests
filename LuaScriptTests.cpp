@@ -8,13 +8,6 @@
 using namespace tcob::scripting;
 using namespace tcob::scripting::lua;
 
-static_assert(get_stacksize<i32>() == 1);
-static_assert(get_stacksize<std::optional<i32>>() == 1);
-static_assert(get_stacksize<std::pair<f32, i32>>() == 2);
-static_assert(get_stacksize<std::optional<std::pair<f32, i32>>>() == 2);
-static_assert(get_stacksize<std::tuple<f32, i32, bool>>() == 3);
-static_assert(get_stacksize<std::optional<std::tuple<f32, i32, bool>>>() == 3);
-
 auto static testfuncstr() -> std::string
 {
     return "huhu";
@@ -1518,9 +1511,9 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Overloads")
     SUBCASE("Member functions")
     {
         TestScriptClass t;
-        auto            f1 = resolve_overload<i32, f32>(&TestScriptClass::overload);
-        auto            f2 = resolve_overload<f32, i32>(&TestScriptClass::overload);
-        auto            f3 = resolve_overload<>(&TestScriptClass::overload);
+        auto            f1 = resolve_overload<f32(i32, f32)>(&TestScriptClass::overload);
+        auto            f2 = resolve_overload<f32(f32, i32)>(&TestScriptClass::overload);
+        auto            f3 = resolve_overload<f32()>(&TestScriptClass::overload);
 
         auto overload      = make_unique_overload(f1, f2, f3);
         global["obj"]      = &t;

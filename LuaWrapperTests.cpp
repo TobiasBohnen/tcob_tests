@@ -136,11 +136,11 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
 
     wrapper->wrap_constructor<i32>();
 
-    auto f1 = resolve_overload<i32, f32>(&TestScriptClass::overload);
-    auto f2 = resolve_overload<f32, i32>(&TestScriptClass::overload);
-    auto f3 = resolve_overload<std::vector<f32> const&>(&TestScriptClass::overload);
-    auto f4 = resolve_overload<i32, std::pair<f32, std::string> const&, f32>(&TestScriptClass::overload);
-    auto f5 = resolve_overload<std::tuple<f32, i32, std::string> const&>(&TestScriptClass::overload);
+    auto f1 = resolve_overload<f32(i32, f32)>(&TestScriptClass::overload);
+    auto f2 = resolve_overload<f32(f32, i32)>(&TestScriptClass::overload);
+    auto f3 = resolve_overload<f32(std::vector<f32> const&)>(&TestScriptClass::overload);
+    auto f4 = resolve_overload<f32(i32, f32, f32)>(&TestScriptClass::overload);
+    auto f5 = resolve_overload<f32(f32, i32, f32)>(&TestScriptClass::overload);
     auto f6 = [](f32 x) -> f32 { return x + 40.0f; };
     wrapper->wrap_overload("overload", f1, f2, f3, f4, f5, f6);
 
@@ -285,11 +285,11 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
         x = *run<f32>("return wrap:overload(2.0, 12)");
         REQUIRE(x == t.overload(2.0f, 12));
 
-        x = *run<f32>("return wrap:overload(15, 2.0, 'huhu', 99.9)");
-        REQUIRE(x == t.overload(15, {2.0f, "huhu"}, 99.9f));
+        x = *run<f32>("return wrap:overload(15, 2.0, 99.9)");
+        REQUIRE(x == t.overload(15, 2.0f, 99.9f));
 
-        x = *run<f32>("return wrap:overload(2.0, 15, 'huhu')");
-        REQUIRE(x == t.overload({2.0f, 15, "huhu"}));
+        x = *run<f32>("return wrap:overload(2.0, 15, 1.5)");
+        REQUIRE(x == t.overload(2.0f, 15, 1.5f));
 
         x = *run<f32>("return wrap.overload(20)");
         REQUIRE(x == 60.f);
@@ -345,8 +345,8 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper2")
     wrapper["health"]          = property {&Player::get_health, &Player::set_health};
     wrapper["name"]            = getter {[&name]() { return name; }};
 
-    auto f1                     = resolve_overload<std::string const&>(&Player::add_to_inventory);
-    auto f2                     = resolve_overload<int>(&Player::add_to_inventory);
+    auto f1                     = resolve_overload<void(std::string const&)>(&Player::add_to_inventory);
+    auto f2                     = resolve_overload<void(int)>(&Player::add_to_inventory);
     wrapper["add_to_inventory"] = overload {f1, f2};
 
     SUBCASE("functions")

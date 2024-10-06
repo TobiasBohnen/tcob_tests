@@ -28,9 +28,9 @@ TEST_CASE_FIXTURE(SquirrelWrapperTests, "Script.SquirrelWrapper.Type")
     wrapper->wrap_property<&TestScriptClass::FieldValue>("field");
     wrapper->wrap_property<&TestScriptClass::get_value, &TestScriptClass::set_value>("value");
 
-    auto f1 = resolve_overload<i32, f32>(&TestScriptClass::overload);
-    auto f2 = resolve_overload<f32, i32>(&TestScriptClass::overload);
-    auto f3 = resolve_overload<std::vector<f32> const&>(&TestScriptClass::overload);
+    auto f1 = resolve_overload<f32(i32, f32)>(&TestScriptClass::overload);
+    auto f2 = resolve_overload<f32(f32, i32)>(&TestScriptClass::overload);
+    auto f3 = resolve_overload<f32(std::vector<f32> const&)>(&TestScriptClass::overload);
     wrapper->wrap_overload("overload", f1, f2, f3);
 
     SUBCASE("pointer ping pong")

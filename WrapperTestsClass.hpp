@@ -5,18 +5,6 @@
 
 using namespace tcob::scripting;
 
-template <typename... Args, typename R, typename T>
-auto constexpr resolve_overload(R (T::*ptr)(Args...))
-{
-    return ptr;
-}
-
-template <typename R, typename T>
-auto constexpr resolve_overload(R (T::*ptr)())
-{
-    return ptr;
-}
-
 class TestScriptClassBase {
 public:
     virtual ~TestScriptClassBase() = default;
@@ -88,30 +76,29 @@ public:
     {
         return _value + x;
     }
-
-    auto overload(i32 i, std::pair<f32, std::string> const& p, f32 f) -> f32
+    auto overload() -> f32
     {
-        return static_cast<f32>(i) * p.first * f;
+        return 25;
     }
-    auto overload(std::tuple<f32, i32, std::string> const& tup) -> f32
+    auto overload(i32 i, f32 f) -> f32
     {
-        return std::get<0>(tup) * static_cast<f32>(std::get<1>(tup));
+        return f * static_cast<f32>(i) * 25;
+    }
+    auto overload(f32 f, i32 i) -> f32
+    {
+        return f * static_cast<f32>(i) * 3;
+    }
+    auto overload(i32 i, f32 f0, f32 f1) -> f32
+    {
+        return static_cast<f32>(i) * f0 * f1;
+    }
+    auto overload(f32 f, i32 i0, f32 f1) -> f32
+    {
+        return f * static_cast<f32>(i0) + f1;
     }
     auto overload(std::vector<f32> const& vec) -> f32
     {
         return static_cast<f32>(vec.size());
-    }
-    auto overload(f32 f, int i) -> f32
-    {
-        return f * static_cast<f32>(i) * 3;
-    }
-    auto overload(int i, f32 f) -> f32
-    {
-        return f * static_cast<f32>(i) * 25;
-    }
-    auto overload() -> f32
-    {
-        return 25;
     }
 
     auto virtualMethod() -> int override { return 84; }
@@ -120,6 +107,12 @@ public:
     std::map<std::string, int> _testMap;
     int                        _value = 0;
 };
+
+template <typename Signature, typename T>
+auto consteval resolve_overload(Signature T::*ptr)
+{
+    return ptr;
+}
 
 class TestScriptClassSub final : public TestScriptClass {
 };
