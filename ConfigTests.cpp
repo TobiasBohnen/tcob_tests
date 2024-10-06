@@ -222,6 +222,40 @@ TEST_CASE("Data.Config.Object")
         REQUIRE_FALSE(t.has("section1"));
     }
 
+    SUBCASE("try_make")
+    {
+        {
+            object s0;
+            s0["x"] = 100;
+            s0["y"] = 200;
+            point_f p;
+            REQUIRE(s0.try_make<f32, f32>(p, "x", "y"));
+            REQUIRE(p == point_f {100, 200});
+        }
+        {
+            object s0;
+            s0["x"] = 100;
+            s0["y"] = 200;
+            size_f p;
+            REQUIRE(s0.try_make<f32, f32>(p, "x", "y"));
+            REQUIRE(p == size_f {100, 200});
+        }
+        {
+            object s0;
+            s0["x"] = 100;
+            s0["z"] = 200;
+            point_f p;
+            REQUIRE_FALSE(s0.try_make<f32, f32>(p, "x", "y"));
+        }
+        {
+            object s0;
+            s0["x"] = 100;
+            s0["y"] = false;
+            point_f p;
+            REQUIRE_FALSE(s0.try_make<f32, f32>(p, "x", "y"));
+        }
+    }
+
     SUBCASE("clone")
     {
         object s0;
@@ -505,7 +539,7 @@ TEST_CASE("Data.Config.Array")
         REQUIRE(arr.get_type(6) == type::Null);
     }
 
-    SUBCASE("'make' function")
+    SUBCASE("make")
     {
         {
             array   pointArr {1, 2};

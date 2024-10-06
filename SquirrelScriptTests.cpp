@@ -1493,6 +1493,39 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Table")
             REQUIRE(tab["b"]["c"].as<i32>() == 100);
         }
     }
+    SUBCASE("try_make")
+    {
+        {
+            auto s0 = create_table();
+            s0["x"] = 100;
+            s0["y"] = 200;
+            point_f p;
+            REQUIRE(s0.try_make<f32, f32>(p, "x", "y"));
+            REQUIRE(p == point_f {100, 200});
+        }
+        {
+            auto s0 = create_table();
+            s0["x"] = 100;
+            s0["y"] = 200;
+            size_f p;
+            REQUIRE(s0.try_make<f32, f32>(p, "x", "y"));
+            REQUIRE(p == size_f {100, 200});
+        }
+        {
+            auto s0 = create_table();
+            s0["x"] = 100;
+            s0["z"] = 200;
+            point_f p;
+            REQUIRE_FALSE(s0.try_make<f32, f32>(p, "x", "y"));
+        }
+        {
+            auto s0 = create_table();
+            s0["x"] = 100;
+            s0["y"] = false;
+            point_f p;
+            REQUIRE_FALSE(s0.try_make<f32, f32>(p, "x", "y"));
+        }
+    }
     SUBCASE("delegate")
     {
         auto tab              = create_table();
