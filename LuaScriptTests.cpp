@@ -8,6 +8,13 @@
 using namespace tcob::scripting;
 using namespace tcob::scripting::lua;
 
+static_assert(get_stacksize<i32>() == 1);
+static_assert(get_stacksize<std::optional<i32>>() == 1);
+static_assert(get_stacksize<std::pair<f32, i32>>() == 2);
+static_assert(get_stacksize<std::optional<std::pair<f32, i32>>>() == 2);
+static_assert(get_stacksize<std::tuple<f32, i32, bool>>() == 3);
+static_assert(get_stacksize<std::optional<std::tuple<f32, i32, bool>>>() == 3);
+
 auto static testfuncstr() -> std::string
 {
     return "huhu";
