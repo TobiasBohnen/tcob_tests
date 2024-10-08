@@ -31,6 +31,7 @@ set(TEST_SRCFILES
   ImageCodecTests.cpp
   PointTests.cpp
   PropertyTests.cpp
+  QuadtreeTests.cpp
   RandomTests.cpp
   RayTests.cpp
   ResultTests.cpp
