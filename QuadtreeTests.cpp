@@ -9,7 +9,7 @@ TEST_CASE("Core.Quadtree.Rect")
 
     auto const get_bounds {[](foo const& f) { return f.Bounds; }};
 
-    quadtree<foo, get_bounds> tree {rect_f {0, 0, 100, 100}};
+    quadtree<foo, +get_bounds> tree {rect_f {0, 0, 100, 100}};
     tree.add(foo {{5.f, 5.f, 5.f, 5.f}});
     tree.add(foo {{5.f, 25.f, 5.f, 5.f}});
     tree.add(foo {{55.f, 5.f, 5.f, 5.f}});
@@ -27,7 +27,7 @@ TEST_CASE("Core.Quadtree.Point")
 
     auto const get_bounds {[](foo const& f) -> rect_f { return {f.Position, size_f::One}; }};
 
-    quadtree<foo, get_bounds> tree {rect_f {0, 0, 100, 100}};
+    quadtree<foo, +get_bounds> tree {rect_f {0, 0, 100, 100}};
     tree.add(foo {{5.f, 5.f}});
     tree.add(foo {{5.f, 25.f}});
     tree.add(foo {{55.f, 5.f}});
