@@ -617,11 +617,9 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Enums")
         False,
         FileNotFound
     };
-    std::function testFuncEnum = [](testEnum numnum) {
+    global["test"]["Enum"] = +[](testEnum numnum) {
         return numnum;
     };
-
-    global["test"]["Enum"] = &testFuncEnum;
     {
         auto     func = global["test"]["Enum"].as<function<testEnum>>();
         testEnum num  = *func.call(testEnum::FileNotFound);

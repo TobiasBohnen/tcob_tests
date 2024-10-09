@@ -8,34 +8,34 @@ using namespace tcob::scripting;
 class TestScriptClassBase {
 public:
     virtual ~TestScriptClassBase() = default;
-    auto baseMethod() const -> int { return _x; }
-    auto virtual virtualMethod() -> int { return 1; }
-    auto virtual abstractMethod() -> int = 0;
+    auto baseMethod() const -> i32 { return _x; }
+    auto virtual virtualMethod() -> i32 { return 1; }
+    auto virtual abstractMethod() -> i32 = 0;
 
 private:
-    int _x {21};
+    i32 _x {21};
 };
 class TestScriptClass : public TestScriptClassBase {
 public:
-    static inline int ObjCount;
+    static inline i32 ObjCount;
 
-    using value_type = int;
-    using size_type  = int;
-    auto operator[](int) -> int& { return _value; }
+    using value_type = i32;
+    using size_type  = i32;
+    auto operator[](i32) -> i32& { return _value; }
 
     TestScriptClass()
     {
         ObjCount++;
     }
 
-    TestScriptClass(int age)
+    TestScriptClass(i32 age)
         : _value(age)
     {
         ObjCount++;
     }
 
-    TestScriptClass(int age, f32 x)
-        : _value(age * (int)x)
+    TestScriptClass(i32 age, f32 x)
+        : _value(age * (i32)x)
     {
         ObjCount++;
     }
@@ -45,11 +45,11 @@ public:
         ObjCount--;
     }
 
-    void set_value(int x)
+    void set_value(i32 x)
     {
         _value = x;
     }
-    auto get_value() const -> int
+    auto get_value() const -> i32
     {
         return _value;
     }
@@ -58,7 +58,7 @@ public:
     prop<i32> PropertyValue;
     bool      Closed {false};
 
-    auto get_map() -> std::map<std::string, int>*
+    auto get_map() -> std::map<std::string, i32>*
     {
         return &_testMap;
     }
@@ -66,13 +66,13 @@ public:
     {
         _value = c->_value;
     }
-    auto foo(std::string const& test, int x, bool) -> int
+    auto foo(std::string const& test, i32 x, bool) -> i32
     {
-        return (int)test.length() * x;
+        return (i32)test.length() * x;
     }
-    void bar(bool, std::string const&, int) { }
+    void bar(bool, std::string const&, i32) { }
 
-    auto add_value(int x) const -> int
+    auto add_value(i32 x) const -> i32
     {
         return _value + x;
     }
@@ -101,11 +101,11 @@ public:
         return static_cast<f32>(vec.size());
     }
 
-    auto virtualMethod() -> int override { return 84; }
-    auto abstractMethod() -> int override { return 42; }
+    auto virtualMethod() -> i32 override { return 84; }
+    auto abstractMethod() -> i32 override { return 42; }
 
-    std::map<std::string, int> _testMap;
-    int                        _value = 0;
+    std::map<std::string, i32> _testMap;
+    i32                        _value = 0;
 };
 
 template <typename Signature, typename T>
@@ -121,14 +121,14 @@ inline auto operator==(TestScriptClass const& left, TestScriptClass const& right
 {
     return (left._value == right._value);
 }
-inline auto testFuncWrapperObj(TestScriptClass const* tsc) -> int
+inline auto testFuncWrapperObj(TestScriptClass const* tsc) -> i32
 {
     return tsc->get_value();
 }
 
 struct op_test_class {
-    static inline int ObjCount;
-    op_test_class(int v)
+    static inline i32 ObjCount;
+    op_test_class(i32 v)
         : value(v)
     {
         ObjCount++;
@@ -138,7 +138,7 @@ struct op_test_class {
         ObjCount--;
     }
 
-    int value {0};
+    i32 value {0};
 };
 inline auto operator+(op_test_class const& left, op_test_class const& right) -> op_test_class
 {
@@ -176,51 +176,51 @@ inline auto operator<=>(op_test_class const& left, op_test_class const& right)
 class Player {
 public:
     // Constructor
-    Player(std::string name, int health, int mana)
+    Player(std::string name, i32 health, i32 mana)
         : _name(std::move(name))
         , _health(health)
         , _mana(mana)
     {
     }
 
-    auto get_health() const -> int
+    auto get_health() const -> i32
     {
         return _health;
     }
 
-    void set_health(int amount)
+    void set_health(i32 amount)
     {
         _health = amount;
     }
 
-    void take_damage(int damage)
+    void take_damage(i32 damage)
     {
         _health -= damage;
     }
 
-    auto get_mana() const -> int
+    auto get_mana() const -> i32
     {
         return _mana;
     }
 
-    void set_mana(int amount)
+    void set_mana(i32 amount)
     {
         _mana = amount;
     }
 
-    void use_mana(int amount)
+    void use_mana(i32 amount)
     {
         if (_mana >= amount) {
             _mana -= amount;
         }
     }
 
-    auto get_experience() const -> int
+    auto get_experience() const -> i32
     {
         return _experience;
     }
 
-    void gain_experience(int points)
+    void gain_experience(i32 points)
     {
         _experience += points;
         if (_experience >= _level * 100) {
@@ -233,7 +233,7 @@ public:
         _inventory.emplace_back(item);
     }
 
-    void add_to_inventory(int item)
+    void add_to_inventory(i32 item)
     {
         _inventory.emplace_back(item);
     }
@@ -245,9 +245,9 @@ public:
 
 private:
     std::string                                 _name;
-    int                                         _health;
-    int                                         _mana;
-    int                                         _level {1};
-    int                                         _experience {0};
-    std::vector<std::variant<std::string, int>> _inventory;
+    i32                                         _health;
+    i32                                         _mana;
+    i32                                         _level {1};
+    i32                                         _experience {0};
+    std::vector<std::variant<std::string, i32>> _inventory;
 };
