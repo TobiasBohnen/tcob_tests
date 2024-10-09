@@ -95,11 +95,13 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.VectorWrapper")
     {
         std::vector<i32> vec = {0, 1, 2, 3, 4, 5};
         global["wrap"]       = &vec;
-        i32 x                = *run<i32>("result = 0 "
-                                                        "for i, v in ipairs(wrap) do "
-                                                        "result = result + v "
-                                                        "end "
-                                                        "return result");
+
+        i32 x = *run<i32>(
+            "result = 0 "
+            "for i, v in ipairs(wrap) do "
+            "result = result + v "
+            "end "
+            "return result");
         REQUIRE(x == 15);
     }
 }
@@ -134,7 +136,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
     wrapper->wrap_setter<&TestScriptClass::set_value>("writeonly_value");
     wrapper->wrap_getter<&TestScriptClass::get_map>("map");
 
-    wrapper->wrap_constructor<i32>();
+    wrapper->wrap_constructors<TestScriptClass(i32), TestScriptClass(i32, f32), TestScriptClass()>();
 
     auto f1 = resolve_overload<f32(i32, f32)>(&TestScriptClass::overload);
     auto f2 = resolve_overload<f32(f32, i32)>(&TestScriptClass::overload);
@@ -173,12 +175,10 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
     {
         TestScriptClass* t = *run<TestScriptClass*>("return TSC.new(20)");
         REQUIRE(t->get_value() == 20);
-        /*
         t = *run<TestScriptClass*>("return TSC.new(20, 3.5)");
         REQUIRE(t->get_value() == 20 * (i32)3.5f);
         t = *run<TestScriptClass*>("return TSC.new()");
         REQUIRE(t->get_value() == 0);
-        */
     }
     SUBCASE("pointer from lua")
     {
@@ -333,6 +333,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper2")
     std::string name {"Dave"};
 
     auto& wrapper {*create_wrapper<Player>("Player")};
+    wrapper.wrap_constructors<Player(std::string, i32, i32)>();
 
     wrapper["get_health"]      = &Player::get_health;
     wrapper["take_damage"]     = &Player::take_damage;
@@ -349,6 +350,13 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper2")
     auto f2                     = resolve_overload<void(int)>(&Player::add_to_inventory);
     wrapper["add_to_inventory"] = overload {f1, f2};
 
+    SUBCASE("constructor")
+    {
+        Player* pl = *run<Player*>("return Player.new('bob', 100, 50)");
+        REQUIRE(pl->get_mana() == 50);
+        REQUIRE(pl->get_health() == 100);
+        REQUIRE(pl->get_name() == "bob");
+    }
     SUBCASE("functions")
     {
         Player pl {name, 100, 50};
