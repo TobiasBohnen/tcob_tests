@@ -1148,17 +1148,17 @@ TEST_CASE("Data.Config.Schema")
 
         {
             object ssec;
-            ssec["properties"]["x"]["type"]                   = "String";
-            ssec["properties"]["y"]["type"]                   = "Float";
-            ssec["properties"]["sub"]["type"]                 = "Object";
-            ssec["properties"]["sub"]["schema"]               = "sub";
-            ssec["allof"][0]                                  = "x";
-            ssec["allof"][1]                                  = "y";
-            ssec["allof"][2]                                  = "sub";
-            ssec["schemas"]["sub"]["properties"]["a"]["type"] = "String";
-            ssec["schemas"]["sub"]["properties"]["b"]["type"] = "Float";
-            ssec["schemas"]["sub"]["allof"][0]                = "a";
-            ssec["schemas"]["sub"]["allof"][1]                = "b";
+            ssec["Properties"]["x"]["Type"]                   = "String";
+            ssec["Properties"]["y"]["Type"]                   = "Float";
+            ssec["Properties"]["sub"]["Type"]                 = "Object";
+            ssec["Properties"]["sub"]["Schema"]               = "sub";
+            ssec["AllOf"][0]                                  = "x";
+            ssec["AllOf"][1]                                  = "y";
+            ssec["AllOf"][2]                                  = "sub";
+            ssec["Schemas"]["sub"]["Properties"]["a"]["Type"] = "String";
+            ssec["Schemas"]["sub"]["Properties"]["b"]["Type"] = "Float";
+            ssec["Schemas"]["sub"]["AllOf"][0]                = "a";
+            ssec["Schemas"]["sub"]["AllOf"][1]                = "b";
 
             s0 = schema::FromObject(ssec);
 
