@@ -1539,7 +1539,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.RawPointers")
     SUBCASE("LuaOwnedPtr")
     {
         REQUIRE(TestScriptClass::ObjCount == 0);
-        owned_ptr<TestScriptClass> t {new TestScriptClass};
+        managed_ptr<TestScriptClass> t {new TestScriptClass};
         REQUIRE(TestScriptClass::ObjCount == 1);
         global["obj"] = t;
         auto res      = run("obj = nil");
