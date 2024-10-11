@@ -1858,15 +1858,32 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
     }
     SUBCASE("metatable")
     {
-        auto tab          = table {get_view()};
-        global["table"]   = tab;
-        auto metatab      = table {get_view()};
-        metatab["__name"] = "hello world";
-        tab.set_metatable(metatab);
+        SUBCASE("__name")
+        {
+            auto tab          = create_table();
+            global["table"]   = tab;
+            auto metatab      = tab.create_or_get_metatable();
+            metatab["__name"] = "hello world";
 
-        auto res = run<std::string>("return tostring(table)");
-        REQUIRE(res.has_value());
-        REQUIRE(res.value().starts_with("hello world"));
+            auto res = run<std::string>("return tostring(table)");
+            REQUIRE(res.has_value());
+            REQUIRE(res.value().starts_with("hello world"));
+        }
+        SUBCASE("__newindex")
+        {
+            auto tab        = create_table();
+            global["table"] = tab;
+
+            auto res0 = run("table.a = 100");
+            REQUIRE_FALSE(res0.has_error());
+
+            auto metatab          = tab.create_or_get_metatable();
+            auto func             = std::function {[&] { get_view().error("readonly"); }};
+            metatab["__newindex"] = &func;
+
+            auto res1 = run("table.b = 100", "error");
+            REQUIRE(res1.has_error());
+        }
     }
     SUBCASE("try_make")
     {
