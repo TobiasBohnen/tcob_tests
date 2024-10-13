@@ -1599,10 +1599,10 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.TcobTypes")
     std::function testFuncPointF = [](point_f p) { return point_f {p.X * 2, p.Y * 2}; };
     std::function testFuncPointI = [](point_i p) { return point_i {p.X * 2, p.Y * 2}; };
     std::function testFuncSizeI  = [](size_i s) { return size_i {s.Width * 5, s.Height * 8}; };
-    std::function testFuncRectF  = [](rect_f r) { return rect_f {r.X * 2, r.Y * 2, r.Width * 2, r.Height * 2}; };
-    std::function testFuncRectI  = [](rect_i r) { return rect_i {r.X * 2, r.Y * 2, r.Width * 2, r.Height * 2}; };
+    std::function testFuncRectF  = [](rect_f r) { return rect_f {r.left() * 2, r.top() * 2, r.width() * 2, r.height() * 2}; };
+    std::function testFuncRectI  = [](rect_i r) { return rect_i {r.left() * 2, r.top() * 2, r.width() * 2, r.height() * 2}; };
     std::function testFuncMix    = [](i32 i, rect_f r, color c, std::string const& s, bool b, point_i p) {
-        f32 ret = static_cast<f32>(i) + r.X + c.A + static_cast<f32>(s.length()) + (b ? 1 : 100) + static_cast<f32>(p.X);
+        f32 ret = static_cast<f32>(i) + r.left() + c.A + static_cast<f32>(s.length()) + (b ? 1 : 100) + static_cast<f32>(p.X);
         return ret;
     };
 

@@ -13,24 +13,24 @@ TEST_CASE("Core.POD.Rect")
         // default constructor
         {
             rect_f r;
-            REQUIRE(r.X == 0.f);
-            REQUIRE(r.Y == 0.f);
-            REQUIRE(r.Width == 0.f);
-            REQUIRE(r.Height == 0.f);
+            REQUIRE(r.left() == 0.f);
+            REQUIRE(r.top() == 0.f);
+            REQUIRE(r.width() == 0.f);
+            REQUIRE(r.height() == 0.f);
         }
         {
             rect_i r;
-            REQUIRE(r.X == 0);
-            REQUIRE(r.Y == 0);
-            REQUIRE(r.Width == 0);
-            REQUIRE(r.Height == 0);
+            REQUIRE(r.left() == 0);
+            REQUIRE(r.top() == 0);
+            REQUIRE(r.width() == 0);
+            REQUIRE(r.height() == 0);
         }
         {
             rect_u r;
-            REQUIRE(r.X == 0);
-            REQUIRE(r.Y == 0);
-            REQUIRE(r.Width == 0);
-            REQUIRE(r.Height == 0);
+            REQUIRE(r.left() == 0);
+            REQUIRE(r.top() == 0);
+            REQUIRE(r.width() == 0);
+            REQUIRE(r.height() == 0);
         }
         // x,y,w,h constructor
         {
@@ -39,10 +39,10 @@ TEST_CASE("Core.POD.Rect")
             f32    w {12.15f};
             f32    h {34.22f};
             rect_f r {x, y, w, h};
-            REQUIRE(r.X == x);
-            REQUIRE(r.Y == y);
-            REQUIRE(r.Width == w);
-            REQUIRE(r.Height == h);
+            REQUIRE(r.left() == x);
+            REQUIRE(r.top() == y);
+            REQUIRE(r.width() == w);
+            REQUIRE(r.height() == h);
         }
         {
             i32    x {2};
@@ -50,10 +50,10 @@ TEST_CASE("Core.POD.Rect")
             i32    w {12};
             i32    h {45};
             rect_i r {x, y, w, h};
-            REQUIRE(r.X == x);
-            REQUIRE(r.Y == y);
-            REQUIRE(r.Width == w);
-            REQUIRE(r.Height == h);
+            REQUIRE(r.left() == x);
+            REQUIRE(r.top() == y);
+            REQUIRE(r.width() == w);
+            REQUIRE(r.height() == h);
         }
         {
             u32    x {2};
@@ -61,10 +61,10 @@ TEST_CASE("Core.POD.Rect")
             u32    w {12};
             u32    h {45};
             rect_u r {x, y, w, h};
-            REQUIRE(r.X == x);
-            REQUIRE(r.Y == y);
-            REQUIRE(r.Width == w);
-            REQUIRE(r.Height == h);
+            REQUIRE(r.left() == x);
+            REQUIRE(r.top() == y);
+            REQUIRE(r.width() == w);
+            REQUIRE(r.height() == h);
         }
         // copy constructor
         {
@@ -75,10 +75,10 @@ TEST_CASE("Core.POD.Rect")
         {
             rect_i p1 {2, 4, 3, 4};
             rect_u p2 {p1};
-            REQUIRE(p1.X == p2.X);
-            REQUIRE(p1.Y == p2.Y);
-            REQUIRE(p1.Width == p2.Width);
-            REQUIRE(p1.Height == p2.Height);
+            REQUIRE(p1.left() == p2.left());
+            REQUIRE(p1.top() == p2.top());
+            REQUIRE(p1.width() == p2.width());
+            REQUIRE(p1.height() == p2.height());
         }
     }
 
@@ -357,52 +357,53 @@ TEST_CASE("Core.POD.Rect")
     SUBCASE("Structured Binding")
     {
         rect_f r1 {0.5f, 1.5f, 2.5f, 3.5f};
-        auto [l, t, w, h] {r1};
-        REQUIRE(l == r1.X);
-        REQUIRE(t == r1.Y);
-        REQUIRE(w == r1.Width);
-        REQUIRE(h == r1.Height);
+        auto [l, t] {r1.Position};
+        auto [w, h] {r1.Size};
+        REQUIRE(l == r1.left());
+        REQUIRE(t == r1.top());
+        REQUIRE(w == r1.width());
+        REQUIRE(h == r1.height());
     }
     SUBCASE("Lerp")
     {
         rect_f r1 {5, 8, 16, 25};
         rect_f r2 {10, 16, 32, 50};
         rect_f r3 {rect_f::Lerp(r1, r2, 0.5f)};
-        REQUIRE(r3.X == 7.5f);
-        REQUIRE(r3.Y == 12.f);
-        REQUIRE(r3.Width == 24.f);
-        REQUIRE(r3.Height == 37.5f);
+        REQUIRE(r3.left() == 7.5f);
+        REQUIRE(r3.top() == 12.f);
+        REQUIRE(r3.width() == 24.f);
+        REQUIRE(r3.height() == 37.5f);
     }
     SUBCASE("FromLTRB")
     {
         rect_i r1 {rect_i::FromLTRB(10, 20, 30, 40)};
-        REQUIRE(r1.X == 10);
+        REQUIRE(r1.left() == 10);
         REQUIRE(r1.right() == 30);
-        REQUIRE(r1.Y == 20);
+        REQUIRE(r1.top() == 20);
         REQUIRE(r1.bottom() == 40);
 
-        REQUIRE(r1.Width == 20);
-        REQUIRE(r1.Height == 20);
+        REQUIRE(r1.width() == 20);
+        REQUIRE(r1.height() == 20);
     }
     SUBCASE("With Position")
     {
         rect_i r1 {10, 20, 30, 40};
 
         rect_i r2 {r1.as_moved_to({200, 300})};
-        REQUIRE(r2.X == 200);
-        REQUIRE(r2.Y == 300);
-        REQUIRE(r2.Width == 30);
-        REQUIRE(r2.Height == 40);
+        REQUIRE(r2.left() == 200);
+        REQUIRE(r2.top() == 300);
+        REQUIRE(r2.width() == 30);
+        REQUIRE(r2.height() == 40);
     }
     SUBCASE("With Size")
     {
         rect_i r1 {10, 20, 30, 40};
 
         rect_i r2 {r1.as_resized_to({200, 300})};
-        REQUIRE(r2.X == 10);
-        REQUIRE(r2.Y == 20);
-        REQUIRE(r2.Width == 200);
-        REQUIRE(r2.Height == 300);
+        REQUIRE(r2.left() == 10);
+        REQUIRE(r2.top() == 20);
+        REQUIRE(r2.width() == 200);
+        REQUIRE(r2.height() == 300);
     }
     SUBCASE("Format")
     {

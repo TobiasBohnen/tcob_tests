@@ -27,10 +27,10 @@ template <>
 struct std::hash<foo_rect> {
     auto operator()(foo_rect const& r) const -> std::size_t
     {
-        std::size_t h1 = std::hash<float> {}(r.Bounds.X);
-        std::size_t h2 = std::hash<float> {}(r.Bounds.Y);
-        std::size_t h3 = std::hash<float> {}(r.Bounds.Width);
-        std::size_t h4 = std::hash<float> {}(r.Bounds.Height);
+        std::size_t h1 = std::hash<float> {}(r.Bounds.left());
+        std::size_t h2 = std::hash<float> {}(r.Bounds.top());
+        std::size_t h3 = std::hash<float> {}(r.Bounds.width());
+        std::size_t h4 = std::hash<float> {}(r.Bounds.height());
         return h1 ^ (h2 << 1) ^ (h3 << 2) ^ (h4 << 3);
     }
 };
