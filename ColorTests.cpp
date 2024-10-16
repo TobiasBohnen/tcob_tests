@@ -161,10 +161,10 @@ TEST_CASE("GFX.ColorGradient.TwoColors")
     SUBCASE("grayscale")
     {
         color_gradient grad {colors::Black, colors::White};
-        auto const&    colors {grad.as_array(1)};
+        auto const&    colors {grad.get_colors()};
         for (usize i {0}; i < colors.size(); ++i) {
-            f32 val {i / 255.f};
-            REQUIRE(colors[i] == std::array {val, val, val, 1.f});
+            u8 val {static_cast<u8>(i)};
+            REQUIRE(colors[i] == color {val, val, val, 255});
         }
 
         color_gradient grad2 {colors::Black, colors::White};
@@ -173,10 +173,10 @@ TEST_CASE("GFX.ColorGradient.TwoColors")
     SUBCASE("red to blue")
     {
         color_gradient grad {colors::Red, colors::Blue};
-        auto const&    colors {grad.as_array(1)};
-        REQUIRE(colors[0] == std::array {1.f, 0.f, 0.f, 1.f});
-        f32 val {127 / 255.f};
-        REQUIRE(colors[127] == std::array {val, 0.f, val, 1.f});
-        REQUIRE(colors[255] == std::array {0.f, 0.f, 1.f, 1.f});
+        auto const&    colors {grad.get_colors()};
+        REQUIRE(colors[0] == color {255, 0, 0, 255});
+        u8 val {127};
+        REQUIRE(colors[127] == color {val, 0, val, 255});
+        REQUIRE(colors[255] == color {0, 0, 255, 255});
     }
 }
