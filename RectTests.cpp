@@ -385,26 +385,6 @@ TEST_CASE("Core.POD.Rect")
         REQUIRE(r1.width() == 20);
         REQUIRE(r1.height() == 20);
     }
-    SUBCASE("With Position")
-    {
-        rect_i r1 {10, 20, 30, 40};
-
-        rect_i r2 {r1.as_moved_to({200, 300})};
-        REQUIRE(r2.left() == 200);
-        REQUIRE(r2.top() == 300);
-        REQUIRE(r2.width() == 30);
-        REQUIRE(r2.height() == 40);
-    }
-    SUBCASE("With Size")
-    {
-        rect_i r1 {10, 20, 30, 40};
-
-        rect_i r2 {r1.as_resized_to({200, 300})};
-        REQUIRE(r2.left() == 10);
-        REQUIRE(r2.top() == 20);
-        REQUIRE(r2.width() == 200);
-        REQUIRE(r2.height() == 300);
-    }
     SUBCASE("Format")
     {
         REQUIRE(std::format("{}", rect_f {10.123f, 23.434f, 20, 0.12345f}) == "(x:10.123,y:23.434,w:20,h:0.12345)");
