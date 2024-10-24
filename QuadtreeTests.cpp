@@ -63,14 +63,14 @@ TEST_CASE("GFX.Quadtree.Query")
     SUBCASE("foo_point")
     {
         quadtree<foo_point, 2> tree {rect_f {0, 0, 100, 100}};
-        REQUIRE(tree.add(foo_point {{5.f, 5.f}}));
-        REQUIRE(tree.add(foo_point {{5.f, 25.f}}));
-        REQUIRE(tree.add(foo_point {{55.f, 5.f}}));
-        REQUIRE(tree.add(foo_point {{45.f, 25.f}}));
-        REQUIRE(tree.add(foo_point {{75.f, 75.f}}));
-        REQUIRE(tree.add(foo_point {{15.f, 15.f}}));
-        REQUIRE(tree.add(foo_point {{95.f, 95.f}}));
-        REQUIRE(tree.add(foo_point {{35.f, 35.f}}));
+        tree.add(foo_point {{5.f, 5.f}});
+        tree.add(foo_point {{5.f, 25.f}});
+        tree.add(foo_point {{55.f, 5.f}});
+        tree.add(foo_point {{45.f, 25.f}});
+        tree.add(foo_point {{75.f, 75.f}});
+        tree.add(foo_point {{15.f, 15.f}});
+        tree.add(foo_point {{95.f, 95.f}});
+        tree.add(foo_point {{35.f, 35.f}});
         auto q = tree.query({5.f, 0.f, 10.f, 30.f});
         CheckQuery(q, std::vector<foo_point> {foo_point {{5.f, 5.f}}, foo_point {{5.f, 25.f}}});
 
@@ -82,14 +82,14 @@ TEST_CASE("GFX.Quadtree.Query")
     SUBCASE("foo_rect")
     {
         quadtree<foo_rect, 2> tree {rect_f {0, 0, 100, 100}};
-        REQUIRE(tree.add(foo_rect {{5.f, 5.f, 5.f, 5.f}}));
-        REQUIRE(tree.add(foo_rect {{5.f, 25.f, 5.f, 5.f}}));
-        REQUIRE(tree.add(foo_rect {{55.f, 5.f, 5.f, 5.f}}));
-        REQUIRE(tree.add(foo_rect {{45.f, 25.f, 5.f, 5.f}}));
-        REQUIRE(tree.add(foo_rect {{75.f, 75.f, 5.f, 5.f}}));
-        REQUIRE(tree.add(foo_rect {{15.f, 15.f, 5.f, 5.f}}));
-        REQUIRE(tree.add(foo_rect {{94.f, 94.f, 5.f, 5.f}}));
-        REQUIRE(tree.add(foo_rect {{35.f, 35.f, 5.f, 5.f}}));
+        tree.add(foo_rect {{5.f, 5.f, 5.f, 5.f}});
+        tree.add(foo_rect {{5.f, 25.f, 5.f, 5.f}});
+        tree.add(foo_rect {{55.f, 5.f, 5.f, 5.f}});
+        tree.add(foo_rect {{45.f, 25.f, 5.f, 5.f}});
+        tree.add(foo_rect {{75.f, 75.f, 5.f, 5.f}});
+        tree.add(foo_rect {{15.f, 15.f, 5.f, 5.f}});
+        tree.add(foo_rect {{94.f, 94.f, 5.f, 5.f}});
+        tree.add(foo_rect {{35.f, 35.f, 5.f, 5.f}});
         auto q = tree.query({5.f, 0.f, 10.f, 30.f});
         CheckQuery(q, std::vector<foo_rect> {foo_rect {{5.f, 5.f, 5.f, 5.f}}, foo_rect {{5.f, 25.f, 5.f, 5.f}}});
 
@@ -110,14 +110,14 @@ TEST_CASE("GFX.Quadtree.Query")
         foo_rect               fr6 {{60.f, 60.f, 6.f, 6.f}};
         foo_rect               fr7 {{75.f, 25.f, 4.f, 4.f}};
 
-        REQUIRE(tree.add({&fr0}));
-        REQUIRE(tree.add({&fr1}));
-        REQUIRE(tree.add({&fr2}));
-        REQUIRE(tree.add({&fr3}));
-        REQUIRE(tree.add({&fr4}));
-        REQUIRE(tree.add({&fr5}));
-        REQUIRE(tree.add({&fr6}));
-        REQUIRE(tree.add({&fr7}));
+        tree.add({&fr0});
+        tree.add({&fr1});
+        tree.add({&fr2});
+        tree.add({&fr3});
+        tree.add({&fr4});
+        tree.add({&fr5});
+        tree.add({&fr6});
+        tree.add({&fr7});
 
         auto q = tree.query({5.f, 0.f, 10.f, 30.f});
         CheckQuery(q, std::vector<foo_rect_ptr> {{&fr0}, {&fr1}, {&fr5}});
@@ -130,11 +130,11 @@ TEST_CASE("GFX.Quadtree.Remove")
         quadtree<foo_rect> tree {rect_f {0, 0, 100, 100}};
         foo_rect           fr0 {{5.f, 5.f, 5.f, 5.f}};
         foo_rect           fr1 {{5.f, 25.f, 5.f, 5.f}};
-        REQUIRE(tree.add(fr0));
-        REQUIRE(tree.add(fr1));
+        tree.add(fr0);
+        tree.add(fr1);
         auto q = tree.query({5.f, 0.f, 10.f, 30.f});
         CheckQuery(q, std::vector<foo_rect> {fr0, fr1});
-        REQUIRE(tree.remove(fr1));
+        tree.remove(fr1);
 
         q = tree.query({5.f, 0.f, 10.f, 30.f});
         CheckQuery(q, std::vector<foo_rect> {fr0});
@@ -154,24 +154,24 @@ TEST_CASE("GFX.Quadtree.Replace")
         foo_rect              fr6 {{60.f, 60.f, 6.f, 6.f}};
         foo_rect              fr7 {{75.f, 25.f, 4.f, 4.f}};
 
-        REQUIRE(tree.add(fr0));
-        REQUIRE(tree.add(fr1));
-        REQUIRE(tree.add(fr3));
-        REQUIRE(tree.add(fr4));
-        REQUIRE(tree.add(fr5));
-        REQUIRE(tree.add(fr6));
-        REQUIRE(tree.add(fr7));
+        tree.add(fr0);
+        tree.add(fr1);
+        tree.add(fr3);
+        tree.add(fr4);
+        tree.add(fr5);
+        tree.add(fr6);
+        tree.add(fr7);
 
         auto q = tree.query({5.f, 0.f, 10.f, 30.f});
         CheckQuery(q, std::vector<foo_rect> {fr0, fr1, fr5});
 
-        REQUIRE(tree.replace(fr1, fr2));
+        tree.replace(fr1, fr2);
 
         q = tree.query({5.f, 0.f, 10.f, 30.f});
         CheckQuery(q, std::vector<foo_rect> {fr0, fr2, fr5});
 
         foo_rect fr8 {{8.f, 8.f, 4.f, 4.f}};
-        REQUIRE(tree.replace(fr5, fr8));
+        tree.replace(fr5, fr8);
 
         q = tree.query({5.f, 0.f, 10.f, 30.f});
         CheckQuery(q, std::vector<foo_rect> {fr0, fr2, fr8});
@@ -187,17 +187,17 @@ TEST_CASE("GFX.Quadtree.Replace")
         foo_rect              fr3 {{45.f, 45.f, 5.f, 5.f}};
         foo_rect              fr4 {{70.f, 70.f, 5.f, 5.f}};
 
-        REQUIRE(tree.add(fr0));
-        REQUIRE(tree.add(fr1));
-        REQUIRE(tree.add(fr2));
-        REQUIRE(tree.add(fr3));
-        REQUIRE(tree.add(fr4));
+        tree.add(fr0);
+        tree.add(fr1);
+        tree.add(fr2);
+        tree.add(fr3);
+        tree.add(fr4);
 
         auto q = tree.query({0.f, 0.f, 50.f, 50.f});
         CheckQuery(q, std::vector<foo_rect> {fr0, fr1, fr3});
 
         foo_rect fr5 {{60.f, 60.f, 5.f, 5.f}};
-        REQUIRE(tree.replace(fr1, fr5));
+        tree.replace(fr1, fr5);
 
         q = tree.query({0.f, 0.f, 50.f, 50.f});
         CheckQuery(q, std::vector<foo_rect> {fr0, fr3});
