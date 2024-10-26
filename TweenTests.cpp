@@ -64,7 +64,9 @@ TEST_CASE("Core.Tween.LinearFunction")
         f32 out2 {};
         f32 out3 {};
 
-        linear_tween<f32> contr {milliseconds {1000}, {10.f, 70.f}};
+        linear_tween<f32> contr {milliseconds {1000}};
+        contr.Function.StartValue = 10;
+        contr.Function.EndValue   = 70;
 
         contr.add_output(&out1);
         contr.add_output(&out2);
@@ -78,7 +80,9 @@ TEST_CASE("Core.Tween.LinearFunction")
     {
         f32 out {};
 
-        linear_tween<f32> contr {milliseconds {100}, {10.f, 50.f}};
+        linear_tween<f32> contr {milliseconds {100}};
+        contr.Function.StartValue = 10;
+        contr.Function.EndValue   = 50;
 
         contr.Value.Changed.connect([&out](f32 newVal) { out = newVal; });
         contr.start(playback_mode::Looped);
@@ -235,7 +239,10 @@ TEST_CASE("Core.Tween.PowerFunction")
     {
         f32 out {};
 
-        power_tween<f32> contr {milliseconds {1000}, {10.f, 50.f, 2.f}};
+        power_tween<f32> contr {milliseconds {1000}};
+        contr.Function.StartValue = 10;
+        contr.Function.EndValue   = 50;
+        contr.Function.Exponent   = 2;
 
         contr.add_output(&out);
         contr.start();
@@ -295,7 +302,10 @@ TEST_CASE("Core.Tween.QuadBezierCurve")
         point_f cp {2.5f, 0.0f};
         point_f end {10.f, 5.0f};
 
-        quad_bezier_curve_tween contr {milliseconds {1000}, {start, cp, end}};
+        quad_bezier_curve_tween contr {milliseconds {1000}};
+        contr.Function.StartPoint   = start;
+        contr.Function.ControlPoint = cp;
+        contr.Function.EndPoint     = end;
 
         contr.add_output(&out);
         contr.start();
