@@ -42,10 +42,10 @@ void test_image(std::string const& imageName, std::string const& ext, auto&& arr
     }
 }
 
-#define TEST_IMAGE_PNG(imageName) TEST_IMAGE(imageName, "png")
-
 TEST_CASE("GFX.Decoder.PNG")
 {
+#define TEST_IMAGE_PNG(imageName) TEST_IMAGE(imageName, "png")
+
     TEST_IMAGE_PNG(basi0g01);
     TEST_IMAGE_PNG(basi0g02);
     TEST_IMAGE_PNG(basi0g04);
@@ -150,10 +150,10 @@ TEST_CASE("GFX.Decoder.PNG")
     TEST_IMAGE_PNG(z09n2c08);
 }
 
-#define TEST_IMAGE_GIF(imageName) TEST_IMAGE(imageName, "gif")
-
 TEST_CASE("GFX.Decoder.GIF")
 {
+#define TEST_IMAGE_GIF(imageName) TEST_IMAGE(imageName, "gif")
+
     TEST_IMAGE_GIF(basn0g01);
     TEST_IMAGE_GIF(basn0g02);
     TEST_IMAGE_GIF(basn0g04);
@@ -164,10 +164,10 @@ TEST_CASE("GFX.Decoder.GIF")
     TEST_IMAGE_GIF(basn3p08);
 }
 
-#define TEST_IMAGE_PCX(imageName) TEST_IMAGE(imageName, "pcx")
-
 TEST_CASE("GFX.Decoder.PCX")
 {
+#define TEST_IMAGE_PCX(imageName) TEST_IMAGE(imageName, "pcx")
+
     TEST_IMAGE_PCX(basn0g01);
     TEST_IMAGE_PCX(basn0g08);
     TEST_IMAGE_PCX(basn2c08);
@@ -175,27 +175,27 @@ TEST_CASE("GFX.Decoder.PCX")
     TEST_IMAGE_PCX(basn3p08);
 }
 
-#define TEST_IMAGE_TGA(imageName) TEST_IMAGE(imageName, "tga")
-
 TEST_CASE("GFX.Decoder.TGA")
 {
+#define TEST_IMAGE_TGA(imageName) TEST_IMAGE(imageName, "tga")
+
     TEST_IMAGE_TGA(basn0g08);
     TEST_IMAGE_TGA(basn2c08);
     TEST_IMAGE_TGA(basn3p02);
     TEST_IMAGE_TGA(basn3p08);
 }
 
-#define TEST_IMAGE_BSI(imageName) TEST_IMAGE(imageName, "bsi")
-
 TEST_CASE("GFX.Decoder.BSI")
 {
+#define TEST_IMAGE_BSI(imageName) TEST_IMAGE(imageName, "bsi")
+
     TEST_IMAGE_BSI(basi3p02);
 }
 
-#define TEST_IMAGE_BMP(imageName) TEST_IMAGE(imageName, "bmp")
-
 TEST_CASE("GFX.Decoder.BMP")
 {
+#define TEST_IMAGE_BMP(imageName) TEST_IMAGE(imageName, "bmp")
+
     TEST_IMAGE_BMP(basi0g16);
     TEST_IMAGE_BMP(basi3p01);
     TEST_IMAGE_BMP(basi3p02);
@@ -206,22 +206,85 @@ TEST_CASE("GFX.Decoder.BMP")
 }
 
 #if defined(TCOB_ENABLE_FILETYPES_GFX_WEBP)
-    #define TEST_IMAGE_WEBP(imageName) TEST_IMAGE(imageName, "webp")
 
 TEST_CASE("GFX.Decoder.webp")
 {
+    #define TEST_IMAGE_WEBP(imageName) TEST_IMAGE(imageName, "webp")
+
     TEST_IMAGE_WEBP(basi3p02);
 }
 #endif
 
 #if defined(TCOB_ENABLE_FILETYPES_GFX_QOI)
-    #define TEST_IMAGE_QOI(imageName) TEST_IMAGE(imageName, "qoi")
 
 TEST_CASE("GFX.Decoder.QOI")
 {
+    #define TEST_IMAGE_QOI(imageName) TEST_IMAGE(imageName, "qoi")
+
     TEST_IMAGE_QOI(basi3p02);
 }
 #endif
+
+TEST_CASE("GFX.Decoder.PNM")
+{
+    SUBCASE("P1")
+    {
+        io::iomstream stream {};
+        stream.write("P1\n3 3\n110101001\n");
+        stream.seek(0, io::seek_dir::Begin);
+        auto img {image::Load(stream, ".pnm")};
+        REQUIRE(img);
+        std::vector<u8> expected {0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 0, 0, 255, 255, 255, 0, 0, 0, 255, 255, 255, 255, 255, 255, 0, 0, 0};
+        REQUIRE(img->get_data().size() == expected.size());
+        for (usize i {0}; i < expected.size(); ++i) {
+            REQUIRE(img->get_data()[i] == expected[i]);
+        }
+    }
+    SUBCASE("P2")
+    {
+        io::iomstream stream {};
+        stream.write("P2\n3 3 8\n0 1 2 3 4 5 6 7 8\n");
+        stream.seek(0, io::seek_dir::Begin);
+        auto img {image::Load(stream, ".pnm")};
+        REQUIRE(img);
+        std::vector<u8> expected {
+            0, 0, 0,
+            31, 31, 31,
+            63, 63, 63,
+            95, 95, 95,
+            127, 127, 127,
+            159, 159, 159,
+            191, 191, 191,
+            223, 223, 223,
+            255, 255, 255};
+        REQUIRE(img->get_data().size() == expected.size());
+        for (usize i {0}; i < expected.size(); ++i) {
+            REQUIRE(img->get_data()[i] == expected[i]);
+        }
+    }
+    SUBCASE("P3")
+    {
+        io::iomstream stream {};
+        stream.write("P3\n3 3 8\n  0 1 2  1 2 3  2 3 4  3 4 5  4 5 6  5 6 7  6 7 8  7 8 0  8 0 1\n");
+        stream.seek(0, io::seek_dir::Begin);
+        auto img {image::Load(stream, ".pnm")};
+        REQUIRE(img);
+        std::vector<u8> expected {
+            0, 31, 63,
+            31, 63, 95,
+            63, 95, 127,
+            95, 127, 159,
+            127, 159, 191,
+            159, 191, 223,
+            191, 223, 255,
+            223, 255, 0,
+            255, 0, 31};
+        REQUIRE(img->get_data().size() == expected.size());
+        for (usize i {0}; i < expected.size(); ++i) {
+            REQUIRE(img->get_data()[i] == expected[i]);
+        }
+    }
+}
 
 TEST_CASE("GFX.Encoder.RGBA")
 {
