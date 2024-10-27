@@ -12,7 +12,7 @@ TEST_CASE("Core.POD.Transform")
     SUBCASE("rotate")
     {
         transform t;
-        t.rotate(90.f);
+        t.rotate(degree_f {90.f});
         REQUIRE(t.Matrix[0] == Approx(0.f));
         REQUIRE(t.Matrix[1] == Approx(1.f));
         REQUIRE(t.Matrix[2] == Approx(0.f));
@@ -27,7 +27,7 @@ TEST_CASE("Core.POD.Transform")
     {
         {
             transform t;
-            t.rotate({90.f});
+            t.rotate(degree_f {90.f});
             auto p = t.transform_point({2.f, 3.f});
             REQUIRE(p.X == Approx(-3.f));
             REQUIRE(p.Y == Approx(2.f));
@@ -35,7 +35,7 @@ TEST_CASE("Core.POD.Transform")
         {
             transform t;
             t.translate({3.f, -2.f});
-            t.rotate({90.f});
+            t.rotate(degree_f {90.f});
             auto p = t.transform_point({2.f, 3.f});
             REQUIRE(p.X == Approx(0.f));
             REQUIRE(p.Y == Approx(0.f));
@@ -56,15 +56,15 @@ TEST_CASE("Core.POD.Transform")
         REQUIRE(good1.is_translate_only());
 
         transform bad0 {good0};
-        bad0.rotate({90.f});
+        bad0.rotate(degree_f {90.f});
         REQUIRE_FALSE(bad0.is_translate_only());
 
         transform bad1 {good0};
-        bad1.rotate_at({35.f}, {20, 30});
+        bad1.rotate_at(degree_f {35.f}, {20, 30});
         REQUIRE_FALSE(bad1.is_translate_only());
 
         transform bad2 {good0};
-        bad2.skew({90.f, 10});
+        bad2.skew({degree_f {90.f}, degree_f {10}});
         REQUIRE_FALSE(bad2.is_translate_only());
     }
 }

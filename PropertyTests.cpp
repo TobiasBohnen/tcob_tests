@@ -123,12 +123,12 @@ TEST_CASE("Core.Property.Compare")
         REQUIRE(prop0 < prop1);
     }
     {
-        prop<degree_f> prop0 {12.3f};
+        prop<degree_f> prop0 {degree_f {12.3f}};
         REQUIRE(prop0 > degree_f {2.3f});
     }
     {
-        prop<degree_f> prop1 {23.4f};
-        prop<degree_f> prop0 {12.3f};
+        prop<degree_f> prop1 {degree_f {23.4f}};
+        prop<degree_f> prop0 {degree_f {12.3f}};
         REQUIRE(prop0 < prop1);
     }
 }
