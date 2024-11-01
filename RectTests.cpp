@@ -345,13 +345,13 @@ TEST_CASE("Core.POD.Rect")
     {
         {
             rect_i r1 {5, 3, 10, 11};
-            REQUIRE(r1.get_center() == (point_f {10, 8.5f}));
-            REQUIRE(r1.get_local_center() == (point_f {5.f, 5.5f}));
+            REQUIRE(r1.center() == (point_f {10, 8.5f}));
+            REQUIRE(r1.local_center() == (point_f {5.f, 5.5f}));
         }
         {
             rect_f r1 {5, 3, 10, 11};
-            REQUIRE(r1.get_center() == (point_f {10, 8.5f}));
-            REQUIRE(r1.get_local_center() == (point_f {5.f, 5.5f}));
+            REQUIRE(r1.center() == (point_f {10, 8.5f}));
+            REQUIRE(r1.local_center() == (point_f {5.f, 5.5f}));
         }
     }
     SUBCASE("Structured Binding")
