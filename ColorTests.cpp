@@ -100,6 +100,12 @@ TEST_CASE("Core.POD.Color")
         REQUIRE(color::FromString("#ABCD01") == color {0xAB, 0XCD, 0X01, 255});
         REQUIRE(color::FromString("#FFAABB14") == color {0XFF, 0XAA, 0XBB, 0X14});
         REQUIRE(color::FromString("#01020304") == color {1, 2, 3, 4});
+
+        REQUIRE(color::FromString("#123") == color {0X11, 0X22, 0X33});
+        REQUIRE(color::FromString("#FAB") == color {0XFF, 0XAA, 0XBB});
+
+        REQUIRE(color::FromString("#1236") == color {0X11, 0X22, 0X33, 0x66});
+        REQUIRE(color::FromString("#FAB9") == color {0XFF, 0XAA, 0XBB, 0x99});
     }
 
     SUBCASE("Literals")
