@@ -2,7 +2,7 @@
 
 #include <queue>
 
-using namespace tcob::tweening;
+using namespace tcob::gfx;
 using namespace tcob::literals;
 
 TEST_CASE("Core.Tween.Vector")
@@ -34,7 +34,7 @@ TEST_CASE("Core.Tween.Vector")
 
 TEST_CASE("Core.Tween.Queue")
 {
-    tweening::queue queue;
+    tween_queue queue;
 
     std::vector<f32> out;
     auto             output1 {[&out](f32 val) { out.push_back(val); }};

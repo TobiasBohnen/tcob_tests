@@ -25,7 +25,7 @@ TEST_CASE("GFX.Ray.Circle")
 TEST_CASE("GFX.Ray.Func")
 {
     {
-        tweening::func::linear<point_f> func;
+        easing::linear<point_f> func;
         func.StartValue = {2, 2};
         func.EndValue   = {12, 12};
         ray ray {{{1, 5}, degree_f {90}}};
