@@ -19,7 +19,7 @@ TEST_CASE("GFX.Image.FlipHorizontally")
 
         auto image {image::Create(size, image::format::RGBA, source)};
         image.flip_horizontally();
-        std::vector<u8> data1 {image.get_data().begin(), image.get_data().end()};
+        std::vector<u8> data1 {image.buffer().begin(), image.buffer().end()};
         REQUIRE(data1 == target);
     }
     SUBCASE("4x4 x 3")
@@ -39,7 +39,7 @@ TEST_CASE("GFX.Image.FlipHorizontally")
 
         auto image {image::Create(size, image::format::RGB, source)};
         image.flip_horizontally();
-        std::vector<u8> data1 {image.get_data().begin(), image.get_data().end()};
+        std::vector<u8> data1 {image.buffer().begin(), image.buffer().end()};
         REQUIRE(data1 == target);
     }
     SUBCASE("3x3 x 4")
@@ -57,7 +57,7 @@ TEST_CASE("GFX.Image.FlipHorizontally")
 
         auto image {image::Create(size, image::format::RGBA, source)};
         image.flip_horizontally();
-        std::vector<u8> data1 {image.get_data().begin(), image.get_data().end()};
+        std::vector<u8> data1 {image.buffer().begin(), image.buffer().end()};
         REQUIRE(data1 == target);
     }
     SUBCASE("3x3 x 3")
@@ -75,7 +75,7 @@ TEST_CASE("GFX.Image.FlipHorizontally")
 
         auto image {image::Create(size, image::format::RGB, source)};
         image.flip_horizontally();
-        std::vector<u8> data1 {image.get_data().begin(), image.get_data().end()};
+        std::vector<u8> data1 {image.buffer().begin(), image.buffer().end()};
         REQUIRE(data1 == target);
     }
 }
@@ -101,7 +101,7 @@ TEST_CASE("GFX.Image.FlipVertically")
 
         auto image {image::Create(size, image::format::RGBA, source)};
         image.flip_vertically();
-        std::vector<u8> data1 {image.get_data().begin(), image.get_data().end()};
+        std::vector<u8> data1 {image.buffer().begin(), image.buffer().end()};
         REQUIRE(data1 == target);
     }
     SUBCASE("4x4 x 4")
@@ -121,7 +121,7 @@ TEST_CASE("GFX.Image.FlipVertically")
 
         auto image {image::Create(size, image::format::RGBA, source)};
         image.flip_vertically();
-        std::vector<u8> data1 {image.get_data().begin(), image.get_data().end()};
+        std::vector<u8> data1 {image.buffer().begin(), image.buffer().end()};
         REQUIRE(data1 == target);
     }
     SUBCASE("3x3 x 4")
@@ -139,7 +139,7 @@ TEST_CASE("GFX.Image.FlipVertically")
 
         auto image {image::Create(size, image::format::RGBA, source)};
         image.flip_vertically();
-        std::vector<u8> data1 {image.get_data().begin(), image.get_data().end()};
+        std::vector<u8> data1 {image.buffer().begin(), image.buffer().end()};
         REQUIRE(data1 == target);
     }
     SUBCASE("3x3 x 3")
@@ -157,7 +157,7 @@ TEST_CASE("GFX.Image.FlipVertically")
 
         auto image {image::Create(size, image::format::RGB, source)};
         image.flip_vertically();
-        std::vector<u8> data1 {image.get_data().begin(), image.get_data().end()};
+        std::vector<u8> data1 {image.buffer().begin(), image.buffer().end()};
         REQUIRE(data1 == target);
     }
 }

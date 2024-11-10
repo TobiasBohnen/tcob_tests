@@ -183,7 +183,7 @@ public:
     {
     }
 
-    auto get_name() const -> std::string const&
+    auto name() const -> std::string const&
     {
         return _name;
     }

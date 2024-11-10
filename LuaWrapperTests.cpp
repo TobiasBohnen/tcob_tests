@@ -355,7 +355,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper2")
         Player* pl = *run<Player*>("return Player.new('bob', 100, 50)");
         REQUIRE(pl->get_mana() == 50);
         REQUIRE(pl->get_health() == 100);
-        REQUIRE(pl->get_name() == "bob");
+        REQUIRE(pl->name() == "bob");
     }
     SUBCASE("functions")
     {

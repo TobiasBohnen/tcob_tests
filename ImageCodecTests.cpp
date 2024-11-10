@@ -25,7 +25,7 @@ void test_image(std::string const& imageName, std::string const& ext, auto&& arr
 
     auto const info {img->get_info()};
     u32 const  size {static_cast<u32>(info.size_in_bytes())};
-    auto const buf {img->get_data()};
+    auto const buf {img->buffer()};
 
     if (info.bytes_per_pixel() == 4) {
         REQUIRE(size == std::ssize(array));
@@ -235,9 +235,9 @@ TEST_CASE("GFX.Decoder.PNM")
         auto img {image::Load(stream, ".pnm")};
         REQUIRE(img);
         std::vector<u8> expected {0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 0, 0, 255, 255, 255, 0, 0, 0, 255, 255, 255, 255, 255, 255, 0, 0, 0};
-        REQUIRE(img->get_data().size() == expected.size());
+        REQUIRE(img->buffer().size() == expected.size());
         for (usize i {0}; i < expected.size(); ++i) {
-            REQUIRE(img->get_data()[i] == expected[i]);
+            REQUIRE(img->buffer()[i] == expected[i]);
         }
     }
     SUBCASE("P2")
@@ -257,9 +257,9 @@ TEST_CASE("GFX.Decoder.PNM")
             191, 191, 191,
             223, 223, 223,
             255, 255, 255};
-        REQUIRE(img->get_data().size() == expected.size());
+        REQUIRE(img->buffer().size() == expected.size());
         for (usize i {0}; i < expected.size(); ++i) {
-            REQUIRE(img->get_data()[i] == expected[i]);
+            REQUIRE(img->buffer()[i] == expected[i]);
         }
     }
     SUBCASE("P3")
@@ -279,9 +279,9 @@ TEST_CASE("GFX.Decoder.PNM")
             191, 223, 255,
             223, 255, 0,
             255, 0, 31};
-        REQUIRE(img->get_data().size() == expected.size());
+        REQUIRE(img->buffer().size() == expected.size());
         for (usize i {0}; i < expected.size(); ++i) {
-            REQUIRE(img->get_data()[i] == expected[i]);
+            REQUIRE(img->buffer()[i] == expected[i]);
         }
     }
 }
@@ -289,7 +289,7 @@ TEST_CASE("GFX.Decoder.PNM")
 TEST_CASE("GFX.Encoder.RGBA")
 {
     image src {image::CreateEmpty({5, 7}, image::format::RGBA)};
-    auto  srcData {src.get_data()};
+    auto  srcData {src.buffer()};
     for (u8 i {0}; i < srcData.size(); ++i) {
         srcData[i] = i;
     }
@@ -321,40 +321,40 @@ TEST_CASE("GFX.Encoder.RGBA")
 
     SUBCASE("png")
     {
-        compareRGBA(test(".png")->get_data());
+        compareRGBA(test(".png")->buffer());
     }
 
     SUBCASE("tga")
     {
-        compareRGBA(test(".tga")->get_data());
+        compareRGBA(test(".tga")->buffer());
     }
 
     SUBCASE("pcx")
     {
-        compareRGB(test(".pcx")->get_data());
+        compareRGB(test(".pcx")->buffer());
     }
 
     SUBCASE("bmp")
     {
-        compareRGBA(test(".tga")->get_data());
+        compareRGBA(test(".tga")->buffer());
     }
 
     SUBCASE("bsi")
     {
-        compareRGBA(test(".bsi")->get_data());
+        compareRGBA(test(".bsi")->buffer());
     }
 
 #if defined(TCOB_ENABLE_FILETYPES_GFX_WEBP)
     SUBCASE("webp")
     {
-        compareRGBA(test(".webp")->get_data());
+        compareRGBA(test(".webp")->buffer());
     }
 #endif
 
 #if defined(TCOB_ENABLE_FILETYPES_GFX_QOI)
     SUBCASE("qoi")
     {
-        compareRGBA(test(".qoi")->get_data());
+        compareRGBA(test(".qoi")->buffer());
     }
 #endif
 }
@@ -362,7 +362,7 @@ TEST_CASE("GFX.Encoder.RGBA")
 TEST_CASE("GFX.Encoder.RGB")
 {
     image src {image::CreateEmpty({5, 7}, image::format::RGB)};
-    auto  srcData {src.get_data()};
+    auto  srcData {src.buffer()};
     for (u8 i {0}; i < srcData.size(); ++i) {
         srcData[i] = i;
     }
@@ -394,40 +394,40 @@ TEST_CASE("GFX.Encoder.RGB")
 
     SUBCASE("png")
     {
-        compareRGBA(test(".png")->get_data());
+        compareRGBA(test(".png")->buffer());
     }
 
     SUBCASE("tga")
     {
-        compareRGB(test(".tga")->get_data());
+        compareRGB(test(".tga")->buffer());
     }
 
     SUBCASE("pcx")
     {
-        compareRGB(test(".pcx")->get_data());
+        compareRGB(test(".pcx")->buffer());
     }
 
     SUBCASE("bmp")
     {
-        compareRGB(test(".tga")->get_data());
+        compareRGB(test(".tga")->buffer());
     }
 
     SUBCASE("bsi")
     {
-        compareRGB(test(".bsi")->get_data());
+        compareRGB(test(".bsi")->buffer());
     }
 
 #if defined(TCOB_ENABLE_FILETYPES_GFX_WEBP)
     SUBCASE("webp")
     {
-        compareRGB(test(".webp")->get_data());
+        compareRGB(test(".webp")->buffer());
     }
 #endif
 
 #if defined(TCOB_ENABLE_FILETYPES_GFX_QOI)
     SUBCASE("qoi")
     {
-        compareRGB(test(".qoi")->get_data());
+        compareRGB(test(".qoi")->buffer());
     }
 #endif
 }
