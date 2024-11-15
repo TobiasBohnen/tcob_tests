@@ -801,7 +801,7 @@ TEST_CASE("Core.Tween.Animation")
         frame_animation ani {};
         ani.Frames = {{"0", 10ms}, {"1", 10ms}, {"2", 10ms}, {"3", 10ms}, {"4", 10ms}};
 
-        frame_animation_tween contr {ani.get_duration(), ani};
+        frame_animation_tween contr {ani.duration(), ani};
         contr.add_output(&out);
 
         contr.start(playback_mode::Normal);
@@ -826,7 +826,7 @@ TEST_CASE("Core.Tween.Animation")
         frame_animation ani {};
         ani.Frames = {{"0", 100ms}, {"1", 100ms}, {"2", 100ms}, {"3", 100ms}, {"4", 50ms}};
 
-        frame_animation_tween contr {ani.get_duration() * 2, ani};
+        frame_animation_tween contr {ani.duration() * 2, ani};
         contr.add_output(&out);
 
         contr.start(playback_mode::Alternated);

@@ -127,7 +127,7 @@ TEST_CASE("Core.Random.CopyState")
         r0(0, 1);
     }
 
-    rng r1 {r0.get_state()};
+    rng r1 {r0.state()};
     i32 min = 8, max = 15;
     for (i32 i = 0; i < 1000; i++) {
         REQUIRE(r0(min, max) == r1(min, max));

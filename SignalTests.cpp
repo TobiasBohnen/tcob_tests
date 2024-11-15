@@ -62,25 +62,25 @@ TEST_CASE("Core.Signal.Disconnect")
 {
     {
         signal<> sig0;
-        REQUIRE(sig0.get_slot_count() == 0);
-        auto id0 = sig0.connect([]() {}).get_id();
-        auto id1 = sig0.connect([]() {}).get_id();
-        REQUIRE(sig0.get_slot_count() == 2);
+        REQUIRE(sig0.used_slots() == 0);
+        auto id0 = sig0.connect([]() {}).id();
+        auto id1 = sig0.connect([]() {}).id();
+        REQUIRE(sig0.used_slots() == 2);
         sig0.disconnect(id0);
-        REQUIRE(sig0.get_slot_count() == 1);
+        REQUIRE(sig0.used_slots() == 1);
         sig0.disconnect(id1);
-        REQUIRE(sig0.get_slot_count() == 0);
+        REQUIRE(sig0.used_slots() == 0);
     }
     {
         signal<> sig0;
-        REQUIRE(sig0.get_slot_count() == 0);
-        auto id0 = sig0.connect([]() {}).get_id();
-        auto id1 = sig0.connect([]() {}).get_id();
-        REQUIRE(sig0.get_slot_count() == 2);
+        REQUIRE(sig0.used_slots() == 0);
+        auto id0 = sig0.connect([]() {}).id();
+        auto id1 = sig0.connect([]() {}).id();
+        REQUIRE(sig0.used_slots() == 2);
         sig0.disconnect(id1);
-        REQUIRE(sig0.get_slot_count() == 1);
+        REQUIRE(sig0.used_slots() == 1);
         sig0.disconnect(id0);
-        REQUIRE(sig0.get_slot_count() == 0);
+        REQUIRE(sig0.used_slots() == 0);
     }
 }
 
@@ -89,27 +89,27 @@ TEST_CASE("Core.Signal.Lifetime")
     SUBCASE("Scoped Connection")
     {
         signal<> sig0;
-        REQUIRE(sig0.get_slot_count() == 0);
+        REQUIRE(sig0.used_slots() == 0);
         {
             scoped_connection conn {sig0.connect([] {})};
-            REQUIRE(sig0.get_slot_count() == 1);
+            REQUIRE(sig0.used_slots() == 1);
         }
-        REQUIRE(sig0.get_slot_count() == 0);
+        REQUIRE(sig0.used_slots() == 0);
     }
 
     SUBCASE("Connection")
     {
         signal<> sig0;
-        REQUIRE(sig0.get_slot_count() == 0);
+        REQUIRE(sig0.used_slots() == 0);
         {
             std::function<void()> l {};
             connection            conn {sig0.connect(l)};
-            REQUIRE(sig0.get_slot_count() == 1);
+            REQUIRE(sig0.used_slots() == 1);
         }
 
-        REQUIRE(sig0.get_slot_count() == 1);
+        REQUIRE(sig0.used_slots() == 1);
         sig0();
-        REQUIRE(sig0.get_slot_count() == 0);
+        REQUIRE(sig0.used_slots() == 0);
     }
 }
 
