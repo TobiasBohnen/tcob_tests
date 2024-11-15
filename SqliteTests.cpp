@@ -231,8 +231,8 @@ TEST_CASE("Data.Sqlite.CreateTable")
 
     REQUIRE(db.create_table(tableName0, column {"ID", type::Integer, true, primary_key {}}));
 
-    REQUIRE(db.get_table_names().size() == 1);
-    REQUIRE(db.get_table_names().contains(tableName0));
+    REQUIRE(db.table_names().size() == 1);
+    REQUIRE(db.table_names().contains(tableName0));
 
     REQUIRE(db.create_table(tableName1,
                             column {"ID", type::Integer, false, primary_key {}},
@@ -244,9 +244,9 @@ TEST_CASE("Data.Sqlite.CreateTable")
         REQUIRE(nameSet.contains(col));
     }
 
-    REQUIRE(db.get_table_names().size() == 2);
-    REQUIRE(db.get_table_names().contains(tableName0));
-    REQUIRE(db.get_table_names().contains(tableName1));
+    REQUIRE(db.table_names().size() == 2);
+    REQUIRE(db.table_names().contains(tableName0));
+    REQUIRE(db.table_names().contains(tableName1));
 
     REQUIRE(db.table_exists(tableName0));
     REQUIRE(db.table_exists(tableName1));
@@ -262,13 +262,13 @@ TEST_CASE("Data.Sqlite.DropTable")
     auto dbTable {db.create_table(tableName, column {"ID", type::Integer, true, primary_key {}})};
     REQUIRE(db.table_exists(tableName));
 
-    REQUIRE(db.get_table_names().size() == 1);
-    REQUIRE(db.get_table_names().contains(tableName));
+    REQUIRE(db.table_names().size() == 1);
+    REQUIRE(db.table_names().contains(tableName));
 
     REQUIRE(db.drop_table(tableName));
 
     REQUIRE_FALSE(db.table_exists(tableName));
-    REQUIRE(db.get_table_names().size() == 0);
+    REQUIRE(db.table_names().size() == 0);
 }
 
 TEST_CASE("Data.Sqlite.VacuumInto")
