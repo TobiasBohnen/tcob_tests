@@ -622,7 +622,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Enums")
     };
     {
         auto     func = global["test"]["Enum"].as<function<testEnum>>();
-        testEnum num  = *func.call(testEnum::FileNotFound);
+        testEnum num  = *func.protected_call(testEnum::FileNotFound);
         REQUIRE(num == testEnum::FileNotFound);
     }
     {
@@ -703,7 +703,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Environment")
         REQUIRE(res0);
 
         auto func0 = newEnv["foo"].as<function<f32>>();
-        REQUIRE_FALSE(func0.call());
+        REQUIRE_FALSE(func0.protected_call());
 
         newEnv["tonumber"] = global["tonumber"];
         REQUIRE(func0() == 5.f);
@@ -742,7 +742,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Functions")
         auto res = run("function testPoint(p) return p.x * p.y end");
         REQUIRE(res);
         auto func = global["testPoint"].as<function<i32>>();
-        i32  a    = *func.call(point_i {2, 4});
+        i32  a    = *func.protected_call(point_i {2, 4});
         REQUIRE(a == 2 * 4);
         a = func(point_i {2, 4});
         REQUIRE(a == 2 * 4);
@@ -778,7 +778,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Functions")
             "table.func = function() return 50, 'Hello' end ");
         REQUIRE(res);
         auto func         = global["table"]["func"].as<function<std::pair<i32, std::string>>>();
-        auto const [a, b] = func.call().value();
+        auto const [a, b] = func.protected_call().value();
 
         REQUIRE(a == 50);
         REQUIRE(b == "Hello");
@@ -791,7 +791,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Functions")
                 "table.func = function() return 'Hello', 100, true end ");
             REQUIRE(res);
             auto func            = global["table"]["func"].as<function<std::tuple<std::string, i32, bool>>>();
-            auto const [a, b, c] = func.call().value();
+            auto const [a, b, c] = func.protected_call().value();
 
             REQUIRE(a == "Hello");
             REQUIRE(b == 100);
@@ -803,7 +803,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Functions")
                 "table.func = function() return 100, { a = 200, b = 300 }, false end ");
             REQUIRE(res);
             auto func      = global["table"]["func"].as<function<std::tuple<i32, std::map<std::string, int>, bool>>>();
-            auto [a, b, c] = func.call().value();
+            auto [a, b, c] = func.protected_call().value();
 
             REQUIRE(a == 100);
             REQUIRE(b["a"] == 200);
@@ -907,6 +907,16 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Functions")
         auto        func  = global["string"]["upper"].as<function<std::string>>();
         std::string upper = func("hello");
         REQUIRE(upper == "HELLO");
+    }
+    SUBCASE("unprotected call")
+    {
+        auto res = run("function foo(p,q,r) return p.x + p.y + q.x + q.y + r.x + r.y end");
+        REQUIRE(res);
+        auto f    = global["foo"].as<function<i32>>();
+        auto res0 = f.protected_call(point_i {10, 30}, point_i {42, 11}, point_i {88, 65}).value();
+        auto res1 = f.unprotected_call(point_i {10, 30}, point_i {42, 11}, point_i {88, 65}).value();
+        REQUIRE(res0 == res1);
+        REQUIRE(res0 == 246);
     }
     SUBCASE("misc")
     {
@@ -2329,7 +2339,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.UserDefinedConversion")
             "end ");
         REQUIRE(res);
         auto func = global["bar"].as<function<i32>>();
-        i32  a    = *func.call(foo {1, 2, 3});
+        i32  a    = *func.protected_call(foo {1, 2, 3});
         REQUIRE(a == 6);
     }
 }

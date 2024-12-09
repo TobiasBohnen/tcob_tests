@@ -688,7 +688,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.UnknownHandler")
         REQUIRE_FALSE(res.has_error());
         auto f = global["foo"].as<lua::function<void>>();
         foo  test {};
-        REQUIRE(f.call(&test).has_error());
+        REQUIRE(f.protected_call(&test).has_error());
         REQUIRE_FALSE(test.z == 400);
     }
     SUBCASE("handled setter (newindex)")
@@ -705,7 +705,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.UnknownHandler")
         });
 
         foo test {};
-        REQUIRE_FALSE(f.call(&test).has_error());
+        REQUIRE_FALSE(f.protected_call(&test).has_error());
         REQUIRE(test.z == 400);
     }
     SUBCASE("unhandled getter (index)")
@@ -713,7 +713,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.UnknownHandler")
         auto res = run("function foo(p) return p.unhandled_index end");
         REQUIRE_FALSE(res.has_error());
         foo        test {};
-        auto const funcres = global["foo"].as<lua::function<int>>().call(&test);
+        auto const funcres = global["foo"].as<lua::function<int>>().protected_call(&test);
         REQUIRE(funcres.has_error());
     }
     SUBCASE("handled getter (index)")
@@ -731,7 +731,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.UnknownHandler")
 
         foo test {};
         test.x       = 420;
-        auto funcres = f.call(&test);
+        auto funcres = f.protected_call(&test);
         REQUIRE_FALSE(funcres.has_error());
         REQUIRE(funcres.value() == test.x);
     }
@@ -740,7 +740,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.UnknownHandler")
         auto res = run("function foo(p) p.unhandled_index() end");
         REQUIRE_FALSE(res.has_error());
         foo        test {};
-        auto const funcres = global["foo"].as<lua::function<int>>().call(&test);
+        auto const funcres = global["foo"].as<lua::function<int>>().protected_call(&test);
         REQUIRE(funcres.has_error());
     }
     SUBCASE("handled function (index)")
@@ -758,7 +758,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.UnknownHandler")
         });
 
         foo  test {};
-        auto funcres = f.call(&test);
+        auto funcres = f.protected_call(&test);
         REQUIRE_FALSE(funcres.has_error());
         REQUIRE(funcres.value() == test.y());
     }
