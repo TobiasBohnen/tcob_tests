@@ -6,7 +6,7 @@ using namespace tcob::scripting::lua;
 class LuaDSLTests : public lua::script {
 public:
     LuaDSLTests()
-        : global(get_global_table())
+        : global(global_table())
     {
         open_libraries();
     }

@@ -5,7 +5,7 @@
 class LuaWrapperTests : public lua::script {
 public:
     LuaWrapperTests()
-        : global(get_global_table())
+        : global(global_table())
     {
         open_libraries();
     }
@@ -600,21 +600,21 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
     }
     SUBCASE("GC")
     {
-        REQUIRE(get_GC().is_running());
+        REQUIRE(gc().is_running());
 
         auto* t1        = new TestScriptClass; // NOLINT
         global["wrap1"] = scripting::managed_ptr {t1};
         REQUIRE(TestScriptClass::ObjCount == 1);
 
         global["wrap1"] = nullptr;
-        get_GC().collect();
+        gc().collect();
         REQUIRE(TestScriptClass::ObjCount == 0);
 
-        REQUIRE(get_GC().is_running());
-        get_GC().stop();
-        REQUIRE_FALSE(get_GC().is_running());
-        get_GC().restart();
-        REQUIRE(get_GC().is_running());
+        REQUIRE(gc().is_running());
+        gc().stop();
+        REQUIRE_FALSE(gc().is_running());
+        gc().restart();
+        REQUIRE(gc().is_running());
     }
 }
 

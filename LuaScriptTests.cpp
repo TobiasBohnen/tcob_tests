@@ -68,7 +68,7 @@ struct converter<foo> {
 class LuaScriptTests : public lua::script {
 public:
     LuaScriptTests()
-        : global(get_global_table())
+        : global(global_table())
     {
         open_libraries();
     }
@@ -1354,7 +1354,7 @@ TEST_CASE("Script.Lua.Literals")
     using namespace tcob::literals;
     {
         auto script = "x = 100"_lua;
-        i32  x      = script->get_global_table()["x"].as<i32>();
+        i32  x      = script->global_table()["x"].as<i32>();
         REQUIRE(x == 100);
     }
 }
@@ -1554,7 +1554,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.RawPointers")
         global["obj"] = t;
         auto res      = run("obj = nil");
         REQUIRE(res);
-        get_GC().collect();
+        gc().collect();
         REQUIRE(TestScriptClass::ObjCount == 0);
     }
 }

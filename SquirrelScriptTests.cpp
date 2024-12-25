@@ -67,7 +67,7 @@ struct converter<foo> {
 class SquirrelScriptTests : public squirrel::script {
 public:
     SquirrelScriptTests()
-        : global(get_root_table())
+        : global(root_table())
     {
         open_libraries();
     }
@@ -999,7 +999,7 @@ TEST_CASE("Script.Squirrel.Literals")
     using namespace tcob::literals;
     {
         auto script = "x <- 100"_squirrel;
-        i32  x      = script->get_root_table()["x"].as<i32>();
+        i32  x      = script->root_table()["x"].as<i32>();
         REQUIRE(x == 100);
     }
 }

@@ -9,7 +9,7 @@ using namespace tcob::scripting::squirrel;
 class SquirrelWrapperTests : public squirrel::script {
 public:
     SquirrelWrapperTests()
-        : global(get_root_table())
+        : global(root_table())
     {
         open_libraries();
     }
