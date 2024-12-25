@@ -420,15 +420,15 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Coroutines")
         auto co = global["co"].as<coroutine>();
 
         auto result = co.resume<i32>();
-        REQUIRE(co.get_status() == coroutine_status::Suspended);
+        REQUIRE(co.status() == coroutine_status::Suspended);
         REQUIRE(result.has_value());
         REQUIRE(result.value() == 1);
         result = co.resume<i32>();
-        REQUIRE(co.get_status() == coroutine_status::Suspended);
+        REQUIRE(co.status() == coroutine_status::Suspended);
         REQUIRE(result.has_value());
         REQUIRE(result.value() == 2);
         result = co.resume<i32>();
-        REQUIRE(co.get_status() == coroutine_status::Dead);
+        REQUIRE(co.status() == coroutine_status::Dead);
         REQUIRE(result.has_value());
         REQUIRE(result.value() == 1000);
     }
@@ -445,15 +445,15 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Coroutines")
         auto co = global["co"].as<coroutine>();
 
         auto result = co.resume<i32>();
-        REQUIRE(co.get_status() == coroutine_status::Suspended);
+        REQUIRE(co.status() == coroutine_status::Suspended);
         REQUIRE(result.has_value());
         REQUIRE(result.value() == 1);
         result = co.resume<i32>();
-        REQUIRE(co.get_status() == coroutine_status::Suspended);
+        REQUIRE(co.status() == coroutine_status::Suspended);
         REQUIRE(result.has_value());
         REQUIRE(result.value() == 2);
         auto endresult = co.resume<void>();
-        REQUIRE(co.get_status() == coroutine_status::Dead);
+        REQUIRE(co.status() == coroutine_status::Dead);
         REQUIRE_FALSE(endresult.has_error());
         auto endresult2 = co.resume<void>();
         REQUIRE(endresult2.has_error());
@@ -472,16 +472,16 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Coroutines")
         auto co = global["co"].as<coroutine>();
 
         auto result = co.resume<i32>();
-        REQUIRE(co.get_status() == coroutine_status::Suspended);
+        REQUIRE(co.status() == coroutine_status::Suspended);
         REQUIRE(result.has_value());
         REQUIRE(result.value() == 1);
         result = co.resume<i32>();
-        REQUIRE(co.get_status() == coroutine_status::Suspended);
+        REQUIRE(co.status() == coroutine_status::Suspended);
         REQUIRE(result.has_value());
         REQUIRE(result.value() == 2);
         result = co.resume<i32>();
         REQUIRE_FALSE(result.has_value());
-        REQUIRE(co.get_status() == coroutine_status::Dead);
+        REQUIRE(co.status() == coroutine_status::Dead);
     }
     SUBCASE("return multiple values")
     {
@@ -496,7 +496,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Coroutines")
         auto co = global["co"].as<coroutine>();
 
         auto result = co.resume<std::pair<i32, f32>>();
-        REQUIRE(co.get_status() == coroutine_status::Suspended);
+        REQUIRE(co.status() == coroutine_status::Suspended);
         REQUIRE(result.has_value());
         REQUIRE(result.value() == std::make_pair(1, 1.5f));
     }
@@ -528,7 +528,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Coroutines")
         auto co = global["co"].as<coroutine>();
 
         auto result = co.resume<i32>();
-        REQUIRE(co.get_status() == coroutine_status::Suspended);
+        REQUIRE(co.status() == coroutine_status::Suspended);
         REQUIRE(result.has_value());
         REQUIRE(result.value() == 1);
 
@@ -551,11 +551,11 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Coroutines")
         auto co = global["co"].as<coroutine>();
 
         auto result = co.resume<i32>();
-        REQUIRE(co.get_status() == coroutine_status::Suspended);
+        REQUIRE(co.status() == coroutine_status::Suspended);
         REQUIRE(result.has_value());
         REQUIRE(result.value() == 100);
         static_cast<void>(co.resume<void>());
-        REQUIRE(co.get_status() == coroutine_status::Dead);
+        REQUIRE(co.status() == coroutine_status::Dead);
 
         co.push(&l);
         auto result2 = co.resume<f32>(15);
@@ -580,32 +580,32 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Coroutines")
 
         auto      func = global["co_create"].as<function<coroutine>>();
         coroutine co   = func();
-        REQUIRE(co.get_status() == coroutine_status::Ok);
+        REQUIRE(co.status() == coroutine_status::Ok);
         REQUIRE(co.resume());
-        REQUIRE(co.get_status() == coroutine_status::Suspended);
+        REQUIRE(co.status() == coroutine_status::Suspended);
         REQUIRE(global["Global"].as<i32>() == 100);
         REQUIRE(co.resume());
-        REQUIRE(co.get_status() == coroutine_status::Suspended);
+        REQUIRE(co.status() == coroutine_status::Suspended);
         REQUIRE(global["Global"].as<i32>() == 300);
         REQUIRE(co.resume());
-        REQUIRE(co.get_status() == coroutine_status::Suspended);
+        REQUIRE(co.status() == coroutine_status::Suspended);
         REQUIRE(global["Global"].as<i32>() == 400);
         REQUIRE(co.resume());
-        REQUIRE(co.get_status() == coroutine_status::Dead);
+        REQUIRE(co.status() == coroutine_status::Dead);
         REQUIRE(global["Global"].as<i32>() == 400);
 
         co = func();
         REQUIRE(co.resume());
-        REQUIRE(co.get_status() == coroutine_status::Suspended);
+        REQUIRE(co.status() == coroutine_status::Suspended);
         REQUIRE(global["Global"].as<i32>() == 100);
         REQUIRE(co.resume());
-        REQUIRE(co.get_status() == coroutine_status::Suspended);
+        REQUIRE(co.status() == coroutine_status::Suspended);
         REQUIRE(global["Global"].as<i32>() == 300);
         REQUIRE(co.resume());
-        REQUIRE(co.get_status() == coroutine_status::Suspended);
+        REQUIRE(co.status() == coroutine_status::Suspended);
         REQUIRE(global["Global"].as<i32>() == 400);
         REQUIRE(co.resume());
-        REQUIRE(co.get_status() == coroutine_status::Dead);
+        REQUIRE(co.status() == coroutine_status::Dead);
         REQUIRE(global["Global"].as<i32>() == 400);
     }
 }

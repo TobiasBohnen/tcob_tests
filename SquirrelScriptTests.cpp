@@ -1742,9 +1742,9 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Threads")
         REQUIRE(res);
         REQUIRE(global.is<thread>("coro"));
         auto t = global["coro"].as<thread>();
-        REQUIRE(t.get_status() == vm_view::status::Idle);
+        REQUIRE(t.status() == vm_view::status::Idle);
         auto cres = t.call<std::string>();
-        REQUIRE(t.get_status() == vm_view::status::Suspended);
+        REQUIRE(t.status() == vm_view::status::Suspended);
         REQUIRE(cres);
         REQUIRE(cres.value() == "1");
         auto wres = t.wake_up<std::string>();
@@ -1765,9 +1765,9 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Threads")
         REQUIRE(res);
         REQUIRE(global.is<thread>("coro"));
         auto t = global["coro"].as<thread>();
-        REQUIRE(t.get_status() == vm_view::status::Idle);
+        REQUIRE(t.status() == vm_view::status::Idle);
         auto cres = t.call<std::string>("a");
-        REQUIRE(t.get_status() == vm_view::status::Suspended);
+        REQUIRE(t.status() == vm_view::status::Suspended);
         REQUIRE(cres);
         REQUIRE(cres.value() == "a1");
         auto wres = t.wake_up<std::string>("a");
