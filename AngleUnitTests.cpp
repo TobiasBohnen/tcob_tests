@@ -156,6 +156,19 @@ TEST_CASE("Core.POD.AngleUnits")
             }
         }
     }
+    SUBCASE("equals")
+    {
+        REQUIRE(degree_f {10}.equals(degree_f {10}, 0.001));
+        REQUIRE_FALSE(degree_f {10}.equals(degree_f {11}, 0.001));
+        REQUIRE(degree_f {10}.equals(degree_f {10.0005}, 0.001));
+        REQUIRE_FALSE(degree_f {10}.equals(degree_f {10.002}, 0.001));
+        REQUIRE(degree_f {10}.equals(degree_f {9.9995}, 0.001));
+        REQUIRE_FALSE(degree_f {10}.equals(degree_f {9.998}, 0.001));
+        REQUIRE(degree_f {359}.equals(degree_f {359}, 0.001));
+        REQUIRE(degree_f {359}.equals(degree_f {0}, 1.0));
+        REQUIRE(degree_f {0}.equals(degree_f {0}, 0.001));
+        REQUIRE(degree_f {0}.equals(degree_f {359}, 1.0));
+    }
     SUBCASE("literals")
     {
         using namespace tcob::literals;
