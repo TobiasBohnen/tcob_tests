@@ -21,10 +21,10 @@ TEST_CASE("GFX.Camera.Viewport")
     {
         dummy_render_target tex;
         gfx::camera&        camera {tex.get_camera()};
-        REQUIRE(camera.get_transformed_viewport() == rect_f {0, 0, 0, 0});
+        REQUIRE(camera.transformed_viewport() == rect_f {0, 0, 0, 0});
 
         tex.Size = {800, 600};
-        REQUIRE(camera.get_transformed_viewport() == rect_f {0, 0, 800, 600});
+        REQUIRE(camera.transformed_viewport() == rect_f {0, 0, 800, 600});
     }
     SUBCASE("position")
     {
@@ -32,10 +32,10 @@ TEST_CASE("GFX.Camera.Viewport")
         gfx::camera&        camera {tex.get_camera()};
         camera.ViewOffset = {200, 300};
         camera.Position   = {400, 600};
-        REQUIRE(camera.get_transformed_viewport() == rect_f {400, 600, 0, 0});
+        REQUIRE(camera.transformed_viewport() == rect_f {400, 600, 0, 0});
 
         tex.Size = {800, 600};
-        REQUIRE(camera.get_transformed_viewport() == rect_f {400, 600, 800, 600});
+        REQUIRE(camera.transformed_viewport() == rect_f {400, 600, 800, 600});
     }
     SUBCASE("zoom in")
     {
@@ -45,7 +45,7 @@ TEST_CASE("GFX.Camera.Viewport")
         tex.Size        = {800, 600};
 
         camera.Zoom = {2, 4};
-        REQUIRE(camera.get_transformed_viewport() == rect_f {600, 825, 800 / 2.f, 600 / 4.f});
+        REQUIRE(camera.transformed_viewport() == rect_f {600, 825, 800 / 2.f, 600 / 4.f});
     }
     SUBCASE("zoom out")
     {
@@ -55,6 +55,6 @@ TEST_CASE("GFX.Camera.Viewport")
         tex.Size        = {800, 600};
 
         camera.Zoom = {0.5f, 0.25f};
-        REQUIRE(camera.get_transformed_viewport() == rect_f {0, -300, 800 * 2, 600 * 4});
+        REQUIRE(camera.transformed_viewport() == rect_f {0, -300, 800 * 2, 600 * 4});
     }
 }

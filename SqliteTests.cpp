@@ -217,9 +217,9 @@ TEST_CASE("Data.Sqlite.Delete")
     auto tup1 = std::tuple {2, "B", 200, 4.5f};
 
     REQUIRE(dbTable->insert_into("ID", "Name", "Age", "Height")(tup0, tup1));
-    REQUIRE(dbTable->get_row_count() == 2);
+    REQUIRE(dbTable->row_count() == 2);
     REQUIRE(dbTable->delete_from().where("ID = 1")());
-    REQUIRE(dbTable->get_row_count() == 1);
+    REQUIRE(dbTable->row_count() == 1);
 }
 
 TEST_CASE("Data.Sqlite.CreateTable")
@@ -239,7 +239,7 @@ TEST_CASE("Data.Sqlite.CreateTable")
                             column {"Name", type::Text, true},
                             column {"Age"},
                             column {"Height"}));
-    auto nameSet {db.get_table(tableName1)->get_column_names()};
+    auto nameSet {db.get_table(tableName1)->column_names()};
     for (auto const& col : std::array {"ID", "Name", "Age", "Height"}) {
         REQUIRE(nameSet.contains(col));
     }

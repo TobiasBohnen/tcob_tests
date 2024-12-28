@@ -79,7 +79,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Array")
 {
     {
         array arr = *run<array>("return [4,5,2,1] ");
-        REQUIRE(arr.get_size() == 4);
+        REQUIRE(arr.size() == 4);
         i32 x = arr[0].as<i32>();
         REQUIRE(x == 4);
         x = arr[1].as<i32>();
