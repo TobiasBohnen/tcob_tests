@@ -156,7 +156,7 @@ TEST_CASE("Core.POD.Color")
 TEST_CASE("GFX.ColorGradient.SingleColor")
 {
     gfx::color_gradient grad {colors::Green, colors::Green};
-    auto const&         colors {grad.get_colors()};
+    auto const&         colors {grad.colors()};
     for (usize i {0}; i < colors.size(); ++i) {
         REQUIRE(colors[i] == colors::Green);
     }
@@ -167,7 +167,7 @@ TEST_CASE("GFX.ColorGradient.TwoColors")
     SUBCASE("grayscale")
     {
         color_gradient grad {colors::Black, colors::White};
-        auto const&    colors {grad.get_colors()};
+        auto const&    colors {grad.colors()};
         for (usize i {0}; i < colors.size(); ++i) {
             u8 val {static_cast<u8>(i)};
             REQUIRE(colors[i] == color {val, val, val, 255});
@@ -179,7 +179,7 @@ TEST_CASE("GFX.ColorGradient.TwoColors")
     SUBCASE("red to blue")
     {
         color_gradient grad {colors::Red, colors::Blue};
-        auto const&    colors {grad.get_colors()};
+        auto const&    colors {grad.colors()};
         REQUIRE(colors[0] == color {255, 0, 0, 255});
         u8 val {127};
         REQUIRE(colors[127] == color {val, 0, val, 255});

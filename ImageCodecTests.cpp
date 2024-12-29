@@ -23,7 +23,7 @@ void test_image(std::string const& imageName, std::string const& ext, auto&& arr
         }
     }
 
-    auto const info {img->get_info()};
+    auto const info {img->info()};
     u32 const  size {static_cast<u32>(info.size_in_bytes())};
     auto const buf {img->buffer()};
 
