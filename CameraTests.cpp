@@ -20,7 +20,7 @@ TEST_CASE("GFX.Camera.Viewport")
     SUBCASE("size")
     {
         dummy_render_target tex;
-        gfx::camera&        camera {tex.get_camera()};
+        gfx::camera&        camera {tex.camera()};
         REQUIRE(camera.transformed_viewport() == rect_f {0, 0, 0, 0});
 
         tex.Size = {800, 600};
@@ -29,7 +29,7 @@ TEST_CASE("GFX.Camera.Viewport")
     SUBCASE("position")
     {
         dummy_render_target tex;
-        gfx::camera&        camera {tex.get_camera()};
+        gfx::camera&        camera {tex.camera()};
         camera.ViewOffset = {200, 300};
         camera.Position   = {400, 600};
         REQUIRE(camera.transformed_viewport() == rect_f {400, 600, 0, 0});
@@ -40,7 +40,7 @@ TEST_CASE("GFX.Camera.Viewport")
     SUBCASE("zoom in")
     {
         dummy_render_target tex;
-        gfx::camera&        camera {tex.get_camera()};
+        gfx::camera&        camera {tex.camera()};
         camera.Position = {400, 600};
         tex.Size        = {800, 600};
 
@@ -50,7 +50,7 @@ TEST_CASE("GFX.Camera.Viewport")
     SUBCASE("zoom out")
     {
         dummy_render_target tex;
-        gfx::camera&        camera {tex.get_camera()};
+        gfx::camera&        camera {tex.camera()};
         camera.Position = {400, 600};
         tex.Size        = {800, 600};
 
