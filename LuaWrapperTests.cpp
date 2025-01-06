@@ -91,6 +91,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.VectorWrapper")
         REQUIRE_FALSE(res.has_error());
         REQUIRE(6 == vec[6]);
     }
+#if !defined(TCOB_USE_LUAJIT)
     SUBCASE("iterate")
     {
         std::vector<i32> vec = {0, 1, 2, 3, 4, 5};
@@ -104,6 +105,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.VectorWrapper")
             "return result");
         REQUIRE(x == 15);
     }
+#endif
 }
 
 TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
@@ -279,17 +281,17 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
         f32 x          = *run<f32>("return wrap:overload({0.2,0.4})");
         REQUIRE(x == t.overload(std::vector<f32> {0.2f, 0.4f}));
 
-        x = *run<f32>("return wrap:overload(4, 2.0)");
-        REQUIRE(x == t.overload(4, 2.0f));
+        x = *run<f32>("return wrap:overload(4, 2.1)");
+        REQUIRE(x == t.overload(4, 2.1f));
 
-        x = *run<f32>("return wrap:overload(2.0, 12)");
-        REQUIRE(x == t.overload(2.0f, 12));
+        x = *run<f32>("return wrap:overload(2.1, 12)");
+        REQUIRE(x == t.overload(2.1f, 12));
 
-        x = *run<f32>("return wrap:overload(15, 2.0, 99.9)");
-        REQUIRE(x == t.overload(15, 2.0f, 99.9f));
+        x = *run<f32>("return wrap:overload(15, 2.1, 99.9)");
+        REQUIRE(x == t.overload(15, 2.1f, 99.9f));
 
-        x = *run<f32>("return wrap:overload(2.0, 15, 1.5)");
-        REQUIRE(x == t.overload(2.0f, 15, 1.5f));
+        x = *run<f32>("return wrap:overload(2.1, 15, 1.5)");
+        REQUIRE(x == t.overload(2.1f, 15, 1.5f));
 
         x = *run<f32>("return wrap.overload(20)");
         REQUIRE(x == 60.f);
@@ -588,6 +590,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
         i32 b = *run<i32>("return -wrap1");
         REQUIRE(b == -100);
     }
+#if !defined(TCOB_USE_LUAJIT)
     SUBCASE("Close")
     {
         TestScriptClass t1;
@@ -598,6 +601,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
         REQUIRE_FALSE(res.has_error());
         REQUIRE(t1.Closed == true);
     }
+#endif
     SUBCASE("GC")
     {
         REQUIRE(gc().is_running());
@@ -848,7 +852,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.ConfigObject")
 
         auto const res = run(
             R"( wrap.a = 20.5 
-                wrap.b = 'ok' 
+                wrap.b = 'ok'  
                 wrap.c = false 
                 wrap.x = 12345)");
         REQUIRE(res);

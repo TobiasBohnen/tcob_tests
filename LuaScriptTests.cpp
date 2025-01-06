@@ -374,6 +374,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
     }
 }
 
+#if !defined(TCOB_USE_LUAJIT)
 TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Coroutines")
 {
     SUBCASE("basic")
@@ -609,6 +610,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Coroutines")
         REQUIRE(global["Global"].as<i32>() == 400);
     }
 }
+#endif
 
 TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Enums")
 {
@@ -1174,7 +1176,11 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Hook")
             "TEST");
 
         REQUIRE(linecount == 5);
+#if defined(TCOB_USE_LUAJIT)
+        REQUIRE(instcount == 13);
+#else
         REQUIRE(instcount == 12);
+#endif
 
         auto func2 = [&](debug const& debug) {
             if (debug.Source == "TEST") {
@@ -1868,6 +1874,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
     }
     SUBCASE("metatable")
     {
+#if !defined(TCOB_USE_LUAJIT)
         SUBCASE("__name")
         {
             auto tab          = create_table();
@@ -1879,6 +1886,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
             REQUIRE(res.has_value());
             REQUIRE(res.value().starts_with("hello world"));
         }
+#endif
         SUBCASE("__newindex")
         {
             auto tab        = create_table();
@@ -2222,8 +2230,12 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Upvalue")
             REQUIRE(res);
             auto func = global["bar"].as<function<i32>>();
             auto upvalue {func.get_upvalues()};
+#if !defined(TCOB_USE_LUAJIT)
             REQUIRE(upvalue.size() == 1);
             REQUIRE(upvalue.contains("_ENV"));
+#else
+            REQUIRE(upvalue.size() == 0);
+#endif
             REQUIRE(func() == 100);
         }
         {
@@ -2234,13 +2246,20 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Upvalue")
             REQUIRE(res);
             auto func = global["bar"].as<function<i32>>();
             auto upvalue {func.get_upvalues()};
+#if !defined(TCOB_USE_LUAJIT)
             REQUIRE(upvalue.size() == 2);
             REQUIRE(upvalue.contains("foo"));
             REQUIRE(upvalue.contains("_ENV"));
+#else
+            REQUIRE(upvalue.size() == 1);
+            REQUIRE(upvalue.contains("foo"));
+#endif
+
             REQUIRE(func() == 4200);
         }
     }
-    SUBCASE("change _ENV")
+
+    SUBCASE("change environment")
     {
         table newEnv {};
         global["newEnv"] = newEnv;
@@ -2425,8 +2444,8 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Variant")
             REQUIRE(std::get<u64>(var) == 100);
         }
         {
-            auto const var = run<std::variant<u64, f64>>("return 100.0").value();
-            REQUIRE(std::get<f64>(var) == 100);
+            auto const var = run<std::variant<u64, f64>>("return 100.01").value();
+            REQUIRE(std::get<f64>(var) == 100.01);
         }
         {
             auto const var = run<std::variant<int, std::vector<std::string>, bool>>("return {'ok','ko'}").value();
@@ -2469,6 +2488,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Variant")
     }
 }
 
+#if !defined(TCOB_USE_LUAJIT)
 TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Warnings")
 {
     std::string warning;
@@ -2479,3 +2499,4 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Warnings")
     res     = run("warn('test','1','2','3')");
     REQUIRE(warning == "test123");
 }
+#endif
