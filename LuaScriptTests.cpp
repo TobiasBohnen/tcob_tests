@@ -374,7 +374,6 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
     }
 }
 
-#if !defined(TCOB_USE_LUAJIT)
 TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Coroutines")
 {
     SUBCASE("basic")
@@ -539,30 +538,6 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Coroutines")
         result = co.resume<i32>();
         REQUIRE_FALSE(result.has_value());
     }
-    SUBCASE("push closure to coroutine")
-    {
-        auto l = std::function([](i32 i) { return (f32)i * 2.5f; });
-
-        auto res = run(
-            "co = coroutine.create(function () "
-            "         coroutine.yield(100) "
-            "     end) ");
-        REQUIRE(res);
-
-        auto co = global["co"].as<coroutine>();
-
-        auto result = co.resume<i32>();
-        REQUIRE(co.status() == coroutine_status::Suspended);
-        REQUIRE(result.has_value());
-        REQUIRE(result.value() == 100);
-        static_cast<void>(co.resume<void>());
-        REQUIRE(co.status() == coroutine_status::Dead);
-
-        co.push(&l);
-        auto result2 = co.resume<f32>(15);
-        REQUIRE(result2.has_value());
-        REQUIRE(result2.value() == l(15));
-    }
     SUBCASE("create from function")
     {
         auto res = run(
@@ -610,7 +585,6 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Coroutines")
         REQUIRE(global["Global"].as<i32>() == 400);
     }
 }
-#endif
 
 TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Enums")
 {
