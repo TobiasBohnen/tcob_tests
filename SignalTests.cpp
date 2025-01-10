@@ -4,13 +4,6 @@ i32 const ExpValue = 45234;
 
 static i32 Value {0};
 
-struct SignalTest {
-    void test(i32 val)
-    {
-        Value = val;
-    }
-};
-
 void static Test(i32 val)
 {
     Value = val;
@@ -20,13 +13,21 @@ TEST_CASE("Core.Signal.Connect")
 {
     SUBCASE("Member Function")
     {
+        struct SignalTest {
+            void test(i32 val)
+            {
+                Value = val;
+            }
+        };
+
         signal<i32 const> sig0;
         SignalTest        inst;
         REQUIRE(Value != ExpValue);
         sig0.connect<&SignalTest::test>(&inst);
         sig0(ExpValue);
         REQUIRE(Value == ExpValue);
-        Value = 0;
+        sig0(200);
+        REQUIRE(Value == 200);
     }
     SUBCASE("Free Function")
     {
@@ -35,7 +36,6 @@ TEST_CASE("Core.Signal.Connect")
         sig0.connect(&Test);
         sig0(ExpValue);
         REQUIRE(Value == ExpValue);
-        Value = 0;
     }
     SUBCASE("Lambda")
     {
@@ -138,5 +138,21 @@ TEST_CASE("Core.Signal.Handled")
         sig0(ev);
         REQUIRE(ev.Handled);
         REQUIRE(callCount == 2);
+    }
+}
+
+TEST_CASE("Core.Signal.ChangeEvArgs")
+{
+    struct event_base {
+        i32 Value {0};
+    };
+
+    {
+        signal<event_base> sig0;
+        event_base         ev;
+        sig0.connect([](auto&& arg) { arg.Value = 100; });
+        REQUIRE(ev.Value == 0);
+        sig0(ev);
+        REQUIRE(ev.Value == 100);
     }
 }
