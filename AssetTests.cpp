@@ -5,7 +5,7 @@ using namespace tcob::assets;
 TEST_CASE("Core.Assets.IsValid")
 {
     auto ptr = std::make_shared<i32>();
-    auto ast = asset_ptr<i32>(std::make_shared<asset<i32>>("", ptr, nullptr));
+    auto ast = asset_ptr<i32>(std::make_shared<asset<i32>>("", ptr));
     REQUIRE(ast);
     ptr = nullptr;
     REQUIRE_FALSE(ast);
@@ -37,7 +37,7 @@ TEST_CASE("Core.Assets.Cast")
     {
         {
             auto            derivedObj      = std::make_shared<Derived>();
-            auto            derivedAsset    = std::make_shared<asset<Derived>>("", derivedObj, nullptr);
+            auto            derivedAsset    = std::make_shared<asset<Derived>>("", derivedObj);
             auto            derivedAssetPtr = asset_ptr<Derived> {derivedAsset};
             asset_ptr<Base> baseAssetPtr    = derivedAssetPtr;
             REQUIRE(Derived::Count == 1);
@@ -48,7 +48,7 @@ TEST_CASE("Core.Assets.Cast")
     {
         {
             auto               derivedObj      = std::make_shared<Derived>();
-            auto               baseAsset       = std::make_shared<asset<Base>>("", derivedObj, nullptr);
+            auto               baseAsset       = std::make_shared<asset<Base>>("", derivedObj);
             auto               baseAssetPtr    = asset_ptr<Base> {baseAsset};
             asset_ptr<Derived> derivedAssetPtr = baseAssetPtr;
             REQUIRE(Derived::Count == 1);
