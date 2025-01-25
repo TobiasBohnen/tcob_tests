@@ -26,11 +26,11 @@ TEST_CASE("GFX.UI.Styles")
         button_hover->Background = colors::White;
 
         // button:focus > button
-        REQUIRE(std::get<color>(dynamic_cast<background_style*>(s.get(name, fl_focus, {}))->Background) == std::get<color>(button->Background));
+        REQUIRE(std::get<color>(dynamic_cast<background_style*>(s.get({name, fl_focus, {}}))->Background) == std::get<color>(button->Background));
         // button:focus:hover > button:hover
-        REQUIRE(std::get<color>(dynamic_cast<background_style*>(s.get(name, fl_focus_hover, {}))->Background) == std::get<color>(button_hover->Background));
+        REQUIRE(std::get<color>(dynamic_cast<background_style*>(s.get({name, fl_focus_hover, {}}))->Background) == std::get<color>(button_hover->Background));
         // button:active:hover > button:hover
-        REQUIRE(std::get<color>(dynamic_cast<background_style*>(s.get(name, fl_active_hover, {}))->Background) == std::get<color>(button_hover->Background));
+        REQUIRE(std::get<color>(dynamic_cast<background_style*>(s.get({name, fl_active_hover, {}}))->Background) == std::get<color>(button_hover->Background));
     }
     SUBCASE("test2")
     {
@@ -43,13 +43,13 @@ TEST_CASE("GFX.UI.Styles")
         button_focus_hover->Background = colors::Red;
 
         // button:focus > button
-        REQUIRE(std::get<color>(dynamic_cast<background_style*>(s.get(name, fl_focus, {}))->Background) == std::get<color>(button->Background));
+        REQUIRE(std::get<color>(dynamic_cast<background_style*>(s.get({name, fl_focus, {}}))->Background) == std::get<color>(button->Background));
         // button:hover > button
-        REQUIRE(std::get<color>(dynamic_cast<background_style*>(s.get(name, fl_hover, {}))->Background) == std::get<color>(button->Background));
+        REQUIRE(std::get<color>(dynamic_cast<background_style*>(s.get({name, fl_hover, {}}))->Background) == std::get<color>(button->Background));
         // button:focus:hover >  button:focus:hover
-        REQUIRE(std::get<color>(dynamic_cast<background_style*>(s.get(name, fl_focus_hover, {}))->Background) == std::get<color>(button_focus_hover->Background));
+        REQUIRE(std::get<color>(dynamic_cast<background_style*>(s.get({name, fl_focus_hover, {}}))->Background) == std::get<color>(button_focus_hover->Background));
         // button:active:hover > button
-        REQUIRE(std::get<color>(dynamic_cast<background_style*>(s.get(name, fl_active_hover, {}))->Background) == std::get<color>(button->Background));
+        REQUIRE(std::get<color>(dynamic_cast<background_style*>(s.get({name, fl_active_hover, {}}))->Background) == std::get<color>(button->Background));
     }
     SUBCASE("test3")
     {
@@ -68,11 +68,11 @@ TEST_CASE("GFX.UI.Styles")
         button_hover->Background  = colors::Yellow;
 
         // button:hover > button:hover
-        REQUIRE(std::get<color>(dynamic_cast<background_style*>(s.get(name, fl_hover, {}))->Background) == std::get<color>(button_hover->Background));
+        REQUIRE(std::get<color>(dynamic_cast<background_style*>(s.get({name, fl_hover, {}}))->Background) == std::get<color>(button_hover->Background));
         // button:focus:hover > button:hover
-        REQUIRE(std::get<color>(dynamic_cast<background_style*>(s.get(name, fl_focus_hover, {}))->Background) == std::get<color>(button_hover->Background));
+        REQUIRE(std::get<color>(dynamic_cast<background_style*>(s.get({name, fl_focus_hover, {}}))->Background) == std::get<color>(button_hover->Background));
         // button:active:hover > button:hover
-        REQUIRE(std::get<color>(dynamic_cast<background_style*>(s.get(name, fl_active_hover, {}))->Background) == std::get<color>(button_hover->Background));
+        REQUIRE(std::get<color>(dynamic_cast<background_style*>(s.get({name, fl_active_hover, {}}))->Background) == std::get<color>(button_hover->Background));
     }
 
     SUBCASE("attributes 1")
@@ -97,14 +97,14 @@ TEST_CASE("GFX.UI.Styles")
         auto decActiveStyle {s.create<button>(name, sfl_active, {{"dec_button", true}})};
         *decActiveStyle = *hoverStyle;
 
-        REQUIRE(std::get<color>(dynamic_cast<button::style*>(s.get(name, fl_hover, {{"inc_button", true}}))->Background)
+        REQUIRE(std::get<color>(dynamic_cast<button::style*>(s.get({name, fl_hover, {{"inc_button", true}}}))->Background)
                 == std::get<color>(incHoverStyle->Background));
-        REQUIRE(std::get<color>(dynamic_cast<button::style*>(s.get(name, fl_active, {{"inc_button", true}}))->Background)
+        REQUIRE(std::get<color>(dynamic_cast<button::style*>(s.get({name, fl_active, {{"inc_button", true}}}))->Background)
                 == std::get<color>(incActiveStyle->Background));
 
-        REQUIRE(std::get<color>(dynamic_cast<button::style*>(s.get(name, fl_hover, {{"dec_button", true}}))->Background)
+        REQUIRE(std::get<color>(dynamic_cast<button::style*>(s.get({name, fl_hover, {{"dec_button", true}}}))->Background)
                 == std::get<color>(decHoverStyle->Background));
-        REQUIRE(std::get<color>(dynamic_cast<button::style*>(s.get(name, fl_active, {{"dec_button", true}}))->Background)
+        REQUIRE(std::get<color>(dynamic_cast<button::style*>(s.get({name, fl_active, {{"dec_button", true}}}))->Background)
                 == std::get<color>(decActiveStyle->Background));
     }
 
@@ -130,17 +130,17 @@ TEST_CASE("GFX.UI.Styles")
         auto decActiveStyle {s.create<button>(name, sfl_active, {{"value", 40}, {"value", 60}})};
         *decActiveStyle = *hoverStyle;
 
-        REQUIRE(std::get<color>(dynamic_cast<button::style*>(s.get(name, fl_hover, {{"value", 80}}))->Background)
+        REQUIRE(std::get<color>(dynamic_cast<button::style*>(s.get({name, fl_hover, {{"value", 80}}}))->Background)
                 == std::get<color>(incHoverStyle->Background));
-        REQUIRE(std::get<color>(dynamic_cast<button::style*>(s.get(name, fl_active, {{"value", 100}}))->Background)
+        REQUIRE(std::get<color>(dynamic_cast<button::style*>(s.get({name, fl_active, {{"value", 100}}}))->Background)
                 == std::get<color>(incActiveStyle->Background));
 
-        REQUIRE(std::get<color>(dynamic_cast<button::style*>(s.get(name, fl_hover, {{"value", 40}}))->Background)
+        REQUIRE(std::get<color>(dynamic_cast<button::style*>(s.get({name, fl_hover, {{"value", 40}}}))->Background)
                 == std::get<color>(decHoverStyle->Background));
-        REQUIRE(std::get<color>(dynamic_cast<button::style*>(s.get(name, fl_active, {{"value", 60}}))->Background)
+        REQUIRE(std::get<color>(dynamic_cast<button::style*>(s.get({name, fl_active, {{"value", 60}}}))->Background)
                 == std::get<color>(decActiveStyle->Background));
 
-        REQUIRE(std::get<color>(dynamic_cast<button::style*>(s.get(name, fl_hover, {{"value", 50}}))->Background)
+        REQUIRE(std::get<color>(dynamic_cast<button::style*>(s.get({name, fl_hover, {{"value", 50}}}))->Background)
                 == std::get<color>(hoverStyle->Background));
     }
 }
