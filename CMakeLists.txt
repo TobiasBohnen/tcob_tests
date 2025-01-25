@@ -8,6 +8,8 @@ FetchContent_Declare(
   GIT_TAG v2.4.11
 )
 
+set(DOCTEST_NO_INSTALL ON)
+
 FetchContent_MakeAvailable(doctest)
 
 mark_as_advanced(FORCE DOCTEST_NO_INSTALL DOCTEST_USE_STD_HEADERS DOCTEST_WITH_MAIN_IN_STATIC_LIB DOCTEST_WITH_TESTS)
