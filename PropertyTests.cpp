@@ -43,7 +43,7 @@ TEST_CASE("Core.Property.Validate")
     }
 }
 
-TEST_CASE("Core.Property.Funcs")
+TEST_CASE("Core.Property.Function")
 {
     i32          result {0};
     prop_fn<i32> prop {{12, [&]() { return result; }, [&](i32 val) { result = val; }}};
@@ -55,7 +55,7 @@ TEST_CASE("Core.Property.Funcs")
     REQUIRE(prop == result);
 }
 
-TEST_CASE("Core.Property.Value")
+TEST_CASE("Core.Property.Field")
 {
     {
         prop<i32> prop;
@@ -272,4 +272,55 @@ TEST_CASE("Core.Property.CustomSource")
     REQUIRE(prop == 100);
     REQUIRE(prop == 200);
     REQUIRE(prop == 400);
+}
+
+TEST_CASE("Core.Property.Container")
+{
+    SUBCASE("Field")
+    {
+        {
+            std::vector<int>       result;
+            prop<std::vector<int>> prop;
+            prop.Changed.connect([&](std::vector<int> const& vec) { result.push_back(vec.back()); });
+            prop.add(100);
+            prop.add(200);
+            prop.add(300);
+            REQUIRE(prop->size() == 3);
+            REQUIRE(result.size() == 3);
+            REQUIRE(prop() == result);
+        }
+        {
+            prop<std::vector<int>> prop {{1, 2, 3, 4}};
+            prop.set(1, 100);
+            REQUIRE(prop() == std::vector<int> {1, 100, 3, 4});
+        }
+    }
+
+    SUBCASE("Function")
+    {
+        {
+            std::vector<int>          buffer;
+            prop_fn<std::vector<int>> prop {{[&]() { return buffer; },
+                                             [&](std::vector<int> const& vec) { buffer = vec; }}};
+
+            std::vector<int> result;
+
+            prop.Changed.connect([&](std::vector<int> const& vec) { result.push_back(vec.back()); });
+            prop.add(100);
+            prop.add(200);
+            prop.add(300);
+            REQUIRE(prop().size() == 3);
+            REQUIRE(result.size() == 3);
+            REQUIRE(prop() == result);
+        }
+
+        {
+            std::vector<int>          buffer {{1, 2, 3, 4}};
+            prop_fn<std::vector<int>> prop {{[&]() { return buffer; },
+                                             [&](std::vector<int> const& vec) { buffer = vec; }}};
+
+            prop.set(1, 100);
+            REQUIRE(prop() == std::vector<int> {1, 100, 3, 4});
+        }
+    }
 }
