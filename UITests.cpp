@@ -7,12 +7,12 @@ TEST_CASE("GFX.UI.Bounds")
     form form0 {"", nullptr, {60, 80, 800, 700}};
     auto panel0 {form0.create_container<panel>(dock_style::Fill, "Panel0")};
     auto panel0Layout {panel0->get_layout<fixed_layout>()};
-    panel0->set_scroll_offset({10, 20});
+    panel0->scroll_to({10, 20});
     panel0->Flex = {100_pct, 100_pct};
     auto button0 {panel0Layout->create_widget<button>({10, 20, 200, 100}, "button0")};
 
     auto cPanel0 {panel0Layout->create_widget<panel>({230, 280, 250, 500}, "cPanel0")};
-    cPanel0->set_scroll_offset({5, 10});
+    cPanel0->scroll_to({5, 10});
     auto cPanel0Layout0 {cPanel0->create_layout<fixed_layout>()};
     auto cButton0 {cPanel0Layout0->create_widget<button>({5, 50, 200, 100}, "button0")};
 
