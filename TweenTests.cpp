@@ -65,8 +65,8 @@ TEST_CASE("Core.Tween.LinearFunction")
         f32 out3 {};
 
         linear_tween<f32> contr {milliseconds {1000}};
-        contr.Function.StartValue = 10;
-        contr.Function.EndValue   = 70;
+        contr.Function.Start = 10;
+        contr.Function.End   = 70;
 
         contr.add_output(&out1);
         contr.add_output(&out2);
@@ -81,8 +81,8 @@ TEST_CASE("Core.Tween.LinearFunction")
         f32 out {};
 
         linear_tween<f32> contr {milliseconds {100}};
-        contr.Function.StartValue = 10;
-        contr.Function.EndValue   = 50;
+        contr.Function.Start = 10;
+        contr.Function.End   = 50;
 
         contr.Value.Changed.connect([&out](f32 newVal) { out = newVal; });
         contr.start(playback_mode::Looped);
@@ -240,9 +240,9 @@ TEST_CASE("Core.Tween.PowerFunction")
         f32 out {};
 
         power_tween<f32> contr {milliseconds {1000}};
-        contr.Function.StartValue = 10;
-        contr.Function.EndValue   = 50;
-        contr.Function.Exponent   = 2;
+        contr.Function.Start    = 10;
+        contr.Function.End      = 50;
+        contr.Function.Exponent = 2;
 
         contr.add_output(&out);
         contr.start();

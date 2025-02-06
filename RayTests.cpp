@@ -48,8 +48,8 @@ TEST_CASE("GFX.Ray.Func")
 {
     {
         easing::linear<point_f> func;
-        func.StartValue = {2, 2};
-        func.EndValue   = {12, 12};
+        func.Start = {2, 2};
+        func.End   = {12, 12};
         ray ray {{1, 5}, degree_f {90}};
         REQUIRE(ray.intersect_function(func, 0.01) == std::vector<ray::result> {{{5, 5}, 4}});
     }
