@@ -23,14 +23,15 @@ set(TEST_SRCFILES
   ColorTests.cpp
   CSVTests.cpp
   FontFamilyTests.cpp
-  HelperTests.cpp
-  ImageTests.cpp
   ConfigTests.cpp
   ConfigIniTests.cpp
   ConfigJsonTests.cpp
   ConfigYamlTests.cpp
   ConfigXMLTests.cpp
+  HelperTests.cpp
   ImageCodecTests.cpp
+  ImageTests.cpp
+  LSystemTests.cpp
   PointTests.cpp
   PropertyTests.cpp
   QuadtreeTests.cpp
