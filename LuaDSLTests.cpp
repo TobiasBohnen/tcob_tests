@@ -39,7 +39,7 @@ TEST_CASE_FIXTURE(LuaDSLTests, "Script.LuaDSL.Form")
                     ui.button 'button3' { label = 'click me', bounds = rect(0, 0, 1, 2) },
                     ui.panel  'panel3'  {
                         bounds = rect(0, 0, 200, 200),
-                        layout = ui.hbox_layout {
+                        layout = ui.horizontal_layout {
                             ui.button    'button4'   { label = 'click me' },
                             ui.button    'button5'   { label = 'click me too' },
                             ui.check_box 'checkbox2' { checked = true }
@@ -92,7 +92,7 @@ TEST_CASE_FIXTURE(LuaDSLTests, "Script.LuaDSL.Form")
         });
     }};
 
-    std::array const layouts {"fixed_layout", "flex_size_layout", "grid_layout", "hbox_layout", "vbox_layout"};
+    std::array const layouts {"fixed_layout", "flex_size_layout", "grid_layout", "horizontal_layout", "vertical_layout"};
     for (auto const& l : layouts) {
         global["ui"][l] = make_layout_func(l);
     }
