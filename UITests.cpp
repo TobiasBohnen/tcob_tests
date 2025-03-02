@@ -7,12 +7,10 @@ TEST_CASE("GFX.UI.Bounds")
     form form0 {"", nullptr, {60, 80, 800, 700}};
     auto panel0 {form0.create_container<panel>(dock_style::Fill, "Panel0")};
     auto panel0Layout {panel0->get_layout<fixed_layout>()};
-    panel0->scroll_to({10, 20});
     panel0->Flex = {100_pct, 100_pct};
     auto button0 {panel0Layout->create_widget<button>({10, 20, 200, 100}, "button0")};
 
     auto cPanel0 {panel0Layout->create_widget<panel>({230, 280, 250, 500}, "cPanel0")};
-    cPanel0->scroll_to({5, 10});
     auto cPanel0Layout0 {cPanel0->create_layout<fixed_layout>()};
     auto cButton0 {cPanel0Layout0->create_widget<button>({5, 50, 200, 100}, "button0")};
 
@@ -31,9 +29,9 @@ TEST_CASE("GFX.UI.Bounds")
     form0.fixed_update(milliseconds {0});
 
     REQUIRE(panel0->global_position() == point_f {60, 80});
-    REQUIRE(button0->global_position() == point_f {125, 145});
-    REQUIRE(cPanel0->global_position() == point_f {345, 405});
-    REQUIRE(cButton0->global_position() == point_f {410, 510});
+    REQUIRE(button0->global_position() == point_f {135, 165});
+    REQUIRE(cPanel0->global_position() == point_f {355, 425});
+    REQUIRE(cButton0->global_position() == point_f {425, 540});
 
     REQUIRE(panel0->content_bounds() == rect_f {65, 65, 670, 570});
     REQUIRE(button0->content_bounds() == rect_f {23, 33, 174, 74});
@@ -41,12 +39,12 @@ TEST_CASE("GFX.UI.Bounds")
     REQUIRE(cButton0->content_bounds() == rect_f {18, 63, 174, 74});
 
     REQUIRE(panel0->global_content_bounds() == rect_f {125, 145, 670, 570});
-    REQUIRE(button0->global_content_bounds() == rect_f {138, 158, 174, 74});
-    REQUIRE(cPanel0->global_content_bounds() == rect_f {410, 470, 120, 370});
-    REQUIRE(cButton0->global_content_bounds() == rect_f {423, 523, 174, 74});
+    REQUIRE(button0->global_content_bounds() == rect_f {148, 178, 174, 74});
+    REQUIRE(cPanel0->global_content_bounds() == rect_f {420, 490, 120, 370});
+    REQUIRE(cButton0->global_content_bounds() == rect_f {438, 553, 174, 74});
 
     REQUIRE(panel0->hit_test_bounds() == rect_f {80, 100, 760, 660});
-    REQUIRE(button0->hit_test_bounds() == rect_f {129, 149, 192, 92});
-    REQUIRE(cPanel0->hit_test_bounds() == rect_f {365, 425, 210, 290});
-    REQUIRE(cButton0->hit_test_bounds() == rect_f {414, 514, 116, 92});
+    REQUIRE(button0->hit_test_bounds() == rect_f {139, 169, 192, 92});
+    REQUIRE(cPanel0->hit_test_bounds() == rect_f {375, 445, 210, 270});
+    REQUIRE(cButton0->hit_test_bounds() == rect_f {429, 544, 111, 92});
 }
