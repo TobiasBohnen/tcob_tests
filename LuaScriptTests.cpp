@@ -12,7 +12,6 @@ auto static testfuncstr() -> std::string
 {
     return "huhu";
 }
-
 auto static testfuncfloat() -> float
 {
     return 4.2f;
@@ -2359,40 +2358,25 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.VariadicFunctions")
 TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Variant")
 {
     std::function Variant = [](std::variant<f32, std::string, bool> var) {
-        if (std::get_if<f32>(&var)) {
-            return "f32";
-        }
-
-        if (std::get_if<std::string>(&var)) {
-            return "string";
-        }
-
-        if (std::get_if<bool>(&var)) {
-            return "bool";
-        }
-
+        if (std::get_if<f32>(&var)) { return "f32"; }
+        if (std::get_if<std::string>(&var)) { return "string"; }
+        if (std::get_if<bool>(&var)) { return "bool"; }
         return "";
     };
     global["test"]["Variant"] = &Variant;
 
     SUBCASE("cpp parameter")
     {
-        std::string str = *run<std::string>(
-            "return test.Variant('hi')");
+        std::string str = *run<std::string>("return test.Variant('hi')");
         REQUIRE(str == Variant("hi"s));
-        str = *run<std::string>(
-            "return test.Variant(1.23)");
+        str = *run<std::string>("return test.Variant(1.23)");
         REQUIRE(str == Variant(1.23f));
-        str = *run<std::string>(
-            "return test.Variant(true)");
+        str = *run<std::string>("return test.Variant(true)");
         REQUIRE(str == Variant(true));
     }
     SUBCASE("lua parameter")
     {
-        auto res = run(
-            "function foo(x) "
-            "return x * 10 "
-            "end ");
+        auto res = run("function foo(x) return x * 10 end");
         REQUIRE(res);
         auto var  = std::variant<std::string, i32, bool> {100};
         auto func = global["foo"].as<function<i32>>();
