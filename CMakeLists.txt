@@ -41,11 +41,11 @@ set(TEST_SRCFILES
   RectTests.cpp
   SignalTests.cpp
   StreamTests.cpp
-  StringUtilTests.cpp
   StyleTests.cpp
   TransformTests.cpp
   TweenTests.cpp
   UITests.cpp
+  UTFTests.cpp
   main.cpp
 )
 
