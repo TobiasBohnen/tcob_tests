@@ -18,6 +18,12 @@ TEST_CASE("Core.UTF.ToLower")
     REQUIRE(utf8::to_lower("STRAẞE") == "straße");
 }
 
+TEST_CASE("Core.UTF.Capitalize")
+{
+    REQUIRE(utf8::capitalize("LÖWE im käfig") == "Löwe Im Käfig");
+    REQUIRE(utf8::capitalize("lÖWE iM käfig") == "Löwe Im Käfig");
+}
+
 TEST_CASE("Core.UTF.Insert")
 {
     REQUIRE(utf8::insert("löwe", "öä", 2) == "lööäwe");
