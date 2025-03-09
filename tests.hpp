@@ -9,7 +9,7 @@
 
 using namespace tcob;
 using namespace tcob::gfx;
-using namespace tcob::gfx::ui;
+using namespace tcob::ui;
 
 using namespace std::literals::chrono_literals;
 using namespace std::literals::string_literals;
