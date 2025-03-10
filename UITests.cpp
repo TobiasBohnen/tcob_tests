@@ -6,12 +6,12 @@ TEST_CASE("GFX.UI.Bounds")
 
     form form0 {"", nullptr, {60, 80, 800, 700}};
     auto panel0 {form0.create_container<panel>(dock_style::Fill, "Panel0")};
-    auto panel0Layout {panel0->get_layout<fixed_layout>()};
+    auto panel0Layout {panel0->get_layout<static_layout>()};
     panel0->Flex = {100_pct, 100_pct};
     auto button0 {panel0Layout->create_widget<button>({10, 20, 200, 100}, "button0")};
 
     auto cPanel0 {panel0Layout->create_widget<panel>({230, 280, 250, 500}, "cPanel0")};
-    auto cPanel0Layout0 {cPanel0->create_layout<fixed_layout>()};
+    auto cPanel0Layout0 {cPanel0->create_layout<static_layout>()};
     auto cButton0 {cPanel0Layout0->create_widget<button>({5, 50, 200, 100}, "button0")};
 
     style_collection& styles {*form0.Styles};
