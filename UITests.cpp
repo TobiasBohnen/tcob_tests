@@ -4,7 +4,7 @@ TEST_CASE("GFX.UI.Bounds")
 {
     using namespace tcob::literals;
 
-    form form0 {"", nullptr, {60, 80, 800, 700}};
+    form form0 {{"", rect_i {60, 80, 800, 700}}};
     auto panel0 {form0.create_container<panel>(dock_style::Fill, "Panel0")};
     auto panel0Layout {panel0->get_layout<static_layout>()};
     panel0->Flex = {100_pct, 100_pct};
