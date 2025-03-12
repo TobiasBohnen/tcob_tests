@@ -78,24 +78,22 @@ TEST_CASE("GFX.UI.Styles")
     SUBCASE("attributes 1")
     {
         style_collection s;
-        auto             style {s.create<button>(name, {})};
-        style->Background = color {1, 1, 1, 1};
-
-        auto hoverStyle {s.create<button>(name, sfl_hover)};
-        *hoverStyle       = *style;
-        style->Background = color {3, 3, 3, 3};
 
         auto incHoverStyle {s.create<button>(name, sfl_hover, {{"inc_button", true}})};
-        *incHoverStyle            = *hoverStyle;
         incHoverStyle->Background = color {5, 5, 5, 5};
         auto incActiveStyle {s.create<button>(name, sfl_active, {{"inc_button", true}})};
-        *incActiveStyle            = *hoverStyle;
         incActiveStyle->Background = color {6, 6, 6, 6};
 
         auto decHoverStyle {s.create<button>(name, sfl_hover, {{"dec_button", true}})};
-        *decHoverStyle = *hoverStyle;
+        decHoverStyle->Background = color {7, 7, 7, 7};
         auto decActiveStyle {s.create<button>(name, sfl_active, {{"dec_button", true}})};
-        *decActiveStyle = *hoverStyle;
+        decActiveStyle->Background = color {8, 8, 8, 8};
+
+        auto style {s.create<button>(name, {})};
+        style->Background = color {1, 1, 1, 1};
+
+        auto hoverStyle {s.create<button>(name, sfl_hover)};
+        style->Background = color {3, 3, 3, 3};
 
         REQUIRE(std::get<color>(dynamic_cast<button::style*>(s.get({name, fl_hover, {{"inc_button", true}}}))->Background)
                 == std::get<color>(incHoverStyle->Background));
