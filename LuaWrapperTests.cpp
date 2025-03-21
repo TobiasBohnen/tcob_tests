@@ -91,7 +91,6 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.VectorWrapper")
         REQUIRE_FALSE(res.has_error());
         REQUIRE(6 == vec[6]);
     }
-#if !defined(TCOB_USE_LUAJIT)
     SUBCASE("iterate")
     {
         std::vector<i32> vec = {0, 1, 2, 3, 4, 5};
@@ -105,7 +104,6 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.VectorWrapper")
             "return result");
         REQUIRE(x == 15);
     }
-#endif
 }
 
 TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
@@ -590,7 +588,6 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
         i32 b = *run<i32>("return -wrap1");
         REQUIRE(b == -100);
     }
-#if !defined(TCOB_USE_LUAJIT)
     SUBCASE("Close")
     {
         TestScriptClass t1;
@@ -601,7 +598,6 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
         REQUIRE_FALSE(res.has_error());
         REQUIRE(t1.Closed == true);
     }
-#endif
     SUBCASE("GC")
     {
         REQUIRE(gc().is_running());

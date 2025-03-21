@@ -1149,11 +1149,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Hook")
             "TEST");
 
         REQUIRE(linecount == 5);
-#if defined(TCOB_USE_LUAJIT)
-        REQUIRE(instcount == 13);
-#else
         REQUIRE(instcount == 12);
-#endif
 
         auto func2 = [&](debug const& debug) {
             if (debug.Source == "TEST") {
@@ -1847,7 +1843,6 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
     }
     SUBCASE("metatable")
     {
-#if !defined(TCOB_USE_LUAJIT)
         SUBCASE("__name")
         {
             auto tab          = create_table();
@@ -1859,7 +1854,6 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
             REQUIRE(res.has_value());
             REQUIRE(res.value().starts_with("hello world"));
         }
-#endif
         SUBCASE("__newindex")
         {
             auto tab        = create_table();
@@ -2203,12 +2197,10 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Upvalue")
             REQUIRE(res);
             auto func = global["bar"].as<function<i32>>();
             auto upvalue {func.get_upvalues()};
-#if !defined(TCOB_USE_LUAJIT)
+
             REQUIRE(upvalue.size() == 1);
             REQUIRE(upvalue.contains("_ENV"));
-#else
-            REQUIRE(upvalue.size() == 0);
-#endif
+
             REQUIRE(func() == 100);
         }
         {
@@ -2219,14 +2211,10 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Upvalue")
             REQUIRE(res);
             auto func = global["bar"].as<function<i32>>();
             auto upvalue {func.get_upvalues()};
-#if !defined(TCOB_USE_LUAJIT)
+
             REQUIRE(upvalue.size() == 2);
             REQUIRE(upvalue.contains("foo"));
             REQUIRE(upvalue.contains("_ENV"));
-#else
-            REQUIRE(upvalue.size() == 1);
-            REQUIRE(upvalue.contains("foo"));
-#endif
 
             REQUIRE(func() == 4200);
         }
@@ -2446,7 +2434,6 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Variant")
     }
 }
 
-#if !defined(TCOB_USE_LUAJIT)
 TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Warnings")
 {
     std::string warning;
@@ -2457,4 +2444,3 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Warnings")
     res     = run("warn('test','1','2','3')");
     REQUIRE(warning == "test123");
 }
-#endif
