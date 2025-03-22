@@ -101,17 +101,16 @@ include(doctest)
 doctest_discover_tests(tcob_tests)
 
 add_custom_target(tcob_tests_copyFiles ALL
+
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/testfiles ${CMAKE_CURRENT_BINARY_DIR}/testfiles
 )
 
 add_dependencies(tcob_tests_copyFiles tcob_tests)
 
-# if(TCOB_ASAN)
 # target_compile_definitions(tcob_tests PUBLIC _DISABLE_STRING_ANNOTATION PUBLIC _DISABLE_VECTOR_ANNOTATION)
 # target_compile_options(tcob_tests PRIVATE -fsanitize=undefined -fsanitize=address)
-# target_link_directories(tcob_tests PUBLIC "C:/Program Files/LLVM/lib/clang/17/lib/windows/")
+# target_link_directories(tcob_tests PUBLIC "C:/Program Files/LLVM/lib/clang/18/lib/windows/")
 # target_link_options(tcob_tests
 # PUBLIC clang_rt.asan_dynamic-x86_64.lib
 # PUBLIC clang_rt.asan_dynamic_runtime_thunk-x86_64.lib
 # )
-# endif()

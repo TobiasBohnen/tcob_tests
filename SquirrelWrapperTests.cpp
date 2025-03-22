@@ -295,7 +295,7 @@ TEST_CASE_FIXTURE(SquirrelWrapperTests, "Script.SquirrelWrapper.UnknownGetHandle
 {
     struct bar {
         int  x {12};
-        auto y() -> int { return 400; }
+        auto y() const -> int { return x * 10; }
         int  z {23};
     };
 
@@ -352,7 +352,8 @@ TEST_CASE_FIXTURE(SquirrelWrapperTests, "Script.SquirrelWrapper.UnknownGetHandle
             }
         });
 
-        bar  test {};
+        bar test {};
+        test.x       = 100;
         auto funcres = f.call(&test);
         REQUIRE_FALSE(funcres.has_error());
         REQUIRE(funcres.value() == test.y());
