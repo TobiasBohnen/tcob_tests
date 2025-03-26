@@ -5,86 +5,6 @@ using namespace tcob::data::config;
 
 static std::string const EXT {".ini"};
 
-TEST_CASE("Data.Ini.Reference")
-{
-    SUBCASE("ref value")
-    {
-        std::string const iniString =
-            R"([section1]
-                   b = { a = 100 }
-                   c = @section1.b.a       
-                   b = { a = 75 }
-                )";
-
-        object t;
-        REQUIRE(t.parse(iniString, EXT));
-        REQUIRE(t["section1"]["c"].as<i32>() == 100);
-        REQUIRE(t["section1"]["b"]["a"].as<i32>() == 75);
-    }
-    SUBCASE("ref section")
-    {
-        std::string const iniString =
-            R"(
-            [section1]
-                b = { a = 100, c = 300 }
-            [section2]
-                c = @section1.b
-                d = @section1
-                d.b.a = 200
-            )";
-
-        object t;
-        REQUIRE(t.parse(iniString, EXT));
-        REQUIRE(t["section1"]["b"]["a"].as<i32>() == 100);
-        REQUIRE(t["section2"]["c"]["a"].as<i32>() == 100);
-        REQUIRE(t["section2"]["c"]["c"].as<i32>() == 300);
-        REQUIRE(t["section2"]["d"]["b"]["a"].as<i32>() == 200);
-        REQUIRE(t["section2"]["d"]["b"]["c"].as<i32>() == 300);
-    }
-    SUBCASE("ref in inline section")
-    {
-        std::string const iniString =
-            R"(
-            [section1]
-                b = { a = 100, c = 300 }
-            [section2]
-                c = { d = @section1.b.c }
-            )";
-
-        object t;
-        REQUIRE(t.parse(iniString, EXT));
-        REQUIRE(t["section2"]["c"]["d"].as<i32>() == 300);
-    }
-    SUBCASE("inheritance")
-    {
-        std::string const iniString =
-            R"([section1]
-                    b = { a = 100 }
-               [sect@ion1]
-                    b = 444
-               [section2] @section1
-                    c = 240
-                )";
-
-        object t;
-        REQUIRE(t.parse(iniString, EXT));
-        REQUIRE(t["sect@ion1"]["b"].as<i32>() == 444);
-        REQUIRE(t["section2"]["b"]["a"].as<i32>() == 100);
-        REQUIRE(t["section2"]["c"].as<i32>() == 240);
-    }
-    SUBCASE("unknown ref")
-    {
-        std::string const iniString =
-            R"([section1]
-                   b = { a = 100 }
-                   c = @section2
-                )";
-
-        object t;
-        REQUIRE_FALSE(t.parse(iniString, EXT));
-    }
-}
-
 TEST_CASE("Data.Ini.Array")
 {
     SUBCASE("parse")
@@ -222,6 +142,9 @@ TEST_CASE("Data.Ini.Sections")
             x = 300
             y = 600
             c = @
+
+            ["section1"]
+            'example.com' = 43 
         )";
 
         object t;
@@ -265,6 +188,8 @@ TEST_CASE("Data.Ini.Sections")
         REQUIRE(sec0["a"].as<f64>() == 1);
         REQUIRE(sec0["b"].as<std::string>() == "a");
         REQUIRE(sec0["xyz"].as<bool>() == true);
+
+        REQUIRE(t["section1"]["example.com"].as<i32>() == 43);
     }
 
     SUBCASE("inline section")
@@ -617,6 +542,7 @@ TEST_CASE("Data.Ini.DuplicateKey")
 
 TEST_CASE("Data.Ini.Comments")
 {
+    SUBCASE("single-line comment")
     {
         std::string const iniString =
             R"(
@@ -640,6 +566,7 @@ TEST_CASE("Data.Ini.Comments")
         REQUIRE(t.as<object>("section1").get_entry("c")->get_comment().Text == "comment2\n");
         REQUIRE(t.as<object>("section2").get_entry("e")->get_comment().Text == "comment3\n");
     }
+    SUBCASE("multi-line comment")
     {
         std::string const iniString =
             R"(
@@ -652,7 +579,25 @@ TEST_CASE("Data.Ini.Comments")
         object t;
         REQUIRE(t.parse(iniString, EXT));
 
+        REQUIRE(t["section1"]["a"].as<i32>() == 1);
         REQUIRE(t.as<object>("section1").get_entry("a")->get_comment().Text == "comment1\ncomment2\n");
+    }
+    SUBCASE("trailing comment")
+    {
+        std::string const iniString =
+            R"(
+            [section1]       
+            a = 1  ;comment1;  
+            b = 2 #comment2#
+        )";
+
+        object t;
+        REQUIRE(t.parse(iniString, EXT));
+
+        REQUIRE(t["section1"]["a"].as<i32>() == 1);
+        REQUIRE(t.as<object>("section1").get_entry("a")->get_comment().Text == "comment1\n");
+        REQUIRE(t["section1"]["b"].as<i32>() == 2);
+        REQUIRE(t.as<object>("section1").get_entry("b")->get_comment().Text == "comment2\n");
     }
 }
 
@@ -683,6 +628,86 @@ TEST_CASE("Data.Ini.Literals")
     REQUIRE(t.as<bool>("section1", "valueSec", "b") == false);
     REQUIRE(t.as<f64>("section1", "valueSec", "c", "l") == 1);
     REQUIRE(t.as<f64>("section1", "valueArr", 2) == 9);
+}
+
+TEST_CASE("Data.Ini.Reference")
+{
+    SUBCASE("ref value")
+    {
+        std::string const iniString =
+            R"([section1]
+                   b = { a = 100 }
+                   c = @section1.b.a       
+                   b = { a = 75 }
+                )";
+
+        object t;
+        REQUIRE(t.parse(iniString, EXT));
+        REQUIRE(t["section1"]["c"].as<i32>() == 100);
+        REQUIRE(t["section1"]["b"]["a"].as<i32>() == 75);
+    }
+    SUBCASE("ref section")
+    {
+        std::string const iniString =
+            R"(
+            [section1]
+                b = { a = 100, c = 300 }
+            [section2]
+                c = @section1.b
+                d = @section1
+                d.b.a = 200
+            )";
+
+        object t;
+        REQUIRE(t.parse(iniString, EXT));
+        REQUIRE(t["section1"]["b"]["a"].as<i32>() == 100);
+        REQUIRE(t["section2"]["c"]["a"].as<i32>() == 100);
+        REQUIRE(t["section2"]["c"]["c"].as<i32>() == 300);
+        REQUIRE(t["section2"]["d"]["b"]["a"].as<i32>() == 200);
+        REQUIRE(t["section2"]["d"]["b"]["c"].as<i32>() == 300);
+    }
+    SUBCASE("ref in inline section")
+    {
+        std::string const iniString =
+            R"(
+            [section1]
+                b = { a = 100, c = 300 }
+            [section2]
+                c = { d = @section1.b.c }
+            )";
+
+        object t;
+        REQUIRE(t.parse(iniString, EXT));
+        REQUIRE(t["section2"]["c"]["d"].as<i32>() == 300);
+    }
+    SUBCASE("inheritance")
+    {
+        std::string const iniString =
+            R"([section1]
+                    b = { a = 100 }
+               [sect@ion1]
+                    b = 444
+               [section2] @section1
+                    c = 240
+                )";
+
+        object t;
+        REQUIRE(t.parse(iniString, EXT));
+        REQUIRE(t["sect@ion1"]["b"].as<i32>() == 444);
+        REQUIRE(t["section2"]["b"]["a"].as<i32>() == 100);
+        REQUIRE(t["section2"]["c"].as<i32>() == 240);
+    }
+    SUBCASE("unknown ref")
+    {
+        std::string const iniString =
+            R"([section1]
+                   b = { a = 100 }
+                   c = @section2
+                )";
+
+        object t;
+        REQUIRE_FALSE(t.parse(iniString, EXT));
+    }
 }
 
 TEST_CASE("Data.Ini.Settings")
