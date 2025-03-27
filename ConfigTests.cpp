@@ -130,6 +130,16 @@ TEST_CASE("Data.Config.Set")
         t["section1"]["value"]["cvalue"] = 100;
         REQUIRE(t["section1"]["value"]["cvalue"].as<i32>() == 100);
     }
+    SUBCASE("monostate")
+    {
+        object t;
+        t["value"] = 123.45f;
+        REQUIRE(t["value"].as<f32>() == 123.45f);
+        t["value"] = std::monostate {};
+        REQUIRE(t.has("value"));
+        REQUIRE_FALSE(t["value"].is<f32>());
+        REQUIRE(t.is<std::monostate>("value"));
+    }
 }
 
 TEST_CASE("Data.Config.Has")

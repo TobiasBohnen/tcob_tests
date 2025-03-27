@@ -182,7 +182,7 @@ TEST_CASE("Data.Json.Parse")
         REQUIRE(obj["intArray"][0].as<i32>() == 1);
         REQUIRE(obj["intArray"][1].as<i32>() == 2);
         REQUIRE(obj["intArray"][2].as<i32>() == 3);
-        REQUIRE_FALSE(obj.has("bla"));
+        REQUIRE(obj.has("bla"));
     }
 
     SUBCASE("array")
