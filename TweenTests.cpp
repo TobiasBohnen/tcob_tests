@@ -7,7 +7,7 @@ using namespace tcob::literals;
 
 TEST_CASE("Core.Tween.Vector")
 {
-    std::vector<std::unique_ptr<gfx::detail::tween_base>> controllers;
+    std::vector<std::unique_ptr<tween_base>> controllers;
 
     f32 out1 {};
     f32 out2 {};
