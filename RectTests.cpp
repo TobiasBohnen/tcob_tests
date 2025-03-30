@@ -320,9 +320,19 @@ TEST_CASE("Core.POD.Rect")
             REQUIRE_FALSE(r1.intersects(r2));
             REQUIRE_FALSE(r2.intersects(r1));
         }
+
+        {
+            rect_i r1 {0, 10, 20, 30};
+            rect_i r2 {20, 10, 20, 30};
+            REQUIRE_FALSE(r1.intersects(r2));
+            REQUIRE_FALSE(r2.intersects(r1));
+
+            REQUIRE(r1.intersects(r2, true));
+            REQUIRE(r2.intersects(r1, true));
+        }
     }
 
-    SUBCASE("Intersections")
+    SUBCASE("AsIntersectionWith")
     {
         {
             rect_f r1 {10, 20, 50, 50};
