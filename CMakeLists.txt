@@ -80,8 +80,7 @@ set_target_properties(tcob_tests PROPERTIES
   CXX_STANDARD_REQUIRED TRUE
 )
 
-list(APPEND CMAKE_MODULE_PATH ${doctest_SOURCE_DIR}/scripts/cmake/)
-include(doctest)
+include(doctest/doctest.cmake)
 doctest_discover_tests(tcob_tests)
 
 add_custom_target(tcob_tests_copyFiles ALL
