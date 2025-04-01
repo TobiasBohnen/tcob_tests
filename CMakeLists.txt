@@ -1,19 +1,3 @@
-set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
-
-Include(FetchContent)
-
-FetchContent_Declare(
-  doctest
-  GIT_REPOSITORY https://github.com/doctest/doctest
-  GIT_TAG v2.4.11
-)
-
-set(DOCTEST_NO_INSTALL ON)
-
-FetchContent_MakeAvailable(doctest)
-
-mark_as_advanced(FORCE DOCTEST_NO_INSTALL DOCTEST_USE_STD_HEADERS DOCTEST_WITH_MAIN_IN_STATIC_LIB DOCTEST_WITH_TESTS)
-
 add_executable(tcob_tests)
 
 set(TEST_SRCFILES
@@ -78,7 +62,7 @@ endif()
 
 target_sources(tcob_tests PRIVATE ${TEST_SRCFILES})
 
-target_link_libraries(tcob_tests PRIVATE doctest::doctest PUBLIC ${TCOB_LIBS} PRIVATE tcob_extlibs) # link to static/object libraries to prevent CI hiccups
+target_link_libraries(tcob_tests PUBLIC ${TCOB_LIBS} PRIVATE tcob_extlibs) # link to static/object libraries to prevent CI hiccups
 
 target_include_directories(tcob_tests PRIVATE . PRIVATE ../../tcob/include)
 
@@ -101,7 +85,6 @@ include(doctest)
 doctest_discover_tests(tcob_tests)
 
 add_custom_target(tcob_tests_copyFiles ALL
-
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/testfiles ${CMAKE_CURRENT_BINARY_DIR}/testfiles
 )
 
