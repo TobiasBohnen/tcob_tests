@@ -388,4 +388,34 @@ TEST_CASE("Core.POD.Point")
     {
         REQUIRE(std::format("{}", point_f {10.123f, 23.434f}) == "(x:10.123,y:23.434)");
     }
+
+    SUBCASE("EuclideanDistance")
+    {
+        REQUIRE(euclidean_distance(point_f::Zero, point_f::Zero) == 0.f);
+        REQUIRE(euclidean_distance<f32>({8, 11}, {5, 7}) == 5.f);
+    }
+
+    SUBCASE("ManhattanDistance")
+    {
+        REQUIRE(manhattan_distance<i32>({0, 0}, {0, 0}) == 0);
+        REQUIRE(manhattan_distance<i32>({0, 0}, {1, 1}) == 2);
+        REQUIRE(manhattan_distance<i32>({0, 0}, {5, 0}) == 5);
+        REQUIRE(manhattan_distance<i32>({0, 0}, {0, 7}) == 7);
+        REQUIRE(manhattan_distance<i32>({-1, -2}, {3, 4}) == 10);
+        REQUIRE(manhattan_distance<i32>({2, 5}, {7, 1}) == manhattan_distance<i32>({7, 1}, {2, 5}));
+        REQUIRE(manhattan_distance<i32>({10, 2}, {13, 20}) == 21);
+        REQUIRE(manhattan_distance<i32>({-4, 8}, {10, 12}) == 18);
+    }
+
+    SUBCASE("ChebyshevDistance")
+    {
+        REQUIRE(chebyshev_distance<i32>({0, 0}, {0, 0}) == 0);
+        REQUIRE(chebyshev_distance<i32>({0, 0}, {1, 1}) == 1);
+        REQUIRE(chebyshev_distance<i32>({0, 0}, {5, 0}) == 5);
+        REQUIRE(chebyshev_distance<i32>({0, 0}, {0, 7}) == 7);
+        REQUIRE(chebyshev_distance<i32>({-1, -2}, {3, 4}) == 6);
+        REQUIRE(chebyshev_distance<i32>({2, 5}, {7, 1}) == chebyshev_distance<i32>({7, 1}, {2, 5}));
+        REQUIRE(chebyshev_distance<i32>({10, 2}, {13, 20}) == 18);
+        REQUIRE(chebyshev_distance<i32>({-4, 8}, {10, 12}) == 14);
+    }
 }
