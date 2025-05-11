@@ -308,6 +308,7 @@ TEST_CASE("Data.Ini.Save")
     save["section3"]["valueSection"]["xyz"]                      = true;
     save["section3"]["valueSection"]["subsection"]["a"]          = 100;
     save["section3"]["valueSection"]["subsection"]["a.b"]["x.y"] = 100;
+    save["long"]                                                 = std::string(600, 'a');
 
     object arraySubSection;
     arraySubSection["ay"] = 123;
@@ -475,6 +476,8 @@ TEST_CASE("Data.Ini.Save")
             REQUIRE(load["section3"]["valueSection"]["xyz"].as<bool>() == true);
 
             REQUIRE(load["section3"]["valueSection"]["subsection"]["a"].as<i64>() == 100);
+
+            REQUIRE(load["long"].as<std::string>() == std::string(600, 'a'));
         }
     }
 
