@@ -21,7 +21,6 @@ set(TEST_SRCFILES
   QuadtreeTests.cpp
   RandomTests.cpp
   RayTests.cpp
-  ResultTests.cpp
   RectTests.cpp
   SignalTests.cpp
   StreamTests.cpp
@@ -76,7 +75,7 @@ target_link_options(tcob_tests PRIVATE
 )
 
 set_target_properties(tcob_tests PROPERTIES
-  CXX_STANDARD 20
+  CXX_STANDARD 23
   CXX_STANDARD_REQUIRED TRUE
 )
 

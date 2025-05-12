@@ -20,7 +20,7 @@ auto static testfuncpair(std::pair<i32, f32> const& p) -> f32
 {
     return static_cast<f32>(p.first) * p.second;
 }
-auto static testfuncfloat2(tcob::scripting::result<f32> f, tcob::scripting::result<f32> x, int i) -> f32
+auto static testfuncfloat2(std::expected<f32, error_code> f, std::expected<f32, error_code> x, int i) -> f32
 {
     return f.value() * x.value() * static_cast<f32>(i);
 }
@@ -116,7 +116,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Closures")
         {
             global["testFunc"] = testfuncfloat2;
             f32 x              = *run<f32>("return testFunc(4,4.5,3)");
-            REQUIRE(x == testfuncfloat2(tcob::scripting::result<f32> {4.f}, tcob::scripting::result<f32> {4.5f}, 3));
+            REQUIRE(x == testfuncfloat2(std::expected<f32, error_code> {4.f}, std::expected<f32, error_code> {4.5f}, 3));
         }
         {
             global["testFunc"] = testfuncpair;
@@ -453,9 +453,9 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Coroutines")
         REQUIRE(result.value() == 2);
         auto endresult = co.resume<void>();
         REQUIRE(co.status() == coroutine_status::Dead);
-        REQUIRE_FALSE(endresult.has_error());
+        REQUIRE(endresult.has_value());
         auto endresult2 = co.resume<void>();
-        REQUIRE(endresult2.has_error());
+        REQUIRE_FALSE(endresult2.has_value());
         REQUIRE(endresult2.error() == error_code::Error);
     }
     SUBCASE("status")
@@ -1860,14 +1860,14 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
             global["table"] = tab;
 
             auto res0 = run("table.a = 100");
-            REQUIRE_FALSE(res0.has_error());
+            REQUIRE(res0.has_value());
 
             auto metatab          = tab.create_or_get_metatable();
             auto func             = std::function {[&] { get_view().error("readonly"); }};
             metatab["__newindex"] = &func;
 
             auto res1 = run("table.b = 100", "error");
-            REQUIRE(res1.has_error());
+            REQUIRE_FALSE(res1.has_value());
         }
     }
     SUBCASE("try_make")

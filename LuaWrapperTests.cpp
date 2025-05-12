@@ -88,7 +88,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.VectorWrapper")
         i32 x                = *run<i32>("return #wrap");
         REQUIRE(x == vec.size());
         auto res = run("wrap[#wrap + 1] = 6");
-        REQUIRE_FALSE(res.has_error());
+        REQUIRE(res.has_value());
         REQUIRE(6 == vec[6]);
     }
     SUBCASE("iterate")
@@ -159,7 +159,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
         i32 i = *run<i32>("return wrap1[1]");
         REQUIRE(i == 100);
         auto res = run("wrap1[1] = 400");
-        REQUIRE_FALSE(res.has_error());
+        REQUIRE(res.has_value());
         REQUIRE(t1.get_value() == 400);
     }
     SUBCASE("pointer as parameter")
@@ -197,7 +197,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
             REQUIRE(value == 42);
 
             auto res = run("wrap.writeonly_value = 21");
-            REQUIRE_FALSE(res.has_error());
+            REQUIRE(res.has_value());
             REQUIRE(t.get_value() == 21);
         }
         {
@@ -205,7 +205,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
             i32 value   = *run<i32>("return wrap.lambda_prop");
             REQUIRE(value == 42);
             auto res = run("wrap.lambda_prop = 21");
-            REQUIRE_FALSE(res.has_error());
+            REQUIRE(res.has_value());
             REQUIRE(lambdaValue == 21);
         }
         {
@@ -222,7 +222,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
             REQUIRE_FALSE(changed);
 
             auto res = run("wrap.prop = 21");
-            REQUIRE_FALSE(res.has_error());
+            REQUIRE(res.has_value());
             REQUIRE(earlyt.PropertyValue == 21);
 
             REQUIRE(changed);
@@ -232,7 +232,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
             global["wrap"] = &t;
             t.set_value(350);
             auto res = run("function foo(x) return x.value end ");
-            REQUIRE_FALSE(res.has_error());
+            REQUIRE(res.has_value());
 
             auto func = global["foo"].as<lua::function<i32>>();
             i32  x    = func(&t);
@@ -269,7 +269,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
         REQUIRE(value == 42);
 
         auto res = run("wrap.field = 21");
-        REQUIRE_FALSE(res.has_error());
+        REQUIRE(res.has_value());
         REQUIRE(t.FieldValue == 21);
     }
     SUBCASE("overloads")
@@ -300,7 +300,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
         global["wrap"] = &t;
         i32  x         = *run<i32>("return wrap:foo('test', 4, true)");
         auto res       = run("wrap:bar(true, 'test', 4)");
-        REQUIRE_FALSE(res.has_error());
+        REQUIRE(res.has_value());
         REQUIRE(x == 4 * 4);
     }
     SUBCASE("inheritance")
@@ -322,7 +322,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
         std::map<std::string, i32>& map = *t.get_map();
         map["x"]                        = 100;
         auto res                        = run("wrap.map.x = 300 ");
-        REQUIRE_FALSE(res.has_error());
+        REQUIRE(res.has_value());
         map = *t.get_map();
         REQUIRE(map["x"] == 300);
     }
@@ -365,7 +365,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper2")
                       "dave:take_damage(80) "
                       "local h = dave:get_health() "
                       "if h == 20 then dave:gain_experience(200) end ")};
-        REQUIRE_FALSE(res.has_error());
+        REQUIRE(res.has_value());
         REQUIRE(pl.get_mana() == 30);
         REQUIRE(pl.get_health() == 20);
         REQUIRE(pl.get_experience() == 200);
@@ -376,15 +376,15 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper2")
         global["dave"] = &pl;
         auto res0 {run("mana = dave.mana "
                        "dave.mana = mana/2 ")};
-        REQUIRE_FALSE(res0.has_error());
+        REQUIRE(res0.has_value());
         REQUIRE(pl.get_mana() == 25);
 
         auto res1 {run<std::string>("return dave.name")};
-        REQUIRE_FALSE(res1.has_error());
+        REQUIRE(res1.has_value());
         REQUIRE(res1.value() == name);
 
         auto res2 {run<std::string>("dave.name = 'Bill'")};
-        REQUIRE(res2.has_error());
+        REQUIRE_FALSE(res2.has_value());
     }
     SUBCASE("property")
     {
@@ -392,7 +392,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper2")
         global["dave"] = &pl;
         auto res {run("health = dave.health "
                       "dave.health = health/4 ")};
-        REQUIRE_FALSE(res.has_error());
+        REQUIRE(res.has_value());
         REQUIRE(pl.get_health() == 25);
     }
 
@@ -402,7 +402,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper2")
         global["dave"] = &pl;
         auto res {run("dave:add_to_inventory('rope') "
                       "dave:add_to_inventory(42) ")};
-        REQUIRE_FALSE(res.has_error());
+        REQUIRE(res.has_value());
         REQUIRE(pl.get_inventory_size() == 2);
     }
 }
@@ -595,7 +595,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
 
         REQUIRE(t1.Closed == false);
         auto res = run("local wrap <close> = wrap1");
-        REQUIRE_FALSE(res.has_error());
+        REQUIRE(res.has_value());
         REQUIRE(t1.Closed == true);
     }
     SUBCASE("GC")
@@ -666,7 +666,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.ChainFunctions")
             TestScriptClass t;
             global["wrap"] = &t;
             auto ret       = run("wrap.foo 'hello' ' ' 'world' '!'");
-            REQUIRE_FALSE(ret.has_error());
+            REQUIRE(ret.has_value());
             REQUIRE(text == "hello world!");
         }
     }
@@ -685,16 +685,16 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.UnknownHandler")
     SUBCASE("unhandled setter (newindex)")
     {
         auto res = run("function foo(p) p.unhandled_newindex=400 end");
-        REQUIRE_FALSE(res.has_error());
+        REQUIRE(res.has_value());
         auto f = global["foo"].as<lua::function<void>>();
         foo  test {};
-        REQUIRE(f.protected_call(&test).has_error());
+        REQUIRE_FALSE(f.protected_call(&test).has_value());
         REQUIRE_FALSE(test.z == 400);
     }
     SUBCASE("handled setter (newindex)")
     {
         auto res = run("function foo(p) p.z=400 end");
-        REQUIRE_FALSE(res.has_error());
+        REQUIRE(res.has_value());
         auto f = global["foo"].as<lua::function<void>>();
 
         wrap->UnknownSet.connect([](auto&& ev) {
@@ -705,21 +705,21 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.UnknownHandler")
         });
 
         foo test {};
-        REQUIRE_FALSE(f.protected_call(&test).has_error());
+        REQUIRE(f.protected_call(&test).has_value());
         REQUIRE(test.z == 400);
     }
     SUBCASE("unhandled getter (index)")
     {
         auto res = run("function foo(p) return p.unhandled_index end");
-        REQUIRE_FALSE(res.has_error());
+        REQUIRE(res.has_value());
         foo        test {};
         auto const funcres = global["foo"].as<lua::function<i32>>().protected_call(&test);
-        REQUIRE(funcres.has_error());
+        REQUIRE_FALSE(funcres.has_value());
     }
     SUBCASE("handled getter (index)")
     {
         auto res = run("function foo(p) return p.x end");
-        REQUIRE_FALSE(res.has_error());
+        REQUIRE(res.has_value());
         auto f = global["foo"].as<lua::function<i32>>();
 
         wrap->UnknownGet.connect([](auto&& ev) {
@@ -732,21 +732,21 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.UnknownHandler")
         foo test {};
         test.x       = 420;
         auto funcres = f.protected_call(&test);
-        REQUIRE_FALSE(funcres.has_error());
+        REQUIRE(funcres.has_value());
         REQUIRE(funcres.value() == test.x);
     }
     SUBCASE("unhandled function (index)")
     {
         auto res = run("function foo(p) p.unhandled_index() end");
-        REQUIRE_FALSE(res.has_error());
+        REQUIRE(res.has_value());
         foo        test {};
         auto const funcres = global["foo"].as<lua::function<i32>>().protected_call(&test);
-        REQUIRE(funcres.has_error());
+        REQUIRE_FALSE(funcres.has_value());
     }
     SUBCASE("handled function (index)")
     {
         auto res = run("function foo(p) return p:y() end");
-        REQUIRE_FALSE(res.has_error());
+        REQUIRE(res.has_value());
         auto f = global["foo"].as<lua::function<i32>>();
 
         auto yfunc = lua::make_shared_closure(std::function([](foo* fx) { return fx->y(); }));
@@ -760,7 +760,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.UnknownHandler")
         foo test {};
         test.x       = 40;
         auto funcres = f.protected_call(&test);
-        REQUIRE_FALSE(funcres.has_error());
+        REQUIRE(funcres.has_value());
         REQUIRE(funcres.value() == test.y());
     }
 }
@@ -869,6 +869,6 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Null")
     Player* p {nullptr};
     global["dave"] = p;
     auto res {run<bool>("return is_null(dave)")};
-    REQUIRE_FALSE(res.has_error());
+    REQUIRE(res.has_value());
     REQUIRE(res.value());
 }

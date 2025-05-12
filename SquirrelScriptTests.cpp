@@ -20,7 +20,7 @@ auto static testfuncpair(std::pair<i32, f32> const& p) -> f32
 {
     return static_cast<f32>(p.first) * p.second;
 }
-auto static testfuncfloat2(tcob::scripting::result<f32> f, tcob::scripting::result<f32> x, int i) -> f32
+auto static testfuncfloat2(std::expected<f32, error_code> f, std::expected<f32, error_code> x, int i) -> f32
 {
     return f.value() * x.value() * static_cast<f32>(i);
 }
@@ -213,7 +213,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Closures")
     {
         global["testFunc"] = testfuncfloat2;
         f32 x              = *run<f32>("return testFunc(4,4.5,3)");
-        REQUIRE(x == testfuncfloat2(tcob::scripting::result<f32> {4.f}, tcob::scripting::result<f32> {4.5f}, 3));
+        REQUIRE(x == testfuncfloat2(std::expected<f32, error_code> {4.f}, std::expected<f32, error_code> {4.5f}, 3));
     }
     {
         global["testFunc"] = testfuncpair;
@@ -1211,7 +1211,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Run")
         )-";
 
             auto result = run<i64>(source);
-            REQUIRE_FALSE(result.has_error());
+            REQUIRE(result.has_value());
             REQUIRE(result.value() == 1042);
         }
         {
@@ -1221,7 +1221,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Run")
         )-";
 
             auto result = run<i64>(source);
-            REQUIRE_FALSE(result.has_error());
+            REQUIRE(result.has_value());
             REQUIRE(result.value() == 521);
         }
     }
@@ -1232,7 +1232,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Run")
         )-";
 
         auto result = run<f64>(source);
-        REQUIRE_FALSE(result.has_error());
+        REQUIRE(result.has_value());
         REQUIRE(result.value() == Approx(1.42));
     }
     SUBCASE("get string")
@@ -1242,7 +1242,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Run")
         )-";
 
         auto result = run<std::string>(source);
-        REQUIRE_FALSE(result.has_error());
+        REQUIRE(result.has_value());
         REQUIRE(result.value() == "ok");
     }
     SUBCASE("get bool")
@@ -1252,7 +1252,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Run")
         )-";
 
         auto result = run<bool>(source);
-        REQUIRE_FALSE(result.has_error());
+        REQUIRE(result.has_value());
         REQUIRE(result.value() == true);
     }
 }
