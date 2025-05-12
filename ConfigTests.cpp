@@ -1,7 +1,7 @@
 #include "tests.hpp"
 #include <string>
 
-using namespace tcob::data::config;
+using namespace tcob::data;
 
 TEST_CASE("Data.Config.Get")
 {

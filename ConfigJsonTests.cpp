@@ -1,6 +1,6 @@
 #include "tests.hpp"
 
-using namespace tcob::data::config;
+using namespace tcob::data;
 
 static std::string const EXT {".json"};
 

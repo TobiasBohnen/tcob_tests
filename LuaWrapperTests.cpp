@@ -767,13 +767,13 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.UnknownHandler")
 
 TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.ConfigObject")
 {
-    data::config::object obj;
+    data::object obj;
     obj["a"] = 123.;
     obj["b"] = true;
     obj["c"] = "test123";
     obj["d"] = 456;
 
-    auto wrap = create_wrapper<data::config::object>("object");
+    auto wrap = create_wrapper<data::object>("object");
 
     SUBCASE("get")
     {
