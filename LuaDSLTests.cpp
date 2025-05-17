@@ -85,7 +85,7 @@ TEST_CASE_FIXTURE(LuaDSLTests, "Script.LuaDSL.Form")
     // layouts
     auto make_layout_func {[&](string_view type) {
         return make_func([&, type](table& t) {
-            table lt {get_view()};
+            auto lt {table::Create(get_view())};
             lt["type"]    = type;
             lt["widgets"] = t;
             return lt;

@@ -147,7 +147,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Closures")
     {
         i32  x {102};
         auto l             = std::function([&](i32 i) {
-            table lt {get_view()};
+            auto lt {table::Create(get_view())};
             lt["value"] = x * i;
             return lt;
         });
@@ -634,7 +634,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Environment")
         REQUIRE(res1);
         REQUIRE(res1.value() == 100);
 
-        table newEnv {get_view()};
+        auto newEnv {table::Create(get_view())};
         newEnv["x"] = 200;
         set_environment(newEnv);
 
@@ -655,7 +655,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Environment")
         REQUIRE(res0);
         REQUIRE(res0.value() == 5.0f);
 
-        table newEnv {get_view()};
+        auto newEnv {table::Create(get_view())};
         set_environment(newEnv);
 
         res0 = run<f32>("return tonumber('5')", "error");
@@ -671,7 +671,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Environment")
     }
     SUBCASE("get from _ENV")
     {
-        table newEnv {get_view()};
+        auto newEnv {table::Create(get_view())};
         set_environment(newEnv);
 
         auto res0 = run("function foo() return tonumber('5') end", "error");
@@ -1907,7 +1907,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
     {
         SUBCASE("int")
         {
-            auto tab = table {get_view()};
+            auto tab = table::Create(get_view());
             tab["x"] = 100;
             tab["y"] = tab["x"];
             REQUIRE(tab["x"].as<i32>() == 100);
@@ -1915,7 +1915,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
         }
         SUBCASE("bool")
         {
-            auto tab = table {get_view()};
+            auto tab = table::Create(get_view());
             tab["x"] = true;
             tab["y"] = tab["x"];
             REQUIRE(tab["x"].as<bool>() == true);
@@ -1923,7 +1923,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
         }
         SUBCASE("string")
         {
-            auto tab = table {get_view()};
+            auto tab = table::Create(get_view());
             tab["x"] = "ok";
             tab["y"] = tab["x"];
             REQUIRE(tab["x"].as<string>() == "ok");
@@ -1931,8 +1931,8 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
         }
         SUBCASE("table")
         {
-            auto tab  = table {get_view()};
-            auto tab2 = table {get_view()};
+            auto tab  = table::Create(get_view());
+            auto tab2 = table::Create(get_view());
             tab2["a"] = 100;
             tab["x"]  = tab2;
             tab["y"]  = tab["x"];
@@ -1942,7 +1942,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
         SUBCASE("const table")
         {
             auto const tab  = *run<table>(" return {x=100}");
-            auto       tab2 = table {get_view()};
+            auto       tab2 = table::Create(get_view());
             tab2["a"]       = 100;
             tab["x"]        = tab2;
             tab["y"]        = tab["x"];
@@ -1951,7 +1951,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
         }
         SUBCASE("undefined")
         {
-            auto tab = table {get_view()};
+            auto tab = table::Create(get_view());
             tab["y"] = tab["x"];
             REQUIRE_FALSE(tab.has("y"));
         }

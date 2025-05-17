@@ -1,6 +1,7 @@
 #include "WrapperTestsClass.hpp"
 #include "tests.hpp"
 
+#include <algorithm>
 #include <cstring>
 #include <numeric>
 
@@ -126,7 +127,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.ClassesAndInstances")
 {
     SUBCASE("fields")
     {
-        clazz c {get_view()};
+        clazz c {clazz::Create(get_view())};
         c["value"]    = 100;
         global["foo"] = c;
 
@@ -134,7 +135,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.ClassesAndInstances")
         REQUIRE(res);
         REQUIRE(res.value() == 100);
 
-        instance i = global["inst"].as<instance>();
+        auto i = global["inst"].as<instance>();
         REQUIRE(i["value"].as<i32>() == 100);
         i["value"] = 420;
 
@@ -152,7 +153,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.ClassesAndInstances")
             return x * y;
         };
 
-        clazz c {get_view()};
+        clazz c {clazz::Create(get_view())};
         c["func"]     = &func;
         global["foo"] = c;
 
@@ -162,7 +163,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.ClassesAndInstances")
     }
     SUBCASE("create instance")
     {
-        clazz c {get_view()};
+        clazz c {clazz::Create(get_view())};
         c["value"]     = 100;
         global["inst"] = c.create_instance();
 
@@ -1361,7 +1362,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Table")
             table            tab = *run<table>("local tab = {a = 2.4, c = \"hello\"}; tab[1] <- 42; return tab ");
             std::vector<var> vect {1, "a", "c"};
             auto             keys = tab.get_keys<var>();
-            std::sort(keys.begin(), keys.end());
+            std::ranges::sort(keys);
             REQUIRE(keys == vect);
         }
 
@@ -1545,7 +1546,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Table")
     {
         SUBCASE("int")
         {
-            auto tab = table {get_view()};
+            auto tab = table::Create(get_view());
             tab["x"] = 100;
             tab["y"] = tab["x"];
             REQUIRE(tab["x"].as<i32>() == 100);
@@ -1553,7 +1554,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Table")
         }
         SUBCASE("bool")
         {
-            auto tab = table {get_view()};
+            auto tab = table::Create(get_view());
             tab["x"] = true;
             tab["y"] = tab["x"];
             REQUIRE(tab["x"].as<bool>() == true);
@@ -1561,7 +1562,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Table")
         }
         SUBCASE("string")
         {
-            auto tab = table {get_view()};
+            auto tab = table::Create(get_view());
             tab["x"] = "ok";
             tab["y"] = tab["x"];
             REQUIRE(tab["x"].as<string>() == "ok");
@@ -1569,17 +1570,17 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Table")
         }
         SUBCASE("table")
         {
-            auto tab  = table {get_view()};
-            auto tab2 = table {get_view()};
+            auto tab1 = table::Create(get_view());
+            auto tab2 = table::Create(get_view());
             tab2["a"] = 100;
-            tab["x"]  = tab2;
-            tab["y"]  = tab["x"];
-            REQUIRE(tab["x"]["a"].as<i32>() == 100);
-            REQUIRE(tab["y"]["a"].as<i32>() == 100);
+            tab1["x"] = tab2;
+            tab1["y"] = tab1["x"];
+            REQUIRE(tab1["x"]["a"].as<i32>() == 100);
+            REQUIRE(tab1["y"]["a"].as<i32>() == 100);
         }
         SUBCASE("undefined")
         {
-            auto tab = table {get_view()};
+            auto tab = table::Create(get_view());
             tab["y"] = tab["x"];
             REQUIRE_FALSE(tab.has("y"));
         }
