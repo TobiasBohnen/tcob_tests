@@ -320,7 +320,6 @@ TEST_CASE_FIXTURE(SquirrelWrapperTests, "Script.SquirrelWrapper.UnknownGetHandle
         wrap->UnknownSet.connect([](auto&& ev) {
             if (ev.Name == "z") {
                 ev.get_value(ev.Instance->z);
-                ev.Handled = true;
             }
         });
 
@@ -348,7 +347,6 @@ TEST_CASE_FIXTURE(SquirrelWrapperTests, "Script.SquirrelWrapper.UnknownGetHandle
         wrap->UnknownGet.connect([yfunc](auto&& ev) {
             if (ev.Name == "y") {
                 ev.return_value(yfunc.get());
-                ev.Handled = true;
             }
         });
 
@@ -378,7 +376,6 @@ TEST_CASE_FIXTURE(SquirrelWrapperTests, "Script.SquirrelWrapper.UnknownGetHandle
         wrap->UnknownGet.connect([](auto&& ev) {
             if (ev.Name == "x") {
                 ev.return_value(ev.Instance->x);
-                ev.Handled = true;
             }
         });
 

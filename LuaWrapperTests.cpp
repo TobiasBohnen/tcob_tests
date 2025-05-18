@@ -343,7 +343,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper2")
     wrapper["gain_experience"] = &Player::gain_experience;
     wrapper["mana"]            = getter {&Player::get_mana};
     wrapper["mana"]            = setter {&Player::set_mana};
-    wrapper["health"]          = property {&Player::get_health, &Player::set_health};
+    wrapper["health"]          = property {.Getter = &Player::get_health, .Setter = &Player::set_health};
     wrapper["name"]            = getter {[&name]() { return name; }};
 
     auto f1                     = resolve_overload<void(std::string const&)>(&Player::add_to_inventory);
@@ -700,7 +700,6 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.UnknownHandler")
         wrap->UnknownSet.connect([](auto&& ev) {
             if (ev.Name == "z") {
                 ev.get_value(ev.Instance->z);
-                ev.Handled = true;
             }
         });
 
@@ -725,7 +724,6 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.UnknownHandler")
         wrap->UnknownGet.connect([](auto&& ev) {
             if (ev.Name == "x") {
                 ev.return_value(ev.Instance->x);
-                ev.Handled = true;
             }
         });
 
@@ -753,7 +751,6 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.UnknownHandler")
         wrap->UnknownGet.connect([yfunc](auto&& ev) {
             if (ev.Name == "y") {
                 ev.return_value(yfunc.get());
-                ev.Handled = true;
             }
         });
 
@@ -765,7 +762,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.UnknownHandler")
     }
 }
 
-TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.ConfigObject")
+TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.DataObject")
 {
     data::object obj;
     obj["a"] = 123.;
@@ -778,28 +775,17 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.ConfigObject")
     SUBCASE("get")
     {
         wrap->UnknownGet.connect([](auto&& ev) {
-            if (ev.Instance) {
-                auto const proxy {(*ev.Instance)[ev.Name]};
-                if (i64 val {0}; proxy.try_get(val)) {
-                    ev.return_value(val);
-                    ev.Handled = true;
-                    return;
-                }
-                if (f64 val {0}; proxy.try_get(val)) {
-                    ev.return_value(val);
-                    ev.Handled = true;
-                    return;
-                }
-                if (bool val {}; proxy.try_get(val)) {
-                    ev.return_value(val);
-                    ev.Handled = true;
-                    return;
-                }
-                if (std::string val {}; proxy.try_get(val)) {
-                    ev.return_value(val);
-                    ev.Handled = true;
-                    return;
-                }
+            if (!ev.Instance) { return; }
+            auto const proxy {(*ev.Instance)[ev.Name]};
+
+            if (i64 ival {0}; proxy.try_get(ival)) {
+                ev.return_value(ival);
+            } else if (f64 fval {0}; proxy.try_get(fval)) {
+                ev.return_value(fval);
+            } else if (bool bval {}; proxy.try_get(bval)) {
+                ev.return_value(bval);
+            } else if (std::string sval {}; proxy.try_get(sval)) {
+                ev.return_value(sval);
             }
         });
 
@@ -821,27 +807,16 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.ConfigObject")
     SUBCASE("set")
     {
         wrap->UnknownSet.connect([](auto&& ev) {
-            if (ev.Instance) {
-                if (i64 val {0}; ev.get_value(val)) {
-                    (*ev.Instance)[ev.Name] = val;
-                    ev.Handled              = true;
-                    return;
-                }
-                if (f64 val {0}; ev.get_value(val)) {
-                    (*ev.Instance)[ev.Name] = val;
-                    ev.Handled              = true;
-                    return;
-                }
-                if (bool val {}; ev.get_value(val)) {
-                    (*ev.Instance)[ev.Name] = val;
-                    ev.Handled              = true;
-                    return;
-                }
-                if (std::string val {}; ev.get_value(val)) {
-                    (*ev.Instance)[ev.Name] = val;
-                    ev.Handled              = true;
-                    return;
-                }
+            if (!ev.Instance) { return; }
+
+            if (i64 ival {0}; ev.get_value(ival)) {
+                (*ev.Instance)[ev.Name] = ival;
+            } else if (f64 fval {0}; ev.get_value(fval)) {
+                (*ev.Instance)[ev.Name] = fval;
+            } else if (bool bval {}; ev.get_value(bval)) {
+                (*ev.Instance)[ev.Name] = bval;
+            } else if (std::string sval {}; ev.get_value(sval)) {
+                (*ev.Instance)[ev.Name] = sval;
             }
         });
 
