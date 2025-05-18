@@ -94,7 +94,7 @@ public:
     }
     auto overload(f32 f, i32 i0, f32 f1) -> f32
     {
-        return f * static_cast<f32>(i0) + f1;
+        return (f * static_cast<f32>(i0)) + f1;
     }
     auto overload(std::vector<f32> const& vec) -> f32
     {
@@ -109,7 +109,7 @@ public:
 };
 
 template <typename Signature, typename T>
-auto consteval resolve_overload(Signature T::*ptr)
+auto consteval resolve_overload(Signature T::* ptr)
 {
     return ptr;
 }

@@ -343,7 +343,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper2")
     wrapper["gain_experience"] = &Player::gain_experience;
     wrapper["mana"]            = getter {&Player::get_mana};
     wrapper["mana"]            = setter {&Player::set_mana};
-    wrapper["health"]          = property {.Getter = &Player::get_health, .Setter = &Player::set_health};
+    wrapper["health"]          = property {&Player::get_health, &Player::set_health};
     wrapper["name"]            = getter {[&name]() { return name; }};
 
     auto f1                     = resolve_overload<void(std::string const&)>(&Player::add_to_inventory);
