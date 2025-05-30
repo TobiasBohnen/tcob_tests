@@ -819,12 +819,12 @@ TEST_CASE("Data.Config.Schema")
     {
         schema s0;
         s0.AllOf = {
-            schema::string_property {"string"},
-            schema::float_property {"float"},
-            schema::int_property {"integer"},
-            schema::array_property {"array"},
-            schema::object_property {"object"},
-            schema::bool_property {"bool"},
+            schema::string_property {.Name = "string"},
+            schema::float_property {.Name = "float"},
+            schema::int_property {.Name = "integer"},
+            schema::array_property {.Name = "array"},
+            schema::object_property {.Name = "object"},
+            schema::bool_property {.Name = "bool"},
         };
 
         object goodSection {};
@@ -866,9 +866,9 @@ TEST_CASE("Data.Config.Schema")
     {
         schema s0;
         s0.AnyOf = {
-            schema::string_property {"string"},
-            schema::float_property {"float"},
-            schema::int_property {"integer"},
+            schema::string_property {.Name = "string"},
+            schema::float_property {.Name = "float"},
+            schema::int_property {.Name = "integer"},
         };
 
         object goodSection0 {};
@@ -895,9 +895,9 @@ TEST_CASE("Data.Config.Schema")
     {
         schema s0;
         s0.OneOf = {
-            schema::string_property {"string"},
-            schema::float_property {"float"},
-            schema::int_property {"integer"},
+            schema::string_property {.Name = "string"},
+            schema::float_property {.Name = "float"},
+            schema::int_property {.Name = "integer"},
         };
 
         object goodSection0 {};
@@ -926,8 +926,8 @@ TEST_CASE("Data.Config.Schema")
     {
         schema s0;
         s0.NoneOf = {
-            schema::string_property {"string"},
-            schema::float_property {"float"},
+            schema::string_property {.Name = "string"},
+            schema::float_property {.Name = "float"},
         };
 
         object obj {};
@@ -1072,10 +1072,10 @@ TEST_CASE("Data.Config.Schema")
         REQUIRE_FALSE(s0.validate(obj));
     }
 
-    SUBCASE("section_property")
+    SUBCASE("object_property")
     {
         auto c0 {std::make_shared<schema>()};
-        c0->AllOf = {schema::string_property {"string"}, schema::int_property {"int"}};
+        c0->AllOf = {schema::string_property {.Name = "string"}, schema::int_property {.Name = "int"}};
 
         schema s0;
         s0.AllOf = {schema::object_property {
@@ -1095,12 +1095,12 @@ TEST_CASE("Data.Config.Schema")
         REQUIRE_FALSE(s0.validate(obj));
     }
 
-    SUBCASE("result")
+    SUBCASE("Failures")
     {
         SUBCASE("AllOf")
         {
             schema s0;
-            s0.AllOf = {schema::string_property {"string"}};
+            s0.AllOf = {schema::string_property {.Name = "string"}};
 
             object obj {};
             obj["float"] = 2.f;
@@ -1116,8 +1116,8 @@ TEST_CASE("Data.Config.Schema")
         SUBCASE("OneOf")
         {
             schema s0;
-            s0.OneOf = {schema::string_property {"string"},
-                        schema::float_property {"float"}};
+            s0.OneOf = {schema::string_property {.Name = "string"},
+                        schema::float_property {.Name = "float"}};
 
             SUBCASE("more than one")
             {
