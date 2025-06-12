@@ -6,12 +6,13 @@ set(TEST_SRCFILES
   CameraTests.cpp
   ColorTests.cpp
   CSVTests.cpp
-  FontFamilyTests.cpp
   ConfigTests.cpp
   ConfigIniTests.cpp
   ConfigJsonTests.cpp
   ConfigYamlTests.cpp
   ConfigXMLTests.cpp
+  DisplayModeTests.cpp
+  FontFamilyTests.cpp
   HelperTests.cpp
   ImageCodecTests.cpp
   ImageTests.cpp
