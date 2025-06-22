@@ -26,7 +26,7 @@ TEST_CASE("GFX.UI.Bounds")
     panelStyle->Margin      = {20_px};
     panelStyle->Padding     = {40_px};
 
-    form0.fixed_update(milliseconds {0});
+    form0.update(milliseconds {0});
 
     REQUIRE(panel0->global_position() == point_f {60, 80});
     REQUIRE(button0->global_position() == point_f {135, 165});
