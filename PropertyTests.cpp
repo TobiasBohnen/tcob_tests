@@ -264,7 +264,7 @@ private:
 
 TEST_CASE("Core.Property.CustomSource")
 {
-    prop_base<i32, queue_source<i32>> prop;
+    tcob::detail::prop_base<i32, queue_source<i32>> prop;
     prop = 100;
     prop = 200;
     prop = 400;
@@ -272,55 +272,4 @@ TEST_CASE("Core.Property.CustomSource")
     REQUIRE(prop == 100);
     REQUIRE(prop == 200);
     REQUIRE(prop == 400);
-}
-
-TEST_CASE("Core.Property.Container")
-{
-    SUBCASE("Field")
-    {
-        {
-            std::vector<int>       result;
-            prop<std::vector<int>> prop;
-            prop.Changed.connect([&](std::vector<int> const& vec) { result.push_back(vec.back()); });
-            prop.add(100);
-            prop.add(200);
-            prop.add(300);
-            REQUIRE(prop->size() == 3);
-            REQUIRE(result.size() == 3);
-            REQUIRE(prop() == result);
-        }
-        {
-            prop<std::vector<int>> prop {{1, 2, 3, 4}};
-            prop.set(1, 100);
-            REQUIRE(prop() == std::vector<int> {1, 100, 3, 4});
-        }
-    }
-
-    SUBCASE("Function")
-    {
-        {
-            std::vector<int>          buffer;
-            prop_fn<std::vector<int>> prop {{[&]() { return buffer; },
-                                             [&](std::vector<int> const& vec) { buffer = vec; }}};
-
-            std::vector<int> result;
-
-            prop.Changed.connect([&](std::vector<int> const& vec) { result.push_back(vec.back()); });
-            prop.add(100);
-            prop.add(200);
-            prop.add(300);
-            REQUIRE(prop().size() == 3);
-            REQUIRE(result.size() == 3);
-            REQUIRE(prop() == result);
-        }
-
-        {
-            std::vector<int>          buffer {{1, 2, 3, 4}};
-            prop_fn<std::vector<int>> prop {{[&]() { return buffer; },
-                                             [&](std::vector<int> const& vec) { buffer = vec; }}};
-
-            prop.set(1, 100);
-            REQUIRE(prop() == std::vector<int> {1, 100, 3, 4});
-        }
-    }
 }
