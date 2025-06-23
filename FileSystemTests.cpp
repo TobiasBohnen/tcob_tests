@@ -57,12 +57,16 @@ TEST_CASE("IO.FileSystem.Zip")
         io::ofstream {folder0 + "/test3"}.write("7890");
         io::ofstream {folder0 + "/test4"}.write("0112");
 
-        REQUIRE(io::zip(folder0, file));
+        {
+            io::ofstream out {file};
+            REQUIRE(io::zip(folder0, out));
+        }
 
         io::delete_folder(folder0);
         REQUIRE_FALSE(io::exists(folder0));
 
-        REQUIRE(io::unzip(file, ""));
+        io::ifstream in {file};
+        REQUIRE(io::unzip(in, ""));
         REQUIRE(io::is_file(folder0 + "/test1"));
         REQUIRE(io::read_as_string(folder0 + "/test1") == "1234");
         REQUIRE(io::is_file(folder0 + "/test2"));
@@ -72,7 +76,7 @@ TEST_CASE("IO.FileSystem.Zip")
         REQUIRE(io::is_file(folder0 + "/test4"));
         REQUIRE(io::read_as_string(folder0 + "/test4") == "0112");
 
-        REQUIRE(io::unzip(file, folder1));
+        REQUIRE(io::unzip(in, folder1));
         REQUIRE(io::is_file(folder1 + "/" + folder0 + "/test1"));
         REQUIRE(io::read_as_string(folder1 + "/" + folder0 + "/test1") == "1234");
         REQUIRE(io::is_file(folder1 + "/" + folder0 + "/test2"));
@@ -103,10 +107,12 @@ TEST_CASE("IO.FileSystem.Zip")
         io::ofstream {folder0 + "test02"}.write("4567");
         io::ofstream {folder0 + "test03"}.write("7890");
         io::ofstream {folder0 + "test04"}.write("0112");
-
-        REQUIRE(io::zip(folder0, file, true));
-
-        REQUIRE(io::unzip(file, folder1));
+        {
+            io::ofstream out {file};
+            REQUIRE(io::zip(folder0, out, true));
+        }
+        io::ifstream in {file};
+        REQUIRE(io::unzip(in, folder1));
         REQUIRE(io::is_file(folder1 + "/test01"));
         REQUIRE(io::read_as_string(folder1 + "/test01") == "1234");
         REQUIRE(io::is_file(folder1 + "/test02"));
@@ -130,12 +136,16 @@ TEST_CASE("IO.FileSystem.Zip")
 
         io::ofstream {srcFile}.write("1234");
 
-        REQUIRE(io::zip(srcFile, dstFile));
+        {
+            io::ofstream out {dstFile};
+            REQUIRE(io::zip(srcFile, out));
+        }
 
         io::delete_file(srcFile);
         REQUIRE_FALSE(io::exists(srcFile));
 
-        REQUIRE(io::unzip(dstFile, ""));
+        io::ifstream in {dstFile};
+        REQUIRE(io::unzip(in, ""));
         REQUIRE(io::is_file(srcFile));
         REQUIRE(io::read_as_string(srcFile) == "1234");
     }
@@ -154,12 +164,16 @@ TEST_CASE("IO.FileSystem.Zip")
         io::create_file(srcFolder + srcFile);
         io::ofstream {srcFolder + srcFile}.write("1234");
 
-        REQUIRE(io::zip(srcFolder + srcFile, dstFile, true));
+        {
+            io::ofstream out {dstFile};
+            REQUIRE(io::zip(srcFolder + srcFile, out, true));
+        }
 
         io::delete_folder(srcFolder);
         REQUIRE_FALSE(io::exists(srcFolder));
 
-        REQUIRE(io::unzip(dstFile, ""));
+        io::ifstream in {dstFile};
+        REQUIRE(io::unzip(in, ""));
         REQUIRE(io::is_file(srcFile));
         REQUIRE(io::read_as_string(srcFile) == "1234");
     }
@@ -182,7 +196,7 @@ TEST_CASE("IO.FileSystem.Enumerate")
         io::create_file(file);
         REQUIRE_FALSE(io::is_folder_empty(folder));
 
-        auto files {io::enumerate(folder, {file})};
+        auto files {io::enumerate(folder, {.String = file})};
         REQUIRE(files.size() == 1);
         REQUIRE(files.contains(file));
     }
@@ -210,7 +224,7 @@ TEST_CASE("IO.FileSystem.Enumerate")
         REQUIRE(io::exists(file2));
         REQUIRE(io::exists(file3));
 
-        auto files {io::enumerate(folder, {"*.file*"})};
+        auto files {io::enumerate(folder, {.String = "*.file*"})};
 
         REQUIRE(files.size() == 3);
         REQUIRE(files.contains(file1));
@@ -241,7 +255,7 @@ TEST_CASE("IO.FileSystem.Enumerate")
         REQUIRE(io::exists(file2));
         REQUIRE(io::exists(file3));
 
-        auto files {io::enumerate("/", {"*.phile*"})};
+        auto files {io::enumerate("/", {.String = "*.phile*"})};
 
         REQUIRE(files.size() == 3);
         REQUIRE(files.contains(file1));
@@ -272,7 +286,7 @@ TEST_CASE("IO.FileSystem.Enumerate")
         REQUIRE(io::exists(file2));
         REQUIRE(io::exists(file3));
 
-        auto files {io::enumerate("/", {"test.xile*", false})};
+        auto files {io::enumerate("/", {.String = "test.xile*", .MatchWholePath = false})};
 
         REQUIRE(files.size() == 3);
         REQUIRE(files.contains(file1));
