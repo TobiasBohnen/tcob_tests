@@ -4,17 +4,17 @@ TEST_CASE("GFX.UI.Bounds")
 {
     using namespace tcob::literals;
 
-    form  form0 {{"", rect_i {60, 80, 800, 700}}};
+    form  form0 {{.Name = "", .Bounds = rect_i {60, 80, 800, 700}}};
     auto  panel0 {form0.create_container<panel>(dock_style::Fill, "Panel0")};
     auto& panel0Layout {panel0->get_layout<static_layout>()};
-    panel0->Flex = {100_pct, 100_pct};
+    panel0->Flex = {.Width = 100_pct, .Height = 100_pct};
     auto button0 {panel0Layout.create_widget<button>({10, 20, 200, 100}, "button0")};
 
     auto  cPanel0 {panel0Layout.create_widget<panel>({230, 280, 250, 500}, "cPanel0")};
     auto& cPanel0Layout0 {cPanel0->create_layout<static_layout>()};
     auto  cButton0 {cPanel0Layout0.create_widget<button>({5, 50, 200, 100}, "button0")};
 
-    style_collection& styles {*form0.Styles};
+    style_collection styles;
 
     auto buttonStyle {styles.create<button>("button", {})};
     buttonStyle->Border.Size = 2_px;
@@ -26,6 +26,7 @@ TEST_CASE("GFX.UI.Bounds")
     panelStyle->Margin      = {20_px};
     panelStyle->Padding     = {40_px};
 
+    form0.Styles = styles;
     form0.update(milliseconds {0});
 
     REQUIRE(panel0->global_position() == point_f {60, 80});
