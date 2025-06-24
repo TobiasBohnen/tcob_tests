@@ -242,7 +242,7 @@ TEST_CASE("Core.Property.Subscript")
 {
     {
         prop<std::vector<i32>> prop;
-        prop.apply([](auto& vec) {
+        prop.mutate([](auto& vec) {
             vec.resize(100);
             vec[0]  = 100;
             vec[10] = 25;
@@ -253,7 +253,7 @@ TEST_CASE("Core.Property.Subscript")
     }
     {
         prop<grid<i32>> prop;
-        prop.apply([](auto& vec) {
+        prop.mutate([](auto& vec) {
             vec.resize({10, 20});
             vec[0, 10] = 100;
             vec[10, 2] = 25;
