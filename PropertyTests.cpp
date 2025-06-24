@@ -242,17 +242,23 @@ TEST_CASE("Core.Property.Subscript")
 {
     {
         prop<std::vector<i32>> prop;
-        prop.mut_ref().resize(100);
-        prop.mut_ref()[0]  = 100;
-        prop.mut_ref()[10] = 25;
+        prop.apply([](auto& vec) {
+            vec.resize(100);
+            vec[0]  = 100;
+            vec[10] = 25;
+        });
+
         REQUIRE(prop[0] == 100);
         REQUIRE(prop[10] == 25);
     }
     {
         prop<grid<i32>> prop;
-        prop.mut_ref().resize({10, 20});
-        prop.mut_ref()[0, 10] = 100;
-        prop.mut_ref()[10, 2] = 25;
+        prop.apply([](auto& vec) {
+            vec.resize({10, 20});
+            vec[0, 10] = 100;
+            vec[10, 2] = 25;
+        });
+
         REQUIRE(prop[0, 10] == 100);
         REQUIRE(prop[10, 2] == 25);
     }
