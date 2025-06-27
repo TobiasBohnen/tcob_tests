@@ -287,6 +287,27 @@ TEST_CASE("Core.Helper.RoundToMultiple")
         REQUIRE(helper::round_to_multiple(10, 4) == 8);
         REQUIRE(helper::round_to_multiple(11, 4) == 12);
     }
+
+    SUBCASE("0.15")
+    {
+        REQUIRE(round_to_multiple(0.14f, 0.15f) == Approx(0.15f));
+        REQUIRE(round_to_multiple(0.10f, 0.15f) == Approx(0.15f));
+        REQUIRE(round_to_multiple(0.08f, 0.15f) == Approx(0.15f));
+        REQUIRE(round_to_multiple(0.22f, 0.15f) == Approx(0.15f));
+        REQUIRE(round_to_multiple(0.23f, 0.15f) == Approx(0.30f));
+        REQUIRE(round_to_multiple(0.30f, 0.15f) == Approx(0.30f));
+        REQUIRE(round_to_multiple(0.31f, 0.15f) == Approx(0.30f));
+        REQUIRE(round_to_multiple(0.38f, 0.15f) == Approx(0.45f));
+
+        REQUIRE(round_to_multiple(-0.14f, 0.15f) == Approx(-0.15f));
+        REQUIRE(round_to_multiple(-0.10f, 0.15f) == Approx(-0.15f));
+        REQUIRE(round_to_multiple(-0.08f, 0.15f) == Approx(-0.15f));
+        REQUIRE(round_to_multiple(-0.22f, 0.15f) == Approx(-0.15f));
+        REQUIRE(round_to_multiple(-0.23f, 0.15f) == Approx(-0.30f));
+        REQUIRE(round_to_multiple(-0.30f, 0.15f) == Approx(-0.30f));
+        REQUIRE(round_to_multiple(-0.31f, 0.15f) == Approx(-0.30f));
+        REQUIRE(round_to_multiple(-0.38f, 0.15f) == Approx(-0.45f));
+    }
 }
 
 TEST_CASE("Core.Helper.RoundUpToMultiple")
