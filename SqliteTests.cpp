@@ -64,10 +64,92 @@ TEST_CASE("Data.Sqlite.Select")
     }
     SUBCASE("order_by")
     {
-        auto rows = dbTable->select_from<i32, std::string, i32, f32, bool>().order_by("Name DESC")();
-        REQUIRE(rows.size() == 100);
-        REQUIRE(rows[0] == std::tuple {99, "99", 9900, 148.50f, false});
-        REQUIRE(rows[1] == std::tuple {98, "98", 9800, 147.00f, true});
+        SUBCASE("descending by Name")
+        {
+            auto rows = dbTable->select_from<i32, std::string, i32, f32, bool>()
+                            .order_by(desc {"Name"})();
+            REQUIRE(rows.size() == 100);
+            REQUIRE(rows[0] == std::tuple {99, "99", 9900, 148.5f, false});
+            REQUIRE(rows[1] == std::tuple {98, "98", 9800, 147.0f, true});
+            REQUIRE(rows[2] == std::tuple {97, "97", 9700, 145.5f, false});
+        }
+
+        SUBCASE("ascending by Name")
+        {
+            auto rows = dbTable->select_from<i32, std::string, i32, f32, bool>()
+                            .order_by(asc {"Name"})();
+            REQUIRE(rows.size() == 100);
+            REQUIRE(rows[0] == std::tuple {1, "1", 100, 1.5f, false});
+            REQUIRE(rows[1] == std::tuple {10, "10", 1000, 15.0f, true});
+            REQUIRE(rows[2] == std::tuple {100, "100", 10000, 150.0f, true});
+        }
+        SUBCASE("ascending by Age")
+        {
+            auto rows = dbTable->select_from<i32, std::string, i32, f32, bool>()
+                            .order_by(asc {"Age"})();
+            REQUIRE(rows[0] == std::tuple {1, "1", 100, 1.5f, false});
+            REQUIRE(rows[1] == std::tuple {2, "2", 200, 3.0f, true});
+        }
+        SUBCASE("ascending by 3")
+        {
+            auto rows = dbTable->select_from<i32, std::string, i32, f32, bool>()
+                            .order_by(asc {3})();
+            REQUIRE(rows[0] == std::tuple {1, "1", 100, 1.5f, false});
+            REQUIRE(rows[1] == std::tuple {2, "2", 200, 3.0f, true});
+        }
+        SUBCASE("descending by Height")
+        {
+            auto rows = dbTable->select_from<i32, std::string, i32, f32, bool>()
+                            .order_by(desc {"Height"})();
+            REQUIRE(rows[0] == std::tuple {100, "100", 10000, 150.0f, true});
+            REQUIRE(rows[1] == std::tuple {99, "99", 9900, 148.5f, false});
+        }
+
+        SUBCASE("ascending by Alive")
+        {
+            auto rows = dbTable->select_from<i32, std::string, i32, f32, bool>()
+                            .order_by(asc {"Alive"})();
+            for (usize i = 0; i < 50; ++i) {
+                REQUIRE(std::get<4>(rows[i]) == false);
+            }
+            for (usize i = 50; i < 100; ++i) {
+                REQUIRE(std::get<4>(rows[i]) == true);
+            }
+        }
+
+        SUBCASE("multi-column: Alive asc, Age desc")
+        {
+            auto rows = dbTable->select_from<i32, std::string, i32, f32, bool>()
+                            .order_by(asc {"Alive"},
+                                      desc {"Age"})();
+            for (usize i = 1; i < rows.size(); ++i) {
+                auto const& [idPrev, namePrev, agePrev, hPrev, alivePrev] = rows[i - 1];
+                auto const& [idCurr, nameCurr, ageCurr, hCurr, aliveCurr] = rows[i];
+
+                if (alivePrev == aliveCurr) {
+                    REQUIRE(agePrev >= ageCurr);
+                } else {
+                    REQUIRE(alivePrev == false);
+                    REQUIRE(aliveCurr == true);
+                }
+            }
+        }
+        SUBCASE("multi-column: 5 asc, 3 desc")
+        {
+            auto rows = dbTable->select_from<i32, std::string, i32, f32, bool>()
+                            .order_by(asc {5}, desc {3})();
+            for (usize i = 1; i < rows.size(); ++i) {
+                auto const& [idPrev, namePrev, agePrev, hPrev, alivePrev] = rows[i - 1];
+                auto const& [idCurr, nameCurr, ageCurr, hCurr, aliveCurr] = rows[i];
+
+                if (alivePrev == aliveCurr) {
+                    REQUIRE(agePrev >= ageCurr);
+                } else {
+                    REQUIRE(alivePrev == false);
+                    REQUIRE(aliveCurr == true);
+                }
+            }
+        }
     }
     SUBCASE("limit")
     {
