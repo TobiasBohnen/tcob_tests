@@ -52,14 +52,22 @@ TEST_CASE("Data.Sqlite.Select")
     SUBCASE("where")
     {
         {
-            auto rows = dbTable->select_from<i32, string, i32, f32, bool>().where("Age = 100")();
+            auto rows = dbTable->select_from<i32, string, i32, f32, bool>().where(equal {.Column = "Age", .Value = 100})();
             REQUIRE(rows.size() == 1);
             REQUIRE(rows[0] == std::tuple {1, "1", 100, 1.5f, false});
         }
         {
-            auto rows = dbTable->select_from<i32, string, i32, f32, bool>().where("Age = ?")(500);
+            auto rows = dbTable->select_from<i32, string, i32, f32, bool>().where(equal {.Column = "Age"})(500);
             REQUIRE(rows.size() == 1);
             REQUIRE(rows[0] == std::tuple {5, "5", 500, 7.5f, false});
+        }
+        {
+            auto rows = dbTable->select_from<i32, string, i32, f32, bool>().where(like {.Column = "Name", .Value = "%0"})();
+            REQUIRE(rows.size() == 10);
+            for (i32 i {1}; i <= 10; ++i) {
+                auto const tup {std::tuple {i * 10, std::to_string(i * 10), i * 1000, static_cast<f32>(i) * 15.0f, true}};
+                REQUIRE_MESSAGE(rows[i - 1] == tup, i);
+            }
         }
     }
     SUBCASE("order_by")
@@ -138,6 +146,22 @@ TEST_CASE("Data.Sqlite.Select")
         {
             auto rows = dbTable->select_from<i32, string, i32, f32, bool>()
                             .order_by(asc {5}, desc {3})();
+            for (usize i = 1; i < rows.size(); ++i) {
+                auto const& [idPrev, namePrev, agePrev, hPrev, alivePrev] = rows[i - 1];
+                auto const& [idCurr, nameCurr, ageCurr, hCurr, aliveCurr] = rows[i];
+
+                if (alivePrev == aliveCurr) {
+                    REQUIRE(agePrev >= ageCurr);
+                } else {
+                    REQUIRE(alivePrev == false);
+                    REQUIRE(aliveCurr == true);
+                }
+            }
+        }
+        SUBCASE("multi-column by string: Alive asc, Age desc")
+        {
+            auto rows = dbTable->select_from<i32, string, i32, f32, bool>()
+                            .order_by("Alive ASC", "Age DESC")();
             for (usize i = 1; i < rows.size(); ++i) {
                 auto const& [idPrev, namePrev, agePrev, hPrev, alivePrev] = rows[i - 1];
                 auto const& [idCurr, nameCurr, ageCurr, hCurr, aliveCurr] = rows[i];
@@ -334,7 +358,7 @@ TEST_CASE("Data.Sqlite.Update")
     auto tup1 = std::tuple {2, "B", 200, 4.5f};
 
     REQUIRE(dbTable->insert_into("ID", "Name", "Age", "Height")(tup0, tup1));
-    REQUIRE(dbTable->update("Age", "Height").where("ID = 2")(100, 4.2));
+    REQUIRE(dbTable->update("Age", "Height").where(equal {"ID", 2})(100, 4.2));
     {
         auto rows = dbTable->select_from<i32, string, i32, f32>("ID", "Name", "Age", "Height")();
         REQUIRE(rows.size() == 2);
@@ -573,7 +597,7 @@ TEST_CASE("Data.Sqlite.Views")
 
     REQUIRE(dbTable->insert_into("A", "B", "C", "D")(values));
     {
-        auto select {std::move(dbTable->select_from<i32, i32, i32, i32>("A", "B", "C", "D").where("A > 50"))};
+        auto select {std::move(dbTable->select_from<i32, i32, i32, i32>("A", "B", "C", "D").where(greater {.Column = "A", .Value = 50}))};
         auto rows {select()};
 
         auto dbView {db.create_view("testView", select)};
