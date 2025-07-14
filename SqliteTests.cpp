@@ -81,7 +81,6 @@ TEST_CASE("Data.Sqlite.Select")
             REQUIRE(rows[1] == std::tuple {98, "98", 9800, 147.0f, true});
             REQUIRE(rows[2] == std::tuple {97, "97", 9700, 145.5f, false});
         }
-
         SUBCASE("ascending by Name")
         {
             auto rows = dbTable->select_from<i32, string, i32, f32, bool>()
@@ -112,7 +111,6 @@ TEST_CASE("Data.Sqlite.Select")
             REQUIRE(rows[0] == std::tuple {100, "100", 10000, 150.0f, true});
             REQUIRE(rows[1] == std::tuple {99, "99", 9900, 148.5f, false});
         }
-
         SUBCASE("ascending by Alive")
         {
             auto rows = dbTable->select_from<i32, string, i32, f32, bool>()
@@ -124,7 +122,6 @@ TEST_CASE("Data.Sqlite.Select")
                 REQUIRE(std::get<4>(rows[i]) == true);
             }
         }
-
         SUBCASE("multi-column: Alive asc, Age desc")
         {
             auto rows = dbTable->select_from<i32, string, i32, f32, bool>()
@@ -238,7 +235,6 @@ TEST_CASE("Data.Sqlite.Aggregate")
         std::vector<i32> expectedSums {100 + 110 + 120 + 130, 200 + 210 + 220 + 230 + 240};
         REQUIRE(((rows[0] == expectedSums[0] && rows[1] == expectedSums[1]) || (rows[1] == expectedSums[0] && rows[0] == expectedSums[1])));
     }
-
     SUBCASE("count grouped by Name")
     {
         auto counts = dbTable->select_from<i32>(count("*")).group_by("Name")();
@@ -248,7 +244,6 @@ TEST_CASE("Data.Sqlite.Aggregate")
         std::vector<i32> expectedCounts {4, 5};
         REQUIRE(((counts[0] == expectedCounts[0] && counts[1] == expectedCounts[1]) || (counts[1] == expectedCounts[0] && counts[0] == expectedCounts[1])));
     }
-
     SUBCASE("avg Age grouped by Name")
     {
         auto avgs = dbTable->select_from<double>(avg("Age")).group_by("Name")();
@@ -262,7 +257,6 @@ TEST_CASE("Data.Sqlite.Aggregate")
         bool order2 = (std::abs(avgs[1] - expectedAvgA) < 1e-6 && std::abs(avgs[0] - expectedAvgB) < 1e-6);
         REQUIRE((order1 || order2));
     }
-
     SUBCASE("min Age grouped by Name")
     {
         auto mins = dbTable->select_from<i32>(min("Age")).group_by("Name")();
@@ -272,7 +266,6 @@ TEST_CASE("Data.Sqlite.Aggregate")
         std::vector<i32> expectedMins {100, 200};
         REQUIRE(((mins[0] == expectedMins[0] && mins[1] == expectedMins[1]) || (mins[1] == expectedMins[0] && mins[0] == expectedMins[1])));
     }
-
     SUBCASE("max Age grouped by Name")
     {
         auto maxs = dbTable->select_from<i32>(max("Age")).group_by("Name")();
@@ -282,7 +275,6 @@ TEST_CASE("Data.Sqlite.Aggregate")
         std::vector<i32> expectedMaxs {130, 240};
         REQUIRE(((maxs[0] == expectedMaxs[0] && maxs[1] == expectedMaxs[1]) || (maxs[1] == expectedMaxs[0] && maxs[0] == expectedMaxs[1])));
     }
-
     SUBCASE("group_by multiple columns: Name and Category")
     {
         auto rows = dbTable->select_from<i32>(sum("Age")).group_by("Name", "Category")();
@@ -354,12 +346,27 @@ TEST_CASE("Data.Sqlite.Update")
                                   int_column {.Name = "Height"})};
     REQUIRE(dbTable);
 
-    auto tup0 = std::tuple {1, "A", 100, 1.5f};
-    auto tup1 = std::tuple {2, "B", 200, 4.5f};
-
-    REQUIRE(dbTable->insert_into("ID", "Name", "Age", "Height")(tup0, tup1));
-    REQUIRE(dbTable->update("Age", "Height").where(equal {"ID", 2})(100, 4.2));
+    SUBCASE("WHERE value in conditional")
     {
+        auto tup0 = std::tuple {1, "A", 100, 1.5f};
+        auto tup1 = std::tuple {2, "B", 200, 4.5f};
+
+        REQUIRE(dbTable->insert_into("ID", "Name", "Age", "Height")(tup0, tup1));
+        REQUIRE(dbTable->update("Age", "Height").where(equal {"ID", 2})(100, 4.2));
+
+        auto rows = dbTable->select_from<i32, string, i32, f32>("ID", "Name", "Age", "Height")();
+        REQUIRE(rows.size() == 2);
+        REQUIRE(rows[0] == tup0);
+        REQUIRE(rows[1] == std::tuple {2, "B", 100, 4.2f});
+    }
+    SUBCASE("WHERE value as parameter")
+    {
+        auto tup0 = std::tuple {1, "A", 100, 1.5f};
+        auto tup1 = std::tuple {2, "B", 200, 4.5f};
+
+        REQUIRE(dbTable->insert_into("ID", "Name", "Age", "Height")(tup0, tup1));
+        REQUIRE(dbTable->update("Age", "Height").where(equal {"ID"})(100, 4.2, 2));
+
         auto rows = dbTable->select_from<i32, string, i32, f32>("ID", "Name", "Age", "Height")();
         REQUIRE(rows.size() == 2);
         REQUIRE(rows[0] == tup0);
