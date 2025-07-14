@@ -52,17 +52,17 @@ TEST_CASE("Data.Sqlite.Select")
     SUBCASE("where")
     {
         {
-            auto rows = dbTable->select_from<i32, string, i32, f32, bool>().where(equal {.Column = "Age", .Value = 100})();
+            auto rows = dbTable->select_from<i32, string, i32, f32, bool>().where(equal {"Age", 100})();
             REQUIRE(rows.size() == 1);
             REQUIRE(rows[0] == std::tuple {1, "1", 100, 1.5f, false});
         }
         {
-            auto rows = dbTable->select_from<i32, string, i32, f32, bool>().where(equal {.Column = "Age"})(500);
+            auto rows = dbTable->select_from<i32, string, i32, f32, bool>().where(equal {"Age"})(500);
             REQUIRE(rows.size() == 1);
             REQUIRE(rows[0] == std::tuple {5, "5", 500, 7.5f, false});
         }
         {
-            auto rows = dbTable->select_from<i32, string, i32, f32, bool>().where(like {.Column = "Name", .Value = "%0"})();
+            auto rows = dbTable->select_from<i32, string, i32, f32, bool>().where(like {"Name", "%0"})();
             REQUIRE(rows.size() == 10);
             for (i32 i {1}; i <= 10; ++i) {
                 auto const tup {std::tuple {i * 10, std::to_string(i * 10), i * 1000, static_cast<f32>(i) * 15.0f, true}};
@@ -286,6 +286,19 @@ TEST_CASE("Data.Sqlite.Aggregate")
         for (auto val : expectedSums) {
             REQUIRE(std::ranges::find(rows, val) != rows.end());
         }
+    }
+    SUBCASE("having")
+    {
+        auto rows = dbTable->select_from<string, string, i32>("Name", "Category", count("*"))
+                        .group_by("Name", "Category")
+                        .having(greater {count("*"), 2})();
+
+        REQUIRE(rows.size() == 1);
+
+        auto const& [name, category, count] = rows[0];
+        REQUIRE(name == "B");
+        REQUIRE(category == "Y");
+        REQUIRE(count == 3);
     }
 }
 
@@ -745,4 +758,46 @@ TEST_CASE("Data.Sqlite.SavePoint")
     rows = dbTable->select_from<i32, string, i32, f32>("ID", "Name", "Age", "Height")();
     REQUIRE(rows.size() == 1);
     REQUIRE(rows[0] == tup0);
+}
+
+TEST_CASE("Data.Sqlite.Schema")
+{
+    string tableName {"testTable"};
+
+    database db {database::OpenMemory()};
+    auto     dbTable {db.create_table(tableName,
+                                      int_column<primary_key> {.Name = "ID", .NotNull = true},
+                                      text_column {.Name = "Name", .NotNull = true},
+                                      int_column {.Name = "Age"},
+                                      real_column {.Name = "Height"},
+                                      blob_column {.Name = "Alive"})};
+
+    auto schema = dbTable->schema();
+
+    REQUIRE(schema.size() == 5);
+
+    REQUIRE(schema[0].Name == "ID");
+    REQUIRE(schema[0].Type == "INTEGER");
+    REQUIRE(schema[0].NotNull == true);
+    REQUIRE(schema[0].IsPrimaryKey == true);
+
+    REQUIRE(schema[1].Name == "Name");
+    REQUIRE(schema[1].Type == "TEXT");
+    REQUIRE(schema[1].NotNull == true);
+    REQUIRE(schema[1].IsPrimaryKey == false);
+
+    REQUIRE(schema[2].Name == "Age");
+    REQUIRE(schema[2].Type == "INTEGER");
+    REQUIRE_FALSE(schema[2].NotNull);
+    REQUIRE_FALSE(schema[2].IsPrimaryKey);
+
+    REQUIRE(schema[3].Name == "Height");
+    REQUIRE(schema[3].Type == "REAL");
+    REQUIRE_FALSE(schema[3].NotNull);
+    REQUIRE_FALSE(schema[3].IsPrimaryKey);
+
+    REQUIRE(schema[4].Name == "Alive");
+    REQUIRE(schema[4].Type == "BLOB");
+    REQUIRE_FALSE(schema[4].NotNull);
+    REQUIRE_FALSE(schema[4].IsPrimaryKey);
 }
