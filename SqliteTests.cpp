@@ -21,11 +21,11 @@ TEST_CASE("Data.Sqlite.Select")
 
     database db {database::OpenMemory()};
     auto     dbTable {db.create_table(tableName,
-                                      column<type::Integer, primary_key> {.Name = "ID", .NotNull = true},
-                                      column<type::Text> {.Name = "Name", .NotNull = true},
-                                      column {.Name = "Age"},
-                                      column {.Name = "Height"},
-                                      column {.Name = "Alive"})};
+                                      int_column<primary_key> {.Name = "ID", .NotNull = true},
+                                      text_column {.Name = "Name", .NotNull = true},
+                                      int_column {.Name = "Age"},
+                                      int_column {.Name = "Height"},
+                                      int_column {.Name = "Alive"})};
     REQUIRE(dbTable);
     std::vector<std::tuple<i32, string, i32, f32, bool>> vec;
     for (i32 i {1}; i <= 100; ++i) {
@@ -209,10 +209,10 @@ TEST_CASE("Data.Sqlite.Aggregate")
 
     database db {database::OpenMemory()};
     auto     dbTable {db.create_table(tableName,
-                                      column<type::Integer, primary_key> {.Name = "ID", .NotNull = true},
-                                      column<type::Text> {.Name = "Name", .NotNull = true},
-                                      column {.Name = "Age"},
-                                      column<type::Text> {.Name = "Category"})};
+                                      int_column<primary_key> {.Name = "ID", .NotNull = true},
+                                      text_column {.Name = "Name", .NotNull = true},
+                                      int_column {.Name = "Age"},
+                                      text_column {.Name = "Category"})};
     REQUIRE(dbTable);
 
     std::vector<std::tuple<string, i32, string>> vec {
@@ -304,10 +304,10 @@ TEST_CASE("Data.Sqlite.Insert")
     database db {database::OpenMemory()};
 
     auto dbTable {db.create_table(tableName,
-                                  column<type::Integer> {.Name = "ID"},
-                                  column<type::Text> {.Name = "Name"},
-                                  column<type::Integer> {.Name = "Age"},
-                                  column<type::Integer> {.Name = "Height"})};
+                                  int_column {.Name = "ID"},
+                                  text_column {.Name = "Name"},
+                                  int_column {.Name = "Age"},
+                                  int_column {.Name = "Height"})};
     REQUIRE(dbTable);
 
     SUBCASE("tuples")
@@ -348,10 +348,10 @@ TEST_CASE("Data.Sqlite.Update")
     database db {database::OpenMemory()};
 
     auto dbTable {db.create_table(tableName,
-                                  column<type::Integer, primary_key> {.Name = "ID", .NotNull = true},
-                                  column<type::Text> {.Name = "Name", .NotNull = true},
-                                  column {.Name = "Age"},
-                                  column {.Name = "Height"})};
+                                  int_column<primary_key> {.Name = "ID", .NotNull = true},
+                                  text_column {.Name = "Name", .NotNull = true},
+                                  int_column {.Name = "Age"},
+                                  int_column {.Name = "Height"})};
     REQUIRE(dbTable);
 
     auto tup0 = std::tuple {1, "A", 100, 1.5f};
@@ -374,10 +374,10 @@ TEST_CASE("Data.Sqlite.Delete")
     database db {database::OpenMemory()};
 
     auto dbTable {db.create_table(tableName,
-                                  column<type::Integer, primary_key> {.Name = "ID", .NotNull = true},
-                                  column<type::Text> {.Name = "Name", .NotNull = true},
-                                  column {.Name = "Age"},
-                                  column {.Name = "Height"})};
+                                  int_column<primary_key> {.Name = "ID", .NotNull = true},
+                                  text_column {.Name = "Name", .NotNull = true},
+                                  int_column {.Name = "Age"},
+                                  int_column {.Name = "Height"})};
     REQUIRE(dbTable);
 
     auto tup0 = std::tuple {1, "A", 100, 1.5f};
@@ -385,7 +385,7 @@ TEST_CASE("Data.Sqlite.Delete")
 
     REQUIRE(dbTable->insert_into("ID", "Name", "Age", "Height")(tup0, tup1));
     REQUIRE(dbTable->row_count() == 2);
-    REQUIRE(dbTable->delete_from().where("ID = 1")());
+    REQUIRE(dbTable->delete_from().where(equal("ID", 2))());
     REQUIRE(dbTable->row_count() == 1);
 }
 
@@ -396,16 +396,16 @@ TEST_CASE("Data.Sqlite.CreateTable")
 
     database db {database::OpenMemory()};
 
-    REQUIRE(db.create_table(tableName0, column<type::Integer, primary_key> {.Name = "ID", .NotNull = true, .Constraint = {}}));
+    REQUIRE(db.create_table(tableName0, int_column<primary_key> {.Name = "ID", .NotNull = true, .Constraint = {}}));
 
     REQUIRE(db.table_names().size() == 1);
     REQUIRE(db.table_names().contains(tableName0));
 
     REQUIRE(db.create_table(tableName1,
-                            column<type::Integer, primary_key> {.Name = "ID", .NotNull = true},
-                            column<type::Text> {.Name = "Name", .NotNull = true},
-                            column {.Name = "Age"},
-                            column {.Name = "Height"}));
+                            int_column<primary_key> {.Name = "ID", .NotNull = true},
+                            text_column {.Name = "Name", .NotNull = true},
+                            int_column {.Name = "Age"},
+                            int_column {.Name = "Height"}));
 
     auto nameSet {db.get_table(tableName1)->column_names()};
     for (auto const& col : std::array {"ID", "Name", "Age", "Height"}) {
@@ -427,7 +427,7 @@ TEST_CASE("Data.Sqlite.DropTable")
 
     database db {database::OpenMemory()};
 
-    auto dbTable {db.create_table(tableName, column<type::Integer, primary_key> {.Name = "ID", .NotNull = true})};
+    auto dbTable {db.create_table(tableName, int_column<primary_key> {.Name = "ID", .NotNull = true})};
     REQUIRE(db.table_exists(tableName));
 
     REQUIRE(db.table_names().size() == 1);
@@ -446,7 +446,7 @@ TEST_CASE("Data.Sqlite.Constraints")
     SUBCASE("no_constraint")
     {
         auto table = db.create_table("TestNone",
-                                     column<type::Integer, no_constraint> {.Name = "ID"});
+                                     int_column<no_constraint> {.Name = "ID"});
         REQUIRE(table);
         REQUIRE(table->insert_into("ID")(42));
         auto rows = table->select_from<i32>("ID")();
@@ -456,8 +456,8 @@ TEST_CASE("Data.Sqlite.Constraints")
     SUBCASE("default_value")
     {
         auto table = db.create_table("TestDefault",
-                                     column<type::Integer, no_constraint> {.Name = "ID"},
-                                     column<type::Text, default_value<string>> {.Name = "Name", .Constraint = {"DefaultName"}});
+                                     int_column<no_constraint> {.Name = "ID"},
+                                     text_column<default_value<string>> {.Name = "Name", .Constraint = {"DefaultName"}});
         REQUIRE(table);
         REQUIRE(table->insert_into("ID")(0));
         auto rows = table->select_from<string>("Name")();
@@ -467,7 +467,7 @@ TEST_CASE("Data.Sqlite.Constraints")
     SUBCASE("unique")
     {
         auto table = db.create_table("TestUnique",
-                                     column<type::Integer> {.Name = "ID"},
+                                     int_column {.Name = "ID"},
                                      unique {"ID"});
         REQUIRE(table);
         REQUIRE(table->insert_into("ID")(1));
@@ -477,7 +477,7 @@ TEST_CASE("Data.Sqlite.Constraints")
     SUBCASE("primary_key")
     {
         auto table = db.create_table("TestPrimaryKey",
-                                     column<type::Integer, primary_key> {.Name = "ID"});
+                                     int_column<primary_key> {.Name = "ID"});
         REQUIRE(table);
         REQUIRE(table->insert_into("ID")(123));
         REQUIRE_FALSE(table->insert_into("ID")(123)); // primary key violation
@@ -486,9 +486,9 @@ TEST_CASE("Data.Sqlite.Constraints")
     SUBCASE("foreign_key")
     {
         REQUIRE(db.create_table("Parent",
-                                column<type::Integer, primary_key> {.Name = "ID"}));
+                                int_column<primary_key> {.Name = "ID"}));
         REQUIRE(db.create_table("Child",
-                                column<type::Integer, foreign_key> {.Name = "ParentID", .Constraint = {"Parent", "ID"}}));
+                                int_column<foreign_key> {.Name = "ParentID", .Constraint = {"Parent", "ID"}}));
         REQUIRE(db.get_table("Parent")->insert_into("ID")(1));
         REQUIRE(db.get_table("Child")->insert_into("ParentID")(1));
         REQUIRE_FALSE(db.get_table("Child")->insert_into("ParentID")(999)); // invalid FK
@@ -497,7 +497,7 @@ TEST_CASE("Data.Sqlite.Constraints")
     SUBCASE("check")
     {
         auto table = db.create_table("TestCheck",
-                                     column<type::Integer, check> {.Name = "Value", .Constraint = {"Value > 0"}});
+                                     int_column<check> {.Name = "Value", .Constraint = {"Value > 0"}});
         REQUIRE(table);
         REQUIRE(table->insert_into("Value")(10));
         REQUIRE_FALSE(table->insert_into("Value")(0)); // check failed
@@ -511,7 +511,7 @@ TEST_CASE("Data.Sqlite.VacuumInto")
     {
         database db {database::OpenMemory()};
 
-        auto dbTable {db.create_table(tableName, column<type::Integer, primary_key> {.Name = "ID", .NotNull = true})};
+        auto dbTable {db.create_table(tableName, int_column<primary_key> {.Name = "ID", .NotNull = true})};
 
         io::delete_file(fileName);
         REQUIRE_FALSE(io::exists(fileName));
@@ -532,11 +532,11 @@ TEST_CASE("Data.Sqlite.Blobs")
     database db {database::OpenMemory()};
 
     auto dbTable {db.create_table(tableName,
-                                  column<type::Integer, primary_key> {.Name = "ID", .NotNull = true},
-                                  column<type::Blob> {.Name = "Point"},
-                                  column<type::Blob> {.Name = "Size"},
-                                  column<type::Blob> {.Name = "Rect"},
-                                  column<type::Blob> {.Name = "Color"})};
+                                  int_column<primary_key> {.Name = "ID", .NotNull = true},
+                                  blob_column {.Name = "Point"},
+                                  blob_column {.Name = "Size"},
+                                  blob_column {.Name = "Rect"},
+                                  blob_column {.Name = "Color"})};
     REQUIRE(db.table_exists(tableName));
     auto tup0 = std::tuple {1, point_f {4.2f, 2.4f}, size_u {420, 69}, rect_i {-5, 5, 20, 9}, colors::Aqua};
     auto tup1 = std::tuple {2, point_f {6.9f, 9.6f}, size_u {123, 456}, rect_i {5, -5, -20, 9}, colors::RebeccaPurple};
@@ -557,8 +557,8 @@ TEST_CASE("Data.Sqlite.NullAndOptional")
     database db {database::OpenMemory()};
 
     auto dbTable {db.create_table(tableName,
-                                  column<type::Integer, primary_key> {.Name = "ID", .NotNull = true},
-                                  column<type::Integer> {.Name = "Age", .NotNull = false})};
+                                  int_column<primary_key> {.Name = "ID", .NotNull = true},
+                                  int_column {.Name = "Age", .NotNull = false})};
     REQUIRE(db.table_exists(tableName));
 
     auto tup0 = std::tuple {100};
@@ -582,11 +582,11 @@ TEST_CASE("Data.Sqlite.Views")
     database db {database::OpenMemory()};
 
     auto dbTable {db.create_table(tableName,
-                                  column<type::Integer, primary_key> {.Name = "ID", .NotNull = true},
-                                  column<type::Integer> {.Name = "A"},
-                                  column<type::Integer> {.Name = "B"},
-                                  column<type::Integer> {.Name = "C"},
-                                  column<type::Integer> {.Name = "D"})};
+                                  int_column<primary_key> {.Name = "ID", .NotNull = true},
+                                  int_column {.Name = "A"},
+                                  int_column {.Name = "B"},
+                                  int_column {.Name = "C"},
+                                  int_column {.Name = "D"})};
     REQUIRE(db.table_exists(tableName));
 
     std::vector<std::tuple<i32, i32, i32, i32>> values;
@@ -597,7 +597,7 @@ TEST_CASE("Data.Sqlite.Views")
 
     REQUIRE(dbTable->insert_into("A", "B", "C", "D")(values));
     {
-        auto select {std::move(dbTable->select_from<i32, i32, i32, i32>("A", "B", "C", "D").where(greater {.Column = "A", .Value = 50}))};
+        auto select {std::move(dbTable->select_from<i32, i32, i32, i32>("A", "B", "C", "D").where("A > 50"))};
         auto rows {select()};
 
         auto dbView {db.create_view("testView", select)};
@@ -621,9 +621,9 @@ TEST_CASE("Data.Sqlite.Join")
     {
         {
             auto dbTable {db.create_table(tableName0,
-                                          column<type::Integer, primary_key> {.Name = "ID", .NotNull = true},
-                                          column<type::Text> {.Name = "Name"},
-                                          column<type::Integer> {.Name = "CountryID"})};
+                                          int_column<primary_key> {.Name = "ID", .NotNull = true},
+                                          text_column {.Name = "Name"},
+                                          int_column {.Name = "CountryID"})};
             REQUIRE(db.table_exists(tableName0));
 
             auto tup0 = std::tuple {"Peter", 1};
@@ -634,8 +634,8 @@ TEST_CASE("Data.Sqlite.Join")
         }
         {
             auto dbTable {db.create_table(tableName1,
-                                          column<type::Integer, primary_key> {.Name = "ID", .NotNull = true},
-                                          column<type::Text> {.Name = "Code"})};
+                                          int_column<primary_key> {.Name = "ID", .NotNull = true},
+                                          text_column {.Name = "Code"})};
             REQUIRE(db.table_exists(tableName1));
 
             auto tup0 = std::tuple {1, "UK"};
@@ -654,9 +654,9 @@ TEST_CASE("Data.Sqlite.Join")
     {
         {
             auto dbTable {db.create_table(tableName0,
-                                          column<type::Integer, primary_key> {.Name = "ID", .NotNull = true},
-                                          column<type::Text> {.Name = "Name"},
-                                          column<type::Integer> {.Name = "CountryID"})};
+                                          int_column<primary_key> {.Name = "ID", .NotNull = true},
+                                          text_column {.Name = "Name"},
+                                          int_column {.Name = "CountryID"})};
             REQUIRE(db.table_exists(tableName0));
 
             auto tup0 = std::tuple {"Peter", 1};
@@ -667,8 +667,8 @@ TEST_CASE("Data.Sqlite.Join")
         }
         {
             auto dbTable {db.create_table(tableName1,
-                                          column<type::Integer, primary_key> {.Name = "ID", .NotNull = true},
-                                          column<type::Text> {.Name = "Code"})};
+                                          int_column<primary_key> {.Name = "ID", .NotNull = true},
+                                          text_column {.Name = "Code"})};
             REQUIRE(db.table_exists(tableName1));
 
             auto tup0 = std::tuple {1, "UK"};
@@ -686,11 +686,11 @@ TEST_CASE("Data.Sqlite.Join")
     SUBCASE("CrossJoin")
     {
         {
-            REQUIRE(db.create_table(tableName0, column<type::Text> {"Color"}));
+            REQUIRE(db.create_table(tableName0, text_column {"Color"}));
             REQUIRE(db.get_table(tableName0)->insert_into("Color")("Green", "Blue", "Yellow"));
         }
         {
-            REQUIRE(db.create_table(tableName1, column<type::Integer> {"Number"}));
+            REQUIRE(db.create_table(tableName1, int_column {"Number"}));
             REQUIRE(db.get_table(tableName1)->insert_into("Number")(1, 2));
         }
 
@@ -712,10 +712,10 @@ TEST_CASE("Data.Sqlite.SavePoint")
     database db {database::OpenMemory()};
 
     auto dbTable {db.create_table(tableName,
-                                  column<type::Integer> {.Name = "ID"},
-                                  column<type::Text> {.Name = "Name"},
-                                  column<type::Integer> {.Name = "Age"},
-                                  column<type::Integer> {.Name = "Height"})};
+                                  int_column {.Name = "ID"},
+                                  text_column {.Name = "Name"},
+                                  int_column {.Name = "Age"},
+                                  int_column {.Name = "Height"})};
     REQUIRE(dbTable);
 
     auto tup0 = std::tuple {1, "A", 100, 1.5f};
