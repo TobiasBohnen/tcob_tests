@@ -37,13 +37,13 @@ TEST_CASE("Data.Sqlite.Select")
     SUBCASE("select")
     {
         {
-            auto rows = dbTable->select_from<i32, string, i32, f32, bool>()();
+            auto const rows {dbTable->select_from<i32, string, i32, f32, bool>()()};
             REQUIRE(rows.size() == 100);
             REQUIRE(rows[0] == std::tuple {1, "1", 100, 1.5f, false});
             REQUIRE(rows[1] == std::tuple {2, "2", 200, 3.0f, true});
         }
         {
-            auto rows = dbTable->select_from<string, i32, f32>("Name", "Age", "Height")();
+            auto const rows {dbTable->select_from<string, i32, f32>("Name", "Age", "Height")()};
             REQUIRE(rows.size() == 100);
             REQUIRE(rows[0] == std::tuple {"1", 100, 1.5f});
             REQUIRE(rows[1] == std::tuple {"2", 200, 3.0f});
@@ -51,22 +51,72 @@ TEST_CASE("Data.Sqlite.Select")
     }
     SUBCASE("where")
     {
+        SUBCASE("=")
         {
-            auto rows = dbTable->select_from<i32, string, i32, f32, bool>().where(equal {"Age", 100})();
-            REQUIRE(rows.size() == 1);
-            REQUIRE(rows[0] == std::tuple {1, "1", 100, 1.5f, false});
+            {
+                auto const rows {dbTable->select_from<i32, string, i32, f32, bool>().where(equal {"Age", 100})()};
+                REQUIRE(rows.size() == 1);
+                REQUIRE(rows[0] == std::tuple {1, "1", 100, 1.5f, false});
+            }
+            {
+                auto const rows {dbTable->select_from<i32, string, i32, f32, bool>().where(equal {"Age"})(500)};
+                REQUIRE(rows.size() == 1);
+                REQUIRE(rows[0] == std::tuple {5, "5", 500, 7.5f, false});
+            }
         }
+        SUBCASE("LIKE")
         {
-            auto rows = dbTable->select_from<i32, string, i32, f32, bool>().where(equal {"Age"})(500);
-            REQUIRE(rows.size() == 1);
-            REQUIRE(rows[0] == std::tuple {5, "5", 500, 7.5f, false});
+            {
+                auto const rows {dbTable->select_from<i32, string, i32, f32, bool>().where(like {"Name", "%0"})()};
+                REQUIRE(rows.size() == 10);
+                for (i32 i {1}; i <= 10; ++i) {
+                    auto const tup {std::tuple {i * 10, std::to_string(i * 10), i * 1000, static_cast<f32>(i) * 15.0f, true}};
+                    REQUIRE_MESSAGE(rows[i - 1] == tup, i);
+                }
+            }
+            {
+                auto const rows {dbTable->select_from<i32, string, i32, f32, bool>().where(like {"Name"})("%0")};
+                REQUIRE(rows.size() == 10);
+                for (i32 i {1}; i <= 10; ++i) {
+                    auto const tup {std::tuple {i * 10, std::to_string(i * 10), i * 1000, static_cast<f32>(i) * 15.0f, true}};
+                    REQUIRE_MESSAGE(rows[i - 1] == tup, i);
+                }
+            }
         }
+        SUBCASE("IN")
         {
-            auto rows = dbTable->select_from<i32, string, i32, f32, bool>().where(like {"Name", "%0"})();
-            REQUIRE(rows.size() == 10);
-            for (i32 i {1}; i <= 10; ++i) {
-                auto const tup {std::tuple {i * 10, std::to_string(i * 10), i * 1000, static_cast<f32>(i) * 15.0f, true}};
-                REQUIRE_MESSAGE(rows[i - 1] == tup, i);
+            std::set<i32> idsToMatch {3, 7, 42};
+
+            auto ids {dbTable->select_from<i32>("ID")
+                          .where(in {"ID", 3, 7, 42})()};
+
+            REQUIRE(ids.size() == idsToMatch.size());
+
+            for (auto const& id : ids) {
+                REQUIRE(idsToMatch.contains(id));
+            }
+        }
+        SUBCASE("BETWEEN")
+        {
+            {
+                auto ids {dbTable->select_from<i32>("ID")
+                              .where(between {"ID", 1, 5})()};
+
+                REQUIRE(ids.size() == 5);
+
+                for (i32 i {1}; i <= 5; ++i) {
+                    REQUIRE(ids[i - 1] == i);
+                }
+            }
+            {
+                auto ids {dbTable->select_from<i32>("ID")
+                              .where(between {"ID"})(12, 16)};
+
+                REQUIRE(ids.size() == 5);
+
+                for (i32 i {0}; i < 5; ++i) {
+                    REQUIRE(ids[i] == i + 12);
+                }
             }
         }
     }
@@ -74,8 +124,8 @@ TEST_CASE("Data.Sqlite.Select")
     {
         SUBCASE("descending by Name")
         {
-            auto rows = dbTable->select_from<i32, string, i32, f32, bool>()
-                            .order_by(desc {"Name"})();
+            auto const rows {dbTable->select_from<i32, string, i32, f32, bool>()
+                                 .order_by(desc {"Name"})()};
             REQUIRE(rows.size() == 100);
             REQUIRE(rows[0] == std::tuple {99, "99", 9900, 148.5f, false});
             REQUIRE(rows[1] == std::tuple {98, "98", 9800, 147.0f, true});
@@ -83,8 +133,8 @@ TEST_CASE("Data.Sqlite.Select")
         }
         SUBCASE("ascending by Name")
         {
-            auto rows = dbTable->select_from<i32, string, i32, f32, bool>()
-                            .order_by(asc {"Name"})();
+            auto const rows {dbTable->select_from<i32, string, i32, f32, bool>()
+                                 .order_by(asc {"Name"})()};
             REQUIRE(rows.size() == 100);
             REQUIRE(rows[0] == std::tuple {1, "1", 100, 1.5f, false});
             REQUIRE(rows[1] == std::tuple {10, "10", 1000, 15.0f, true});
@@ -92,44 +142,44 @@ TEST_CASE("Data.Sqlite.Select")
         }
         SUBCASE("ascending by Age")
         {
-            auto rows = dbTable->select_from<i32, string, i32, f32, bool>()
-                            .order_by(asc {"Age"})();
+            auto const rows {dbTable->select_from<i32, string, i32, f32, bool>()
+                                 .order_by(asc {"Age"})()};
             REQUIRE(rows[0] == std::tuple {1, "1", 100, 1.5f, false});
             REQUIRE(rows[1] == std::tuple {2, "2", 200, 3.0f, true});
         }
         SUBCASE("ascending by 3")
         {
-            auto rows = dbTable->select_from<i32, string, i32, f32, bool>()
-                            .order_by(asc {3})();
+            auto const rows {dbTable->select_from<i32, string, i32, f32, bool>()
+                                 .order_by(asc {3})()};
             REQUIRE(rows[0] == std::tuple {1, "1", 100, 1.5f, false});
             REQUIRE(rows[1] == std::tuple {2, "2", 200, 3.0f, true});
         }
         SUBCASE("descending by Height")
         {
-            auto rows = dbTable->select_from<i32, string, i32, f32, bool>()
-                            .order_by(desc {"Height"})();
+            auto const rows {dbTable->select_from<i32, string, i32, f32, bool>()
+                                 .order_by(desc {"Height"})()};
             REQUIRE(rows[0] == std::tuple {100, "100", 10000, 150.0f, true});
             REQUIRE(rows[1] == std::tuple {99, "99", 9900, 148.5f, false});
         }
         SUBCASE("ascending by Alive")
         {
-            auto rows = dbTable->select_from<i32, string, i32, f32, bool>()
-                            .order_by(asc {"Alive"})();
-            for (usize i = 0; i < 50; ++i) {
+            auto const rows {dbTable->select_from<i32, string, i32, f32, bool>()
+                                 .order_by(asc {"Alive"})()};
+            for (usize i {0}; i < 50; ++i) {
                 REQUIRE(std::get<4>(rows[i]) == false);
             }
-            for (usize i = 50; i < 100; ++i) {
+            for (usize i {50}; i < 100; ++i) {
                 REQUIRE(std::get<4>(rows[i]) == true);
             }
         }
         SUBCASE("multi-column: Alive asc, Age desc")
         {
-            auto rows = dbTable->select_from<i32, string, i32, f32, bool>()
-                            .order_by(asc {"Alive"},
-                                      desc {"Age"})();
-            for (usize i = 1; i < rows.size(); ++i) {
-                auto const& [idPrev, namePrev, agePrev, hPrev, alivePrev] = rows[i - 1];
-                auto const& [idCurr, nameCurr, ageCurr, hCurr, aliveCurr] = rows[i];
+            auto const rows {dbTable->select_from<i32, string, i32, f32, bool>()
+                                 .order_by(asc {"Alive"},
+                                           desc {"Age"})()};
+            for (usize i {1}; i < rows.size(); ++i) {
+                auto const& [idPrev, namePrev, agePrev, hPrev, alivePrev] {rows[i - 1]};
+                auto const& [idCurr, nameCurr, ageCurr, hCurr, aliveCurr] {rows[i]};
 
                 if (alivePrev == aliveCurr) {
                     REQUIRE(agePrev >= ageCurr);
@@ -141,11 +191,11 @@ TEST_CASE("Data.Sqlite.Select")
         }
         SUBCASE("multi-column: 5 asc, 3 desc")
         {
-            auto rows = dbTable->select_from<i32, string, i32, f32, bool>()
-                            .order_by(asc {5}, desc {3})();
-            for (usize i = 1; i < rows.size(); ++i) {
-                auto const& [idPrev, namePrev, agePrev, hPrev, alivePrev] = rows[i - 1];
-                auto const& [idCurr, nameCurr, ageCurr, hCurr, aliveCurr] = rows[i];
+            auto const rows {dbTable->select_from<i32, string, i32, f32, bool>()
+                                 .order_by(asc {5}, desc {3})()};
+            for (usize i {1}; i < rows.size(); ++i) {
+                auto const& [idPrev, namePrev, agePrev, hPrev, alivePrev] {rows[i - 1]};
+                auto const& [idCurr, nameCurr, ageCurr, hCurr, aliveCurr] {rows[i]};
 
                 if (alivePrev == aliveCurr) {
                     REQUIRE(agePrev >= ageCurr);
@@ -157,11 +207,11 @@ TEST_CASE("Data.Sqlite.Select")
         }
         SUBCASE("multi-column by string: Alive asc, Age desc")
         {
-            auto rows = dbTable->select_from<i32, string, i32, f32, bool>()
-                            .order_by("Alive ASC", "Age DESC")();
-            for (usize i = 1; i < rows.size(); ++i) {
-                auto const& [idPrev, namePrev, agePrev, hPrev, alivePrev] = rows[i - 1];
-                auto const& [idCurr, nameCurr, ageCurr, hCurr, aliveCurr] = rows[i];
+            auto const rows {dbTable->select_from<i32, string, i32, f32, bool>()
+                                 .order_by("Alive ASC", "Age DESC")()};
+            for (usize i {1}; i < rows.size(); ++i) {
+                auto const& [idPrev, namePrev, agePrev, hPrev, alivePrev] {rows[i - 1]};
+                auto const& [idCurr, nameCurr, ageCurr, hCurr, aliveCurr] {rows[i]};
 
                 if (alivePrev == aliveCurr) {
                     REQUIRE(agePrev >= ageCurr);
@@ -174,26 +224,26 @@ TEST_CASE("Data.Sqlite.Select")
     }
     SUBCASE("limit")
     {
-        auto rows = dbTable->select_from<i32, string, i32, f32, bool>().limit(1)();
+        auto const rows {dbTable->select_from<i32, string, i32, f32, bool>().limit(1)()};
         REQUIRE(rows.size() == 1);
         REQUIRE(rows[0] == std::tuple {1, "1", 100, 1.5f, false});
     }
     SUBCASE("limit offset")
     {
-        auto rows = dbTable->select_from<i32, string, i32, f32, bool>("ID", "Name", "Age", "Height", "Alive").limit(1, 1)();
+        auto const rows {dbTable->select_from<i32, string, i32, f32, bool>("ID", "Name", "Age", "Height", "Alive").limit(1, 1)()};
         REQUIRE(rows.size() == 1);
         REQUIRE(rows[0] == std::tuple {2, "2", 200, 3.0f, true});
     }
     SUBCASE("distinct")
     {
-        auto rows = dbTable->select_from<bool>(distinct, "Alive")();
+        auto const rows {dbTable->select_from<bool>(distinct, "Alive")()};
         REQUIRE(rows.size() == 2);
         REQUIRE(rows[0] == false);
         REQUIRE(rows[1] == true);
     }
     SUBCASE("tuple to type")
     {
-        std::vector<foo> rows {dbTable->select_from<i32, string, i32, f32, bool>().exec<foo>()};
+        auto const rows {dbTable->select_from<i32, string, i32, f32, bool>().exec<foo>()};
         REQUIRE(rows.size() == 100);
         REQUIRE(rows[0] == foo {1, "1", 100, 1.5f, false});
         REQUIRE(rows[1] == foo {2, "2", 200, 3.0f, true});
@@ -228,7 +278,7 @@ TEST_CASE("Data.Sqlite.Aggregate")
 
     SUBCASE("group_by single column: Name")
     {
-        auto rows = dbTable->select_from<i32>(sum("Age")).group_by("Name")();
+        auto const rows {dbTable->select_from<i32>(sum("Age")).group_by("Name")()};
 
         REQUIRE(rows.size() == 2);
 
@@ -237,7 +287,7 @@ TEST_CASE("Data.Sqlite.Aggregate")
     }
     SUBCASE("count grouped by Name")
     {
-        auto counts = dbTable->select_from<i32>(count("*")).group_by("Name")();
+        auto const counts {dbTable->select_from<i32>(count("*")).group_by("Name")()};
 
         REQUIRE(counts.size() == 2);
 
@@ -246,20 +296,20 @@ TEST_CASE("Data.Sqlite.Aggregate")
     }
     SUBCASE("avg Age grouped by Name")
     {
-        auto avgs = dbTable->select_from<double>(avg("Age")).group_by("Name")();
+        auto const avgs {dbTable->select_from<double>(avg("Age")).group_by("Name")()};
 
         REQUIRE(avgs.size() == 2);
 
-        double expectedAvgA = (100 + 110 + 120 + 130) / 4.0;
-        double expectedAvgB = (200 + 210 + 220 + 230 + 240) / 5.0;
+        f64 const expectedAvgA {(100 + 110 + 120 + 130) / 4.0};
+        f64 const expectedAvgB {(200 + 210 + 220 + 230 + 240) / 5.0};
 
-        bool order1 = (std::abs(avgs[0] - expectedAvgA) < 1e-6 && std::abs(avgs[1] - expectedAvgB) < 1e-6);
-        bool order2 = (std::abs(avgs[1] - expectedAvgA) < 1e-6 && std::abs(avgs[0] - expectedAvgB) < 1e-6);
+        bool order1 {(std::abs(avgs[0] - expectedAvgA) < 1e-6 && std::abs(avgs[1] - expectedAvgB) < 1e-6)};
+        bool order2 {(std::abs(avgs[1] - expectedAvgA) < 1e-6 && std::abs(avgs[0] - expectedAvgB) < 1e-6)};
         REQUIRE((order1 || order2));
     }
     SUBCASE("min Age grouped by Name")
     {
-        auto mins = dbTable->select_from<i32>(min("Age")).group_by("Name")();
+        auto const mins {dbTable->select_from<i32>(min("Age")).group_by("Name")()};
 
         REQUIRE(mins.size() == 2);
 
@@ -268,7 +318,7 @@ TEST_CASE("Data.Sqlite.Aggregate")
     }
     SUBCASE("max Age grouped by Name")
     {
-        auto maxs = dbTable->select_from<i32>(max("Age")).group_by("Name")();
+        auto const maxs {dbTable->select_from<i32>(max("Age")).group_by("Name")()};
 
         REQUIRE(maxs.size() == 2);
 
@@ -277,7 +327,7 @@ TEST_CASE("Data.Sqlite.Aggregate")
     }
     SUBCASE("group_by multiple columns: Name and Category")
     {
-        auto rows = dbTable->select_from<i32>(sum("Age")).group_by("Name", "Category")();
+        auto const rows {dbTable->select_from<i32>(sum("Age")).group_by("Name", "Category")()};
 
         REQUIRE(rows.size() == 4);
 
@@ -289,9 +339,9 @@ TEST_CASE("Data.Sqlite.Aggregate")
     }
     SUBCASE("having")
     {
-        auto rows = dbTable->select_from<string, string, i32>("Name", "Category", count("*"))
-                        .group_by("Name", "Category")
-                        .having(greater {count("*"), 2})();
+        auto const rows {dbTable->select_from<string, string, i32>("Name", "Category", count("*"))
+                             .group_by("Name", "Category")
+                             .having(greater {count("*"), 2})()};
 
         REQUIRE(rows.size() == 1);
 
@@ -317,21 +367,21 @@ TEST_CASE("Data.Sqlite.Insert")
 
     SUBCASE("tuples")
     {
-        auto tup0 = std::tuple {1, "A", 100, 1.5f};
-        auto tup1 = std::tuple {2, "B", 200, 4.5f};
+        std::tuple tup0 {1, "A", 100, 1.5f};
+        std::tuple tup1 {2, "B", 200, 4.5f};
 
         REQUIRE(dbTable->insert_into("ID", "Name", "Age", "Height")(tup0, tup1));
-        auto rows = dbTable->select_from<i32, string, i32, f32>("ID", "Name", "Age", "Height")();
+        auto const rows {dbTable->select_from<i32, string, i32, f32>("ID", "Name", "Age", "Height")()};
         REQUIRE(rows.size() == 2);
         REQUIRE(rows[0] == tup0);
         REQUIRE(rows[1] == tup1);
     }
     SUBCASE("vector of tuples")
     {
-        auto vec = std::vector {std::tuple {1, "A", 100, 1.5f}, std::tuple {2, "B", 200, 4.5f}};
+        auto vec {std::vector {std::tuple {1, "A", 100, 1.5f}, std::tuple {2, "B", 200, 4.5f}}};
         REQUIRE(dbTable->insert_into("ID", "Name", "Age", "Height")(vec));
 
-        auto rows = dbTable->select_from<i32, string, i32, f32>("ID", "Name", "Age", "Height")();
+        auto const rows {dbTable->select_from<i32, string, i32, f32>("ID", "Name", "Age", "Height")()};
         REQUIRE(rows.size() == 2);
         REQUIRE(rows[0] == vec[0]);
         REQUIRE(rows[1] == vec[1]);
@@ -339,7 +389,7 @@ TEST_CASE("Data.Sqlite.Insert")
     SUBCASE("values")
     {
         REQUIRE(dbTable->insert_into("Age")(100, 200));
-        auto rows = dbTable->select_from<i32>("Age")();
+        auto const rows {dbTable->select_from<i32>("Age")()};
         REQUIRE(rows.size() == 2);
         REQUIRE(rows[0] == 100);
         REQUIRE(rows[1] == 200);
@@ -361,26 +411,26 @@ TEST_CASE("Data.Sqlite.Update")
 
     SUBCASE("WHERE value in conditional")
     {
-        auto tup0 = std::tuple {1, "A", 100, 1.5f};
-        auto tup1 = std::tuple {2, "B", 200, 4.5f};
+        std::tuple tup0 {1, "A", 100, 1.5f};
+        std::tuple tup1 {2, "B", 200, 4.5f};
 
         REQUIRE(dbTable->insert_into("ID", "Name", "Age", "Height")(tup0, tup1));
         REQUIRE(dbTable->update("Age", "Height").where(equal {"ID", 2})(100, 4.2));
 
-        auto rows = dbTable->select_from<i32, string, i32, f32>("ID", "Name", "Age", "Height")();
+        auto const rows {dbTable->select_from<i32, string, i32, f32>("ID", "Name", "Age", "Height")()};
         REQUIRE(rows.size() == 2);
         REQUIRE(rows[0] == tup0);
         REQUIRE(rows[1] == std::tuple {2, "B", 100, 4.2f});
     }
     SUBCASE("WHERE value as parameter")
     {
-        auto tup0 = std::tuple {1, "A", 100, 1.5f};
-        auto tup1 = std::tuple {2, "B", 200, 4.5f};
+        std::tuple tup0 {1, "A", 100, 1.5f};
+        std::tuple tup1 {2, "B", 200, 4.5f};
 
         REQUIRE(dbTable->insert_into("ID", "Name", "Age", "Height")(tup0, tup1));
         REQUIRE(dbTable->update("Age", "Height").where(equal {"ID"})(100, 4.2, 2));
 
-        auto rows = dbTable->select_from<i32, string, i32, f32>("ID", "Name", "Age", "Height")();
+        auto const rows {dbTable->select_from<i32, string, i32, f32>("ID", "Name", "Age", "Height")()};
         REQUIRE(rows.size() == 2);
         REQUIRE(rows[0] == tup0);
         REQUIRE(rows[1] == std::tuple {2, "B", 100, 4.2f});
@@ -400,8 +450,8 @@ TEST_CASE("Data.Sqlite.Delete")
                                   int_column {.Name = "Height"})};
     REQUIRE(dbTable);
 
-    auto tup0 = std::tuple {1, "A", 100, 1.5f};
-    auto tup1 = std::tuple {2, "B", 200, 4.5f};
+    std::tuple tup0 {1, "A", 100, 1.5f};
+    std::tuple tup1 {2, "B", 200, 4.5f};
 
     REQUIRE(dbTable->insert_into("ID", "Name", "Age", "Height")(tup0, tup1));
     REQUIRE(dbTable->row_count() == 2);
@@ -411,8 +461,8 @@ TEST_CASE("Data.Sqlite.Delete")
 
 TEST_CASE("Data.Sqlite.CreateTable")
 {
-    string tableName0 = "testTable0";
-    string tableName1 = "testTable1";
+    string tableName0 {"testTable0"};
+    string tableName1 {"testTable1"};
 
     database db {database::OpenMemory()};
 
@@ -465,30 +515,30 @@ TEST_CASE("Data.Sqlite.Constraints")
 
     SUBCASE("no_constraint")
     {
-        auto table = db.create_table("TestNone",
-                                     int_column<no_constraint> {.Name = "ID"});
+        auto table {db.create_table("TestNone",
+                                    int_column<no_constraint> {.Name = "ID"})};
         REQUIRE(table);
         REQUIRE(table->insert_into("ID")(42));
-        auto rows = table->select_from<i32>("ID")();
+        auto const rows {table->select_from<i32>("ID")()};
         REQUIRE(rows[0] == 42);
     }
 
     SUBCASE("default_value")
     {
-        auto table = db.create_table("TestDefault",
-                                     int_column<no_constraint> {.Name = "ID"},
-                                     text_column<default_value<string>> {.Name = "Name", .Constraint = {"DefaultName"}});
+        auto table {db.create_table("TestDefault",
+                                    int_column<no_constraint> {.Name = "ID"},
+                                    text_column<default_value<string>> {.Name = "Name", .Constraint = {"DefaultName"}})};
         REQUIRE(table);
         REQUIRE(table->insert_into("ID")(0));
-        auto rows = table->select_from<string>("Name")();
+        auto const rows {table->select_from<string>("Name")()};
         REQUIRE(rows[0] == "DefaultName");
     }
 
     SUBCASE("unique")
     {
-        auto table = db.create_table("TestUnique",
-                                     int_column {.Name = "ID"},
-                                     unique {"ID"});
+        auto table {db.create_table("TestUnique",
+                                    int_column {.Name = "ID"},
+                                    unique {"ID"})};
         REQUIRE(table);
         REQUIRE(table->insert_into("ID")(1));
         REQUIRE_FALSE(table->insert_into("ID")(1)); // duplicate
@@ -496,8 +546,8 @@ TEST_CASE("Data.Sqlite.Constraints")
 
     SUBCASE("primary_key")
     {
-        auto table = db.create_table("TestPrimaryKey",
-                                     int_column<primary_key> {.Name = "ID"});
+        auto table {db.create_table("TestPrimaryKey",
+                                    int_column<primary_key> {.Name = "ID"})};
         REQUIRE(table);
         REQUIRE(table->insert_into("ID")(123));
         REQUIRE_FALSE(table->insert_into("ID")(123)); // primary key violation
@@ -516,8 +566,8 @@ TEST_CASE("Data.Sqlite.Constraints")
 
     SUBCASE("check")
     {
-        auto table = db.create_table("TestCheck",
-                                     int_column<check> {.Name = "Value", .Constraint = {"Value > 0"}});
+        auto table {db.create_table("TestCheck",
+                                    int_column<check> {.Name = "Value", .Constraint = {"Value > 0"}})};
         REQUIRE(table);
         REQUIRE(table->insert_into("Value")(10));
         REQUIRE_FALSE(table->insert_into("Value")(0)); // check failed
@@ -558,12 +608,12 @@ TEST_CASE("Data.Sqlite.Blobs")
                                   blob_column {.Name = "Rect"},
                                   blob_column {.Name = "Color"})};
     REQUIRE(db.table_exists(tableName));
-    auto tup0 = std::tuple {1, point_f {4.2f, 2.4f}, size_u {420, 69}, rect_i {-5, 5, 20, 9}, colors::Aqua};
-    auto tup1 = std::tuple {2, point_f {6.9f, 9.6f}, size_u {123, 456}, rect_i {5, -5, -20, 9}, colors::RebeccaPurple};
+    std::tuple tup0 {1, point_f {4.2f, 2.4f}, size_u {420, 69}, rect_i {-5, 5, 20, 9}, colors::Aqua};
+    std::tuple tup1 {2, point_f {6.9f, 9.6f}, size_u {123, 456}, rect_i {5, -5, -20, 9}, colors::RebeccaPurple};
 
     REQUIRE(dbTable->insert_into("ID", "Point", "Size", "Rect", "Color")(tup0, tup1));
     {
-        auto rows = dbTable->select_from<i32, point_f, size_u, rect_i, color>()();
+        auto const rows {dbTable->select_from<i32, point_f, size_u, rect_i, color>()()};
         REQUIRE(rows.size() == 2);
         REQUIRE(rows[0] == tup0);
         REQUIRE(rows[1] == tup1);
@@ -581,13 +631,13 @@ TEST_CASE("Data.Sqlite.NullAndOptional")
                                   int_column {.Name = "Age", .NotNull = false})};
     REQUIRE(db.table_exists(tableName));
 
-    auto tup0 = std::tuple {100};
-    auto tup1 = std::tuple {nullptr};
-    auto tup2 = std::tuple {std::nullopt};
+    std::tuple tup0 {100};
+    std::tuple tup1 {nullptr};
+    std::tuple tup2 {std::nullopt};
 
     REQUIRE(dbTable->insert_into("Age")(tup0, tup1, tup2));
     {
-        auto rows = dbTable->select_from<std::optional<i32>>("Age")();
+        auto const rows {dbTable->select_from<std::optional<i32>>("Age")()};
         REQUIRE(rows.size() == 3);
         REQUIRE(rows[0] == 100);
         REQUIRE(rows[1] == std::nullopt);
@@ -617,8 +667,8 @@ TEST_CASE("Data.Sqlite.Views")
 
     REQUIRE(dbTable->insert_into("A", "B", "C", "D")(values));
     {
-        auto select {std::move(dbTable->select_from<i32, i32, i32, i32>("A", "B", "C", "D").where("A > 50"))};
-        auto rows {select()};
+        auto       select {std::move(dbTable->select_from<i32, i32, i32, i32>("A", "B", "C", "D").where("A > 50"))};
+        auto const rows {select()};
 
         auto dbView {db.create_view("testView", select)};
         REQUIRE(dbView.has_value());
@@ -632,8 +682,8 @@ TEST_CASE("Data.Sqlite.Views")
 
 TEST_CASE("Data.Sqlite.Join")
 {
-    string tableName0 = "People";
-    string tableName1 = "Countries";
+    string tableName0 {"People"};
+    string tableName1 {"Countries"};
 
     database db {database::OpenMemory()};
 
@@ -646,9 +696,9 @@ TEST_CASE("Data.Sqlite.Join")
                                           int_column {.Name = "CountryID"})};
             REQUIRE(db.table_exists(tableName0));
 
-            auto tup0 = std::tuple {"Peter", 1};
-            auto tup1 = std::tuple {"Paul", 1};
-            auto tup2 = std::tuple {"Marie", 2};
+            std::tuple tup0 {"Peter", 1};
+            std::tuple tup1 {"Paul", 1};
+            std::tuple tup2 {"Marie", 2};
 
             REQUIRE(dbTable->insert_into("Name", "CountryID")(tup0, tup1, tup2));
         }
@@ -658,13 +708,13 @@ TEST_CASE("Data.Sqlite.Join")
                                           text_column {.Name = "Code"})};
             REQUIRE(db.table_exists(tableName1));
 
-            auto tup0 = std::tuple {1, "UK"};
-            auto tup1 = std::tuple {2, "USA"};
+            std::tuple tup0 {1, "UK"};
+            std::tuple tup1 {2, "USA"};
 
             REQUIRE(dbTable->insert_into("ID", "Code")(tup0, tup1));
         }
 
-        auto rows = db.get_table(tableName0)->select_from<string, string>("Name", "Code").left_join(tableName1, "People.CountryID = Countries.ID")();
+        auto const rows {db.get_table(tableName0)->select_from<string, string>("Name", "Code").left_join(tableName1, "People.CountryID = Countries.ID")()};
         REQUIRE(rows.size() == 3);
         REQUIRE(rows[0] == std::tuple {"Peter", "UK"});
         REQUIRE(rows[1] == std::tuple {"Paul", "UK"});
@@ -679,9 +729,9 @@ TEST_CASE("Data.Sqlite.Join")
                                           int_column {.Name = "CountryID"})};
             REQUIRE(db.table_exists(tableName0));
 
-            auto tup0 = std::tuple {"Peter", 1};
-            auto tup1 = std::tuple {"Paul", 1};
-            auto tup2 = std::tuple {"Marie", 2};
+            std::tuple tup0 {"Peter", 1};
+            std::tuple tup1 {"Paul", 1};
+            std::tuple tup2 {"Marie", 2};
 
             REQUIRE(dbTable->insert_into("Name", "CountryID")(tup0, tup1, tup2));
         }
@@ -691,14 +741,14 @@ TEST_CASE("Data.Sqlite.Join")
                                           text_column {.Name = "Code"})};
             REQUIRE(db.table_exists(tableName1));
 
-            auto tup0 = std::tuple {1, "UK"};
+            std::tuple tup0 {1, "UK"};
 
             REQUIRE(dbTable->insert_into("ID", "Code")(tup0));
         }
 
-        auto rows = db.get_table(tableName0)
-                        ->select_from<string, string>("Name", "Code")
-                        .inner_join(tableName1, "People.CountryID = Countries.ID")();
+        auto const rows {db.get_table(tableName0)
+                             ->select_from<string, string>("Name", "Code")
+                             .inner_join(tableName1, "People.CountryID = Countries.ID")()};
         REQUIRE(rows.size() == 2);
         REQUIRE(rows[0] == std::tuple {"Peter", "UK"});
         REQUIRE(rows[1] == std::tuple {"Paul", "UK"});
@@ -714,7 +764,7 @@ TEST_CASE("Data.Sqlite.Join")
             REQUIRE(db.get_table(tableName1)->insert_into("Number")(1, 2));
         }
 
-        auto rows = db.get_table(tableName0)->select_from<string, i32>("Color", "Number").cross_join(tableName1)();
+        auto const rows {db.get_table(tableName0)->select_from<string, i32>("Color", "Number").cross_join(tableName1)()};
         REQUIRE(rows.size() == 6);
         REQUIRE(rows[0] == std::tuple {"Green", 1});
         REQUIRE(rows[1] == std::tuple {"Green", 2});
@@ -738,16 +788,16 @@ TEST_CASE("Data.Sqlite.SavePoint")
                                   int_column {.Name = "Height"})};
     REQUIRE(dbTable);
 
-    auto tup0 = std::tuple {1, "A", 100, 1.5f};
+    auto tup0 {std::tuple {1, "A", 100, 1.5f}};
     REQUIRE(dbTable->insert_into("ID", "Name", "Age", "Height")(tup0));
-    auto rows = dbTable->select_from<i32, string, i32, f32>("ID", "Name", "Age", "Height")();
+    auto rows {dbTable->select_from<i32, string, i32, f32>("ID", "Name", "Age", "Height")()};
     REQUIRE(rows.size() == 1);
     REQUIRE(rows[0] == tup0);
 
     {
-        auto sp = db.create_savepoint("t1");
+        auto sp {db.create_savepoint("t1")};
 
-        auto tup1 = std::tuple {2, "B", 200, 4.5f};
+        auto tup1 {std::tuple {2, "B", 200, 4.5f}};
         REQUIRE(dbTable->insert_into("ID", "Name", "Age", "Height")(tup1));
         rows = dbTable->select_from<i32, string, i32, f32>("ID", "Name", "Age", "Height")();
         REQUIRE(rows.size() == 2);
@@ -772,7 +822,7 @@ TEST_CASE("Data.Sqlite.Schema")
                                       real_column {.Name = "Height"},
                                       blob_column {.Name = "Alive"})};
 
-    auto schema = dbTable->schema();
+    auto schema {dbTable->schema()};
 
     REQUIRE(schema.size() == 5);
 
