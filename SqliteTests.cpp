@@ -853,7 +853,7 @@ TEST_CASE("Data.Sqlite.SavePoint")
     REQUIRE(rows[0] == tup0);
 }
 
-TEST_CASE("Data.Sqlite.Schema")
+TEST_CASE("Data.Sqlite.TableInfo")
 {
     string tableName {"testTable"};
 
@@ -865,32 +865,32 @@ TEST_CASE("Data.Sqlite.Schema")
                                       real_column {.Name = "Height"},
                                       blob_column {.Name = "Alive"})};
 
-    auto schema {dbTable->schema()};
+    auto info {dbTable->info()};
 
-    REQUIRE(schema.size() == 5);
+    REQUIRE(info.size() == 5);
 
-    REQUIRE(schema[0].Name == "ID");
-    REQUIRE(schema[0].Type == "INTEGER");
-    REQUIRE(schema[0].NotNull == true);
-    REQUIRE(schema[0].IsPrimaryKey == true);
+    REQUIRE(info[0].Name == "ID");
+    REQUIRE(info[0].Type == "INTEGER");
+    REQUIRE(info[0].NotNull == true);
+    REQUIRE(info[0].IsPrimaryKey == true);
 
-    REQUIRE(schema[1].Name == "Name");
-    REQUIRE(schema[1].Type == "TEXT");
-    REQUIRE(schema[1].NotNull == true);
-    REQUIRE(schema[1].IsPrimaryKey == false);
+    REQUIRE(info[1].Name == "Name");
+    REQUIRE(info[1].Type == "TEXT");
+    REQUIRE(info[1].NotNull == true);
+    REQUIRE(info[1].IsPrimaryKey == false);
 
-    REQUIRE(schema[2].Name == "Age");
-    REQUIRE(schema[2].Type == "INTEGER");
-    REQUIRE_FALSE(schema[2].NotNull);
-    REQUIRE_FALSE(schema[2].IsPrimaryKey);
+    REQUIRE(info[2].Name == "Age");
+    REQUIRE(info[2].Type == "INTEGER");
+    REQUIRE_FALSE(info[2].NotNull);
+    REQUIRE_FALSE(info[2].IsPrimaryKey);
 
-    REQUIRE(schema[3].Name == "Height");
-    REQUIRE(schema[3].Type == "REAL");
-    REQUIRE_FALSE(schema[3].NotNull);
-    REQUIRE_FALSE(schema[3].IsPrimaryKey);
+    REQUIRE(info[3].Name == "Height");
+    REQUIRE(info[3].Type == "REAL");
+    REQUIRE_FALSE(info[3].NotNull);
+    REQUIRE_FALSE(info[3].IsPrimaryKey);
 
-    REQUIRE(schema[4].Name == "Alive");
-    REQUIRE(schema[4].Type == "BLOB");
-    REQUIRE_FALSE(schema[4].NotNull);
-    REQUIRE_FALSE(schema[4].IsPrimaryKey);
+    REQUIRE(info[4].Name == "Alive");
+    REQUIRE(info[4].Type == "BLOB");
+    REQUIRE_FALSE(info[4].NotNull);
+    REQUIRE_FALSE(info[4].IsPrimaryKey);
 }
