@@ -595,6 +595,49 @@ TEST_CASE("Data.Sqlite.VacuumInto")
     }
 }
 
+TEST_CASE("Data.Sqlite.Attach")
+{
+    string const mainTable {"mainTable"};
+    string const attachedTable {"attachedTable"};
+    string const attachedFile {"attached.db"};
+    string const aliasSchema {"other"};
+
+    {
+        database   attached {database::OpenMemory()};
+        auto const table {attached.create_table(attachedTable,
+                                                int_column<primary_key> {.Name = "ID", .NotNull = true},
+                                                text_column {.Name = "Name", .NotNull = true})};
+        REQUIRE(table);
+
+        std::vector<std::tuple<i32, string>> const data {
+            {1, "One"},
+            {2, "Two"},
+            {3, "Three"}};
+        REQUIRE(table->insert_into("ID", "Name")(data));
+
+        io::delete_file(attachedFile);
+        REQUIRE_FALSE(io::exists(attachedFile));
+        REQUIRE(attached.vacuum_into(attachedFile));
+    }
+
+    {
+        REQUIRE(io::exists(attachedFile));
+        database db {database::OpenMemory()};
+        REQUIRE(db.attach(attachedFile, aliasSchema));
+
+        REQUIRE(db.table_exists(attachedTable, aliasSchema));
+
+        auto const table {db.get_table(attachedTable, aliasSchema)};
+        REQUIRE(table);
+
+        auto const rows {table->select_from<string>("Name").where(equal {"ID", 2})()};
+        REQUIRE(rows.size() == 1);
+        REQUIRE(rows[0] == "Two");
+        REQUIRE(db.detach(aliasSchema));
+        REQUIRE_FALSE(db.table_exists(attachedTable, aliasSchema));
+    }
+}
+
 TEST_CASE("Data.Sqlite.Blobs")
 {
     string tableName {"testTable"};
