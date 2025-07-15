@@ -1,6 +1,6 @@
 #include "tests.hpp"
 
-using namespace tcob::data::sqlite;
+using namespace tcob::db;
 
 struct foo {
     i32    ID;
@@ -597,44 +597,68 @@ TEST_CASE("Data.Sqlite.VacuumInto")
 
 TEST_CASE("Data.Sqlite.Attach")
 {
-    string const mainTable {"mainTable"};
-    string const attachedTable {"attachedTable"};
-    string const attachedFile {"attached.db"};
-    string const aliasSchema {"other"};
-
+    SUBCASE("file")
     {
-        database   attached {database::OpenMemory()};
-        auto const table {attached.create_table(attachedTable,
-                                                int_column<primary_key> {.Name = "ID", .NotNull = true},
-                                                text_column {.Name = "Name", .NotNull = true})};
-        REQUIRE(table);
+        string const mainTable {"mainTable"};
+        string const attachedTable {"attachedTable"};
+        string const attachedFile {"attached.db"};
+        string const aliasSchema {"other"};
 
-        std::vector<std::tuple<i32, string>> const data {
-            {1, "One"},
-            {2, "Two"},
-            {3, "Three"}};
-        REQUIRE(table->insert_into("ID", "Name")(data));
+        {
+            database   attached {database::OpenMemory()};
+            auto const table {attached.create_table(attachedTable,
+                                                    int_column<primary_key> {.Name = "ID", .NotNull = true},
+                                                    text_column {.Name = "Name", .NotNull = true})};
+            REQUIRE(table);
 
-        io::delete_file(attachedFile);
-        REQUIRE_FALSE(io::exists(attachedFile));
-        REQUIRE(attached.vacuum_into(attachedFile));
+            std::vector<std::tuple<i32, string>> const data {
+                {1, "One"},
+                {2, "Two"},
+                {3, "Three"}};
+            REQUIRE(table->insert_into("ID", "Name")(data));
+
+            io::delete_file(attachedFile);
+            REQUIRE_FALSE(io::exists(attachedFile));
+            REQUIRE(attached.vacuum_into(attachedFile));
+        }
+
+        {
+            REQUIRE(io::exists(attachedFile));
+            database db {database::OpenMemory()};
+
+            auto attached {db.attach(attachedFile, aliasSchema)};
+            REQUIRE(attached);
+            REQUIRE(attached->table_exists(attachedTable));
+
+            auto const table {attached->get_table(attachedTable)};
+            REQUIRE(table);
+
+            auto const rows {table->select_from<string>("Name").where(equal {"ID", 2})()};
+            REQUIRE(rows.size() == 1);
+            REQUIRE(rows[0] == "Two");
+            REQUIRE(db.schema_exists(aliasSchema));
+            REQUIRE(attached->detach());
+            REQUIRE_FALSE(db.schema_exists(aliasSchema));
+        }
     }
-
+    SUBCASE("memory")
     {
-        REQUIRE(io::exists(attachedFile));
+        string const attachedTable {"attachedTable"};
+        string const aliasSchema {"other"};
+
         database db {database::OpenMemory()};
-        REQUIRE(db.attach(attachedFile, aliasSchema));
 
-        auto schema {db.get_schema(aliasSchema)};
-        REQUIRE(schema->table_exists(attachedTable));
+        auto attached {db.attach_memory(aliasSchema)};
+        REQUIRE(attached);
 
-        auto const table {schema->get_table(attachedTable)};
+        auto const table {attached->create_table(attachedTable,
+                                                 int_column<primary_key> {.Name = "ID", .NotNull = true},
+                                                 text_column {.Name = "Name", .NotNull = true})};
+
         REQUIRE(table);
-
-        auto const rows {table->select_from<string>("Name").where(equal {"ID", 2})()};
-        REQUIRE(rows.size() == 1);
-        REQUIRE(rows[0] == "Two");
-        REQUIRE(db.detach(aliasSchema));
+        REQUIRE(attached->table_exists(attachedTable));
+        REQUIRE(db.schema_exists(aliasSchema));
+        REQUIRE(attached->detach());
         REQUIRE_FALSE(db.schema_exists(aliasSchema));
     }
 }
