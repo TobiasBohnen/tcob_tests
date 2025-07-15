@@ -117,6 +117,15 @@ TEST_CASE("Data.Sqlite.Select")
                     REQUIRE(alive);
                 }
             }
+            {
+                auto const rows {dbTable->select_from<i32, bool>("Age", "Alive").where(equal("Alive", true) && (greater {"ID", 5} || equal {"ID", 2}))()};
+                REQUIRE(rows.size() == 49);
+                for (auto const& row : rows) {
+                    auto const [age, alive] {row};
+                    REQUIRE((age > 500 || age == 200));
+                    REQUIRE(alive);
+                }
+            }
         }
         SUBCASE("LIKE")
         {
