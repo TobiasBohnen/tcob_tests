@@ -625,16 +625,17 @@ TEST_CASE("Data.Sqlite.Attach")
         database db {database::OpenMemory()};
         REQUIRE(db.attach(attachedFile, aliasSchema));
 
-        REQUIRE(db.table_exists(attachedTable, aliasSchema));
+        auto schema {db.get_schema(aliasSchema)};
+        REQUIRE(schema->table_exists(attachedTable));
 
-        auto const table {db.get_table(attachedTable, aliasSchema)};
+        auto const table {schema->get_table(attachedTable)};
         REQUIRE(table);
 
         auto const rows {table->select_from<string>("Name").where(equal {"ID", 2})()};
         REQUIRE(rows.size() == 1);
         REQUIRE(rows[0] == "Two");
         REQUIRE(db.detach(aliasSchema));
-        REQUIRE_FALSE(db.table_exists(attachedTable, aliasSchema));
+        REQUIRE_FALSE(db.schema_exists(aliasSchema));
     }
 }
 
