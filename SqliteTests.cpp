@@ -24,7 +24,7 @@ TEST_CASE("Data.Sqlite.Select")
                                       int_column<primary_key> {.Name = "ID", .NotNull = true},
                                       text_column {.Name = "Name", .NotNull = true},
                                       int_column {.Name = "Age"},
-                                      int_column {.Name = "Height"},
+                                      real_column {.Name = "Height"},
                                       int_column {.Name = "Alive"})};
     REQUIRE(dbTable);
     std::vector<std::tuple<i32, string, i32, f32, bool>> vec;
@@ -64,6 +64,60 @@ TEST_CASE("Data.Sqlite.Select")
                 REQUIRE(rows[0] == std::tuple {5, "5", 500, 7.5f, false});
             }
         }
+        SUBCASE("<>")
+        {
+            auto const rows {dbTable->select_from<i32, string, i32, f32, bool>().where(not_equal {"ID", 1})()};
+            REQUIRE(rows.size() == 99);
+        }
+        SUBCASE(">")
+        {
+            auto const rows {dbTable->select_from<i32, string, i32, f32, bool>().where(greater {"ID", 50})()};
+            REQUIRE(rows.size() == 50);
+        }
+        SUBCASE(">=")
+        {
+            auto const rows {dbTable->select_from<i32, string, i32, f32, bool>().where(greater_equal {"ID", 50})()};
+            REQUIRE(rows.size() == 51);
+        }
+        SUBCASE("<")
+        {
+            auto const rows {dbTable->select_from<i32, string, i32, f32, bool>().where(less {"ID", 50})()};
+            REQUIRE(rows.size() == 49);
+        }
+        SUBCASE("<=")
+        {
+            auto const rows {dbTable->select_from<i32, string, i32, f32, bool>().where(less_equal {"ID", 50})()};
+            REQUIRE(rows.size() == 50);
+        }
+        SUBCASE("AND/OR")
+        {
+            {
+                auto const rows {dbTable->select_from<i32, bool>("Age", "Alive").where(greater {"ID", 5} && equal("Alive", true))()};
+                REQUIRE(rows.size() == 48);
+                for (auto const& row : rows) {
+                    auto const [age, alive] {row};
+                    REQUIRE(age > 500);
+                    REQUIRE(alive);
+                }
+            }
+            {
+                auto const rows {dbTable->select_from<i32, bool>("Age", "Alive").where(greater {"ID", 5} || equal("Alive", true))()};
+                REQUIRE(rows.size() == 97);
+                for (auto const& row : rows) {
+                    auto const [age, alive] {row};
+                    REQUIRE((age > 500 || alive));
+                }
+            }
+            {
+                auto const rows {dbTable->select_from<i32, bool>("Age", "Alive").where((greater {"ID", 5} && equal("Alive", true)) || equal {"ID", 2})()};
+                REQUIRE(rows.size() == 49);
+                for (auto const& row : rows) {
+                    auto const [age, alive] {row};
+                    REQUIRE((age > 500 || age == 200));
+                    REQUIRE(alive);
+                }
+            }
+        }
         SUBCASE("LIKE")
         {
             {
@@ -87,8 +141,7 @@ TEST_CASE("Data.Sqlite.Select")
         {
             std::set<i32> idsToMatch {3, 7, 42};
 
-            auto ids {dbTable->select_from<i32>("ID")
-                          .where(in {"ID", 3, 7, 42})()};
+            auto ids {dbTable->select_from<i32>("ID").where(in {"ID", 3, 7, 42})()};
 
             REQUIRE(ids.size() == idsToMatch.size());
 
@@ -99,8 +152,7 @@ TEST_CASE("Data.Sqlite.Select")
         SUBCASE("BETWEEN")
         {
             {
-                auto ids {dbTable->select_from<i32>("ID")
-                              .where(between {"ID", 1, 5})()};
+                auto ids {dbTable->select_from<i32>("ID").where(between {"ID", 1, 5})()};
 
                 REQUIRE(ids.size() == 5);
 
@@ -109,8 +161,7 @@ TEST_CASE("Data.Sqlite.Select")
                 }
             }
             {
-                auto ids {dbTable->select_from<i32>("ID")
-                              .where(between {"ID"})(12, 16)};
+                auto ids {dbTable->select_from<i32>("ID").where(between {"ID"})(12, 16)};
 
                 REQUIRE(ids.size() == 5);
 
@@ -362,7 +413,7 @@ TEST_CASE("Data.Sqlite.Insert")
                                   int_column {.Name = "ID"},
                                   text_column {.Name = "Name"},
                                   int_column {.Name = "Age"},
-                                  int_column {.Name = "Height"})};
+                                  real_column {.Name = "Height"})};
     REQUIRE(dbTable);
 
     SUBCASE("tuples")
@@ -406,7 +457,7 @@ TEST_CASE("Data.Sqlite.Update")
                                   int_column<primary_key> {.Name = "ID", .NotNull = true},
                                   text_column {.Name = "Name", .NotNull = true},
                                   int_column {.Name = "Age"},
-                                  int_column {.Name = "Height"})};
+                                  real_column {.Name = "Height"})};
     REQUIRE(dbTable);
 
     SUBCASE("WHERE value in conditional")
@@ -447,7 +498,7 @@ TEST_CASE("Data.Sqlite.Delete")
                                   int_column<primary_key> {.Name = "ID", .NotNull = true},
                                   text_column {.Name = "Name", .NotNull = true},
                                   int_column {.Name = "Age"},
-                                  int_column {.Name = "Height"})};
+                                  real_column {.Name = "Height"})};
     REQUIRE(dbTable);
 
     std::tuple tup0 {1, "A", 100, 1.5f};
@@ -475,7 +526,7 @@ TEST_CASE("Data.Sqlite.CreateTable")
                             int_column<primary_key> {.Name = "ID", .NotNull = true},
                             text_column {.Name = "Name", .NotNull = true},
                             int_column {.Name = "Age"},
-                            int_column {.Name = "Height"}));
+                            real_column {.Name = "Height"}));
 
     auto nameSet {db.get_table(tableName1)->column_names()};
     for (auto const& col : std::array {"ID", "Name", "Age", "Height"}) {
@@ -853,7 +904,7 @@ TEST_CASE("Data.Sqlite.SavePoint")
                                   int_column {.Name = "ID"},
                                   text_column {.Name = "Name"},
                                   int_column {.Name = "Age"},
-                                  int_column {.Name = "Height"})};
+                                  real_column {.Name = "Height"})};
     REQUIRE(dbTable);
 
     auto tup0 {std::tuple {1, "A", 100, 1.5f}};
