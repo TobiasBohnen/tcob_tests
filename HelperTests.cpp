@@ -36,7 +36,7 @@ TEST_CASE("Core.Helper.LevenshteinDistance")
     REQUIRE(get_levenshtein_distance("home", "money") == 3);
 }
 
-TEST_CASE("Core.Helper.JoinStrings")
+TEST_CASE("Core.Helper.JoinContainer")
 {
     SUBCASE("array")
     {
@@ -63,20 +63,23 @@ TEST_CASE("Core.Helper.JoinStrings")
         std::list<std::string> col {"A", "B", "C", "D"};
         REQUIRE(helper::join(col, "--") == "A--B--C--D");
     }
-}
 
-TEST_CASE("Core.Helper.JoinNonStrings")
-{
-    SUBCASE("int")
+    SUBCASE("int array")
     {
         std::array<int, 4> col {1, 2, 3, 4};
         REQUIRE(helper::join(col, ",") == "1,2,3,4");
     }
-    SUBCASE("const char*")
+    SUBCASE("const char* array")
     {
         std::array<char const*, 4> col {"1", "2", "3", "4"};
         REQUIRE(helper::join(col, ",") == "1,2,3,4");
     }
+}
+
+TEST_CASE("Core.Helper.JoinStringView")
+{
+    REQUIRE(helper::join("C", 5, ",") == "C,C,C,C,C");
+    REQUIRE(helper::join("CD", 5, ", ") == "CD, CD, CD, CD, CD");
 }
 
 TEST_CASE("Core.Helper.SplitStrings")
