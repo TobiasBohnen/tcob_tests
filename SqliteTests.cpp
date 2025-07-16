@@ -151,6 +151,15 @@ TEST_CASE("Data.Sqlite.Select")
                 }
             }
         }
+        SUBCASE("GLOB")
+        {
+            auto const rows {dbTable->select_from<i32, string, i32, f32, bool>().where(glob {"Name", "*0"})()};
+            REQUIRE(rows.size() == 10);
+            for (i32 i {1}; i <= 10; ++i) {
+                auto const tup {std::tuple {i * 10, std::to_string(i * 10), i * 1000, static_cast<f32>(i) * 15.0f, true}};
+                REQUIRE_MESSAGE(rows[i - 1] == tup, i);
+            }
+        }
         SUBCASE("IN")
         {
             std::set<i32> idsToMatch {3, 7, 42};
