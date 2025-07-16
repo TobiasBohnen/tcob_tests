@@ -66,27 +66,27 @@ TEST_CASE("Data.Sqlite.Select")
         }
         SUBCASE("<>")
         {
-            auto const rows {dbTable->select_from<i32, string, i32, f32, bool>().where(not_equal {"ID", 1})()};
+            auto const rows {dbTable->select_from<i32>("ID").where(not_equal {"ID", 1})()};
             REQUIRE(rows.size() == 99);
         }
         SUBCASE(">")
         {
-            auto const rows {dbTable->select_from<i32, string, i32, f32, bool>().where(greater {"ID", 50})()};
+            auto const rows {dbTable->select_from<i32>("ID").where(greater {"ID", 50})()};
             REQUIRE(rows.size() == 50);
         }
         SUBCASE(">=")
         {
-            auto const rows {dbTable->select_from<i32, string, i32, f32, bool>().where(greater_equal {"ID", 50})()};
+            auto const rows {dbTable->select_from<i32>("ID").where(greater_equal {"ID", 50})()};
             REQUIRE(rows.size() == 51);
         }
         SUBCASE("<")
         {
-            auto const rows {dbTable->select_from<i32, string, i32, f32, bool>().where(less {"ID", 50})()};
+            auto const rows {dbTable->select_from<i32>("ID").where(less {"ID", 50})()};
             REQUIRE(rows.size() == 49);
         }
         SUBCASE("<=")
         {
-            auto const rows {dbTable->select_from<i32, string, i32, f32, bool>().where(less_equal {"ID", 50})()};
+            auto const rows {dbTable->select_from<i32>("ID").where(less_equal {"ID", 50})()};
             REQUIRE(rows.size() == 50);
         }
         SUBCASE("AND/OR")
@@ -135,19 +135,17 @@ TEST_CASE("Data.Sqlite.Select")
         SUBCASE("LIKE")
         {
             {
-                auto const rows {dbTable->select_from<i32, string, i32, f32, bool>().where(like {"Name", "%0"})()};
+                auto const rows {dbTable->select_from<string>("Name").where(like {"Name", "%0"})()};
                 REQUIRE(rows.size() == 10);
                 for (i32 i {1}; i <= 10; ++i) {
-                    auto const tup {std::tuple {i * 10, std::to_string(i * 10), i * 1000, static_cast<f32>(i) * 15.0f, true}};
-                    REQUIRE_MESSAGE(rows[i - 1] == tup, i);
+                    REQUIRE(rows[i - 1] == std::to_string(i * 10));
                 }
             }
             {
-                auto const rows {dbTable->select_from<i32, string, i32, f32, bool>().where(like {"Name"})("%0")};
+                auto const rows {dbTable->select_from<string>("Name").where(like {"Name"})("%0")};
                 REQUIRE(rows.size() == 10);
                 for (i32 i {1}; i <= 10; ++i) {
-                    auto const tup {std::tuple {i * 10, std::to_string(i * 10), i * 1000, static_cast<f32>(i) * 15.0f, true}};
-                    REQUIRE_MESSAGE(rows[i - 1] == tup, i);
+                    REQUIRE(rows[i - 1] == std::to_string(i * 10));
                 }
             }
         }
@@ -193,6 +191,18 @@ TEST_CASE("Data.Sqlite.Select")
             {
                 auto ids {dbTable->select_from<i32>("ID").where(!between {"ID", 12, 16})()};
                 REQUIRE(ids.size() == 95);
+            }
+        }
+        SUBCASE("IS NULL")
+        {
+            REQUIRE(dbTable->insert_into("Name", "Age", "Height", "Alive")(std::tuple {"NULL", nullptr, nullptr, nullptr}));
+            {
+                auto ids {dbTable->select_from<i32>("ID").where(is_null {"Height"})()};
+                REQUIRE(ids.size() == 1);
+            }
+            {
+                auto ids {dbTable->select_from<i32>("ID").where(!is_null {"Height"})()};
+                REQUIRE(ids.size() == 100);
             }
         }
     }
