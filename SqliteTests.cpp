@@ -126,6 +126,11 @@ TEST_CASE("Data.Sqlite.Select")
                     REQUIRE(alive);
                 }
             }
+            {
+                auto const rows {dbTable->select_from<i32, bool>("Age", "Alive").where(equal("Alive", true) && !(greater {"ID", 5} || equal {"ID", 2}))()};
+                REQUIRE(rows.size() == 1);
+                REQUIRE(rows[0] == std::tuple {400, true});
+            }
         }
         SUBCASE("LIKE")
         {
@@ -149,34 +154,36 @@ TEST_CASE("Data.Sqlite.Select")
         SUBCASE("IN")
         {
             std::set<i32> idsToMatch {3, 7, 42};
-
-            auto ids {dbTable->select_from<i32>("ID").where(in {"ID", 3, 7, 42})()};
-
-            REQUIRE(ids.size() == idsToMatch.size());
-
-            for (auto const& id : ids) {
-                REQUIRE(idsToMatch.contains(id));
+            {
+                auto ids {dbTable->select_from<i32>("ID").where(in {"ID", 3, 7, 42})()};
+                REQUIRE(ids.size() == idsToMatch.size());
+                for (auto const& id : ids) {
+                    REQUIRE(idsToMatch.contains(id));
+                }
+            }
+            {
+                auto ids {dbTable->select_from<i32>("ID").where(!in {"ID", 3, 7, 42})()};
+                REQUIRE(ids.size() == 100 - idsToMatch.size());
+                for (auto const& id : ids) {
+                    REQUIRE_FALSE(idsToMatch.contains(id));
+                }
             }
         }
         SUBCASE("BETWEEN")
         {
             {
                 auto ids {dbTable->select_from<i32>("ID").where(between {"ID", 1, 5})()};
-
                 REQUIRE(ids.size() == 5);
-
-                for (i32 i {1}; i <= 5; ++i) {
-                    REQUIRE(ids[i - 1] == i);
-                }
+                for (i32 i {1}; i <= 5; ++i) { REQUIRE(ids[i - 1] == i); }
             }
             {
                 auto ids {dbTable->select_from<i32>("ID").where(between {"ID"})(12, 16)};
-
                 REQUIRE(ids.size() == 5);
-
-                for (i32 i {0}; i < 5; ++i) {
-                    REQUIRE(ids[i] == i + 12);
-                }
+                for (i32 i {0}; i < 5; ++i) { REQUIRE(ids[i] == i + 12); }
+            }
+            {
+                auto ids {dbTable->select_from<i32>("ID").where(!between {"ID", 12, 16})()};
+                REQUIRE(ids.size() == 95);
             }
         }
     }
