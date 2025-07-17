@@ -644,7 +644,7 @@ TEST_CASE("Data.Sqlite.Constraints")
         REQUIRE(db.create_table("Parent",
                                 int_column<primary_key> {.Name = "ID"}));
         REQUIRE(db.create_table("Child",
-                                int_column<foreign_key> {.Name = "ParentID", .Constraint = {"Parent", "ID"}}));
+                                int_column<foreign_key> {.Name = "ParentID", .Constraint = {.ForeignTable = "Parent", .ForeignColumn = "ID"}}));
         REQUIRE(db.get_table("Parent")->insert_into("ID")(1));
         REQUIRE(db.get_table("Child")->insert_into("ParentID")(1));
         REQUIRE_FALSE(db.get_table("Child")->insert_into("ParentID")(999)); // invalid FK
@@ -869,7 +869,7 @@ TEST_CASE("Data.Sqlite.Join")
 
         auto const rows {db.get_table(tableName0)
                              ->select_from<string, string>("Name", "Code")
-                             .left_join(*dbTable, on {"CountryID", "ID"})()};
+                             .left_join(*dbTable, on {.LeftColumn = "CountryID", .RightColumn = "ID"})()};
         REQUIRE(rows.size() == 3);
         REQUIRE(rows[0] == std::tuple {"Peter", "UK"});
         REQUIRE(rows[1] == std::tuple {"Paul", "UK"});
@@ -902,7 +902,7 @@ TEST_CASE("Data.Sqlite.Join")
 
         auto const rows {db.get_table(tableName0)
                              ->select_from<string, string>("Name", "Code")
-                             .inner_join(*dbTable, on {"CountryID", "ID"})()};
+                             .inner_join(*dbTable, on {.LeftColumn = "CountryID", .RightColumn = "ID"})()};
         REQUIRE(rows.size() == 2);
         REQUIRE(rows[0] == std::tuple {"Peter", "UK"});
         REQUIRE(rows[1] == std::tuple {"Paul", "UK"});
