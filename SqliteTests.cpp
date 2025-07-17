@@ -856,21 +856,20 @@ TEST_CASE("Data.Sqlite.Join")
 
             REQUIRE(dbTable->insert_into("Name", "CountryID")(tup0, tup1, tup2));
         }
-        {
-            auto dbTable {db.create_table(tableName1,
-                                          int_column<primary_key> {.Name = "ID", .NotNull = true},
-                                          text_column {.Name = "Code"})};
-            REQUIRE(db.table_exists(tableName1));
 
-            std::tuple tup0 {1, "UK"};
-            std::tuple tup1 {2, "USA"};
+        auto dbTable {db.create_table(tableName1,
+                                      int_column<primary_key> {.Name = "ID", .NotNull = true},
+                                      text_column {.Name = "Code"})};
+        REQUIRE(db.table_exists(tableName1));
 
-            REQUIRE(dbTable->insert_into("ID", "Code")(tup0, tup1));
-        }
+        std::tuple tup0 {1, "UK"};
+        std::tuple tup1 {2, "USA"};
+
+        REQUIRE(dbTable->insert_into("ID", "Code")(tup0, tup1));
 
         auto const rows {db.get_table(tableName0)
                              ->select_from<string, string>("Name", "Code")
-                             .left_join(tableName1, on {"CountryID", "ID"})()};
+                             .left_join(*dbTable, on {"CountryID", "ID"})()};
         REQUIRE(rows.size() == 3);
         REQUIRE(rows[0] == std::tuple {"Peter", "UK"});
         REQUIRE(rows[1] == std::tuple {"Paul", "UK"});
@@ -891,20 +890,19 @@ TEST_CASE("Data.Sqlite.Join")
 
             REQUIRE(dbTable->insert_into("Name", "CountryID")(tup0, tup1, tup2));
         }
-        {
-            auto dbTable {db.create_table(tableName1,
-                                          int_column<primary_key> {.Name = "ID", .NotNull = true},
-                                          text_column {.Name = "Code"})};
-            REQUIRE(db.table_exists(tableName1));
 
-            std::tuple tup0 {1, "UK"};
+        auto dbTable {db.create_table(tableName1,
+                                      int_column<primary_key> {.Name = "ID", .NotNull = true},
+                                      text_column {.Name = "Code"})};
+        REQUIRE(db.table_exists(tableName1));
 
-            REQUIRE(dbTable->insert_into("ID", "Code")(tup0));
-        }
+        std::tuple tup0 {1, "UK"};
+
+        REQUIRE(dbTable->insert_into("ID", "Code")(tup0));
 
         auto const rows {db.get_table(tableName0)
                              ->select_from<string, string>("Name", "Code")
-                             .inner_join(tableName1, on {"CountryID", "ID"})()};
+                             .inner_join(*dbTable, on {"CountryID", "ID"})()};
         REQUIRE(rows.size() == 2);
         REQUIRE(rows[0] == std::tuple {"Peter", "UK"});
         REQUIRE(rows[1] == std::tuple {"Paul", "UK"});
