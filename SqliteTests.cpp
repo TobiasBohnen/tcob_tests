@@ -868,7 +868,9 @@ TEST_CASE("Data.Sqlite.Join")
             REQUIRE(dbTable->insert_into("ID", "Code")(tup0, tup1));
         }
 
-        auto const rows {db.get_table(tableName0)->select_from<string, string>("Name", "Code").left_join(tableName1, "People.CountryID = Countries.ID")()};
+        auto const rows {db.get_table(tableName0)
+                             ->select_from<string, string>("Name", "Code")
+                             .left_join(tableName1, on {"CountryID", "ID"})()};
         REQUIRE(rows.size() == 3);
         REQUIRE(rows[0] == std::tuple {"Peter", "UK"});
         REQUIRE(rows[1] == std::tuple {"Paul", "UK"});
@@ -902,7 +904,7 @@ TEST_CASE("Data.Sqlite.Join")
 
         auto const rows {db.get_table(tableName0)
                              ->select_from<string, string>("Name", "Code")
-                             .inner_join(tableName1, "People.CountryID = Countries.ID")()};
+                             .inner_join(tableName1, on {"CountryID", "ID"})()};
         REQUIRE(rows.size() == 2);
         REQUIRE(rows[0] == std::tuple {"Peter", "UK"});
         REQUIRE(rows[1] == std::tuple {"Paul", "UK"});
