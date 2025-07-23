@@ -50,6 +50,15 @@ TEST_CASE("Core.POD.Color")
             REQUIRE(p.A == 0xff);
             REQUIRE(p.value() == (col << 8 | 255));
         }
+        {
+            u32   col {0xffeeddcc};
+            color p {color::FromABGR(col)};
+            REQUIRE(p.A == 0xff);
+            REQUIRE(p.B == 0xee);
+            REQUIRE(p.G == 0xdd);
+            REQUIRE(p.R == 0xcc);
+            REQUIRE(p.value() == std::byteswap(col));
+        }
     }
 
     SUBCASE("Equality")
