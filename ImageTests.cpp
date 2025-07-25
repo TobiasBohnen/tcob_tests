@@ -229,3 +229,55 @@ TEST_CASE("GFX.Image.CountColors")
         REQUIRE(img.count_colors() == 4);
     }
 }
+
+TEST_CASE("GFX.Image.DataRect")
+{
+    u32 const                                           channels {4};
+    constexpr size_i                                    size {5, 5};
+    std::array<u8, size.Width * size.Height * channels> source {
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+        40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+        60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+        80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99};
+    auto image {image::Create(size, image::format::RGBA, source)};
+
+    std::vector<u8> target0 {
+        48, 49, 50, 51, 52, 53, 54, 55,
+        68, 69, 70, 71, 72, 73, 74, 75};
+    std::vector<u8> data0 {image.data({2, 2, 2, 2})};
+    REQUIRE(data0 == target0);
+
+    std::vector<u8> target1 {
+        0, 1, 2, 3};
+    std::vector<u8> data1 {image.data({0, 0, 1, 1})};
+    REQUIRE(data1 == target1);
+
+    std::vector<u8> target2 {
+        96, 97, 98, 99};
+    std::vector<u8> data2 {image.data({4, 4, 1, 1})};
+    REQUIRE(data2 == target2);
+
+    std::vector<u8> target3 {
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
+    std::vector<u8> data3 {image.data({0, 0, 5, 1})};
+    REQUIRE(data3 == target3);
+
+    std::vector<u8> target4 {
+        0, 1, 2, 3,
+        20, 21, 22, 23,
+        40, 41, 42, 43,
+        60, 61, 62, 63,
+        80, 81, 82, 83};
+    std::vector<u8> data4 {image.data({0, 0, 1, 5})};
+    REQUIRE(data4 == target4);
+
+    std::vector<u8> target5(source.begin(), source.end());
+    std::vector<u8> data5 {image.data({0, 0, 5, 5})};
+    REQUIRE(data5 == target5);
+
+    std::vector<u8> target6 {
+        40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59};
+    std::vector<u8> data6 {image.data({0, 2, 5, 1})};
+    REQUIRE(data6 == target6);
+}
