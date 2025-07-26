@@ -4,6 +4,8 @@
     #pragma warning(disable : 4706)
 #endif
 
+// IWYU pragma: always_keep
+
 #include <doctest/doctest.h>
 #include <tcob/tcob.hpp>
 

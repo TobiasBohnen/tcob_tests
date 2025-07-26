@@ -108,11 +108,12 @@ TEST_CASE_FIXTURE(SquirrelWrapperTests, "Script.SquirrelWrapper.Type")
     SUBCASE("inheritance")
     {
         TestScriptClass t;
+        t.set_value(42);
         global["wrap"] = &t;
         i32 x          = *run<i32>("return wrap.virtual()");
-        REQUIRE(x == 84);
+        REQUIRE(x == 42 * 2);
         i32 y = *run<i32>("return wrap.abstract()");
-        REQUIRE(y == 42);
+        REQUIRE(y == 42 * 4);
         i32 z = *run<i32>("return wrap.basem()");
         REQUIRE(z == 21);
     }

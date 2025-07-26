@@ -160,7 +160,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Closures")
 
 TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
 {
-    SUBCASE("tuple return from cpp")
+    SUBCASE("return: tuple of values")
     {
         global["test"]["Tuple"] = +[](double d) { return std::tuple(d * 5, std::to_string(d)); };
         auto res                = run("a, b = test.Tuple(5.22)");
@@ -170,7 +170,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
         REQUIRE(a == 5.22 * 5);
         REQUIRE(b == std::to_string(5.22));
     }
-    SUBCASE("map return from cpp")
+    SUBCASE("return: std::map<string, int>")
     {
         global["test"]["Map"] = +[]() { return std::map<std::string, i32> {{"abc", 123}, {"def", 234}}; };
         auto res              = run("x = test.Map()");
@@ -179,7 +179,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
         REQUIRE(x["abc"] == 123);
         REQUIRE(x["def"] == 234);
     }
-    SUBCASE("unordered_map return from cpp")
+    SUBCASE("return: std::unordered_map<string, int>")
     {
         global["test"]["UMap"] = +[]() { return std::unordered_map<std::string, i32> {{"abc", 123}, {"def", 234}}; };
         auto res               = run("x = test.UMap()");
@@ -188,7 +188,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
         REQUIRE(x["abc"] == 123);
         REQUIRE(x["def"] == 234);
     }
-    SUBCASE("vector return from cpp")
+    SUBCASE("return: std::vector<string>")
     {
         global["test"]["Vector"] = +[]() { return std::vector<std::string> {"1", "2", "3", "4", "5"}; };
         auto res                 = run("x = test.Vector()");
@@ -197,7 +197,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
         REQUIRE(vec[0] == "1");
         REQUIRE(vec[4] == "5");
     }
-    SUBCASE("array return from cpp")
+    SUBCASE("return: std::array<string, N>")
     {
         global["test"]["Array"] = +[]() { return std::array<std::string, 5> {"1", "2", "3", "4", "5"}; };
         auto res                = run("x = test.Array()");
@@ -206,7 +206,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
         REQUIRE(vec[0] == "1");
         REQUIRE(vec[4] == "5");
     }
-    SUBCASE("vector parameter")
+    SUBCASE("param: vector and array")
     {
         auto res = run("function foo(x) return x[2] * x[4] end");
         REQUIRE(res);
@@ -219,7 +219,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
         a = func(arr);
         REQUIRE(a == 2 * 4);
     }
-    SUBCASE("tuple parameter")
+    SUBCASE("param: tuple")
     {
         {
             auto res = run(
@@ -244,7 +244,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
             REQUIRE(a == 4 * 2);
         }
     }
-    SUBCASE("tuple of tuple parameter")
+    SUBCASE("param: nested tuple")
     {
         auto res = run(
             "function foo(x, y, z) "
@@ -256,7 +256,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
         i32  a    = func(tup);
         REQUIRE(a == 4 * 2);
     }
-    SUBCASE("tuple of pair parameter")
+    SUBCASE("param: tuple of std::pair")
     {
         auto res = run(
             "function foo(x, y, z) "
@@ -268,7 +268,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
         i32  a    = func(tup);
         REQUIRE(a == 4 * 2);
     }
-    SUBCASE("pair parameter")
+    SUBCASE("param: std::pair<int, float>")
     {
         auto res = run("function foo(x, y) return x * y end");
         REQUIRE(res);
@@ -277,7 +277,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
         f32  a    = func(tup);
         REQUIRE(a == 4 * 2.4f);
     }
-    SUBCASE("map parameter")
+    SUBCASE("param: std::map and std::unordered_map")
     {
         auto res = run("function foo(x) return x.test end");
         REQUIRE(res);
@@ -290,81 +290,81 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
         a                                         = func(umap);
         REQUIRE(a == 245);
     }
-    SUBCASE("get/set vector")
+    SUBCASE("interop: get/set std::vector by index")
     {
         std::vector<std::string> vec = {"test", "123"};
         global["foo"]                = vec;
         std::string a                = *run<std::string>("return foo[1] ");
+        std::string b                = *run<std::string>("return foo[2] ");
         REQUIRE(a == "test");
-        std::string b = *run<std::string>("return foo[2] ");
         REQUIRE(b == "123");
     }
-    SUBCASE("get/set deque")
+    SUBCASE("interop: get/set std::deque by index")
     {
         std::deque<std::string> deck = {"test", "123"};
         global["foo"]                = deck;
         std::string a                = *run<std::string>("return foo[1] ");
+        std::string b                = *run<std::string>("return foo[2] ");
         REQUIRE(a == "test");
-        std::string b = *run<std::string>("return foo[2] ");
         REQUIRE(b == "123");
     }
-    SUBCASE("get/set span")
+    SUBCASE("interop: get/set std::span by index")
     {
         std::vector<std::string> vec {"test", "123"};
         std::span<std::string>   s {vec.data(), vec.size()};
         global["foo"] = s;
         std::string a = *run<std::string>("return foo[1] ");
-        REQUIRE(a == vec[0]);
         std::string b = *run<std::string>("return foo[2] ");
+        REQUIRE(a == vec[0]);
         REQUIRE(b == vec[1]);
     }
-    SUBCASE("get map")
+    SUBCASE("interop: convert Lua table to std::map")
     {
         auto res = run("rectF = {x=2.7, y=3.1, width=2.3, height=55.2} ");
         REQUIRE(res);
         auto rectF = global["rectF"].as<std::map<std::string, f32>>();
         REQUIRE(rectF["x"] == 2.7f);
     }
-    SUBCASE("get/set map")
+    SUBCASE("interop: get/set std::map<string, int>")
     {
         std::map<std::string, i32> map = {{"test", 123}};
         global["foo"]                  = map;
         i32 a                          = *run<i32>("return foo.test ");
         REQUIRE(a == 123);
     }
-    SUBCASE("get multiple return values as pair")
+    SUBCASE("return: multiple values as std::pair")
     {
         auto x = *run<std::pair<std::string, i32>>("return 'ok', 10");
         REQUIRE(x.first == "ok");
         REQUIRE(x.second == 10);
     }
-    SUBCASE("get multiple return values as tuple")
+    SUBCASE("return: multiple values as std::tuple")
     {
         auto const [s, i, b] = run<std::tuple<std::string, i32, bool>>("return 'ok', 10, true").value();
         REQUIRE(s == "ok");
         REQUIRE(i == 10);
         REQUIRE(b == true);
     }
-    SUBCASE("pair parameter")
+    SUBCASE("param: std::pair<string, int>")
     {
         global["test"]["PairPara"] = +[](std::pair<std::string, i32> const& pair) { return pair.second; };
         auto func                  = global["test"]["PairPara"].as<function<i32>>();
         i32  a                     = func(std::pair {"ok"s, 4});
         REQUIRE(a == 4);
     }
-    SUBCASE("get/set set")
+    SUBCASE("interop: get/set std::set<string>")
     {
         std::set<std::string> set1 {"test", "test2"};
         global["foo"]              = set1;
         std::set<std::string> set2 = *run<std::set<std::string>>("return foo ");
         REQUIRE(set1 == set2);
     }
-    SUBCASE("set return")
+    SUBCASE("return: std::set<int> from Lua table")
     {
         std::set<i32> set = *run<std::set<i32>>("return { 1, 2, 3, 1, 2, 3, 4, 2 } ");
         REQUIRE(set == std::set<i32> {1, 2, 3, 4});
     }
-    SUBCASE("get/set unordered_set")
+    SUBCASE("interop: get/set std::unordered_set<string>")
     {
         std::unordered_set<std::string> set1 {"test", "test2"};
         global["foo"] = set1;
@@ -868,7 +868,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Functions")
             REQUIRE(res);
             auto func = global["foo"].as<function<i32>>();
 
-            parameter_pack<std::variant<i32, bool>> pack;
+            parameter_pack<i32, bool> pack;
             pack.Items = {2, true, 3};
             i32 a      = func(pack);
             REQUIRE(a == 5);
@@ -892,6 +892,38 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Functions")
         auto res1 = f.unprotected_call(point_i {10, 30}, point_i {42, 11}, point_i {88, 65}).value();
         REQUIRE(res0 == res1);
         REQUIRE(res0 == 246);
+    }
+    SUBCASE("recurse")
+    {
+        auto res = run("function recurse(n) if n == 0 then return 1 end return cppFunc(n - 1) end");
+        REQUIRE(res);
+        auto func         = std::function<i32(i32)>([&](i32 n) { return global["recurse"].as<function<i32>>()(n); });
+        global["cppFunc"] = &func;
+        auto result       = global["recurse"].as<function<i32>>()(10);
+        REQUIRE(result == 1);
+    }
+    SUBCASE("empty return")
+    {
+        auto res = run("function return_empty() return {} end");
+        REQUIRE(res);
+        auto func = global["return_empty"].as<function<std::map<std::string, i32>>>();
+        auto map  = func();
+        REQUIRE(map.empty());
+    }
+    SUBCASE("maybe nil")
+    {
+        auto res = run("function maybe_nil(cond) if cond then return 10 else return nil end end");
+        REQUIRE(res);
+        auto f = global["maybe_nil"].as<function<std::optional<i32>>>();
+        REQUIRE(f(true).value() == 10);
+        REQUIRE_FALSE(f(false).has_value());
+    }
+    SUBCASE("closure capture")
+    {
+        auto res = run("function make_adder(x) return function(y) return x + y end end");
+        REQUIRE(res);
+        auto f = global["make_adder"].as<function<function<i32>>>()(5);
+        REQUIRE(f(3) == 8);
     }
     SUBCASE("misc")
     {

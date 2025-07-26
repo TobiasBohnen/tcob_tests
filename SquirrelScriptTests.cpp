@@ -290,7 +290,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Container")
             REQUIRE(b == std::to_string(5.22));
         }
         */
-    SUBCASE("map return from cpp")
+    SUBCASE("return: std::map<string, int>")
     {
         auto res = run("x <- test.Map()");
         REQUIRE(res);
@@ -298,7 +298,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Container")
         REQUIRE(x["abc"] == 123);
         REQUIRE(x["def"] == 234);
     }
-    SUBCASE("unordered_map return from cpp")
+    SUBCASE("return: std::unordered_map<string, int>")
     {
         auto res = run("x <- test.UMap()");
         REQUIRE(res);
@@ -306,7 +306,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Container")
         REQUIRE(x["abc"] == 123);
         REQUIRE(x["def"] == 234);
     }
-    SUBCASE("vector return from cpp")
+    SUBCASE("return: std::vector<string>")
     {
         auto res = run("x <- test.Vector();");
         REQUIRE(res);
@@ -314,7 +314,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Container")
         REQUIRE(vec[0] == "1");
         REQUIRE(vec[4] == "5");
     }
-    SUBCASE("array return from cpp")
+    SUBCASE("return: std::array<string, N>")
     {
         auto res = run("x <- test.Array()");
         REQUIRE(res);
@@ -322,7 +322,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Container")
         REQUIRE(vec[0] == "1");
         REQUIRE(vec[4] == "5");
     }
-    SUBCASE("vector parameter")
+    SUBCASE("param: vector and array")
     {
         auto res = run("function foo(x) {return x[1] * x[3]} ");
         REQUIRE(res);
@@ -335,20 +335,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Container")
         a = func(arr);
         REQUIRE(a == 2 * 4);
     }
-    /*
-    SUBCASE("tuple parameter")
-    {
-        auto res = run(
-            "function foo(x) "
-            "   if (x[2])  return x[0] * x[1]; else return 10; "
-            "end ");
-        REQUIRE(res);
-        auto          tup  = std::make_tuple(4, 2, true);
-        function<i32> func = global["foo"];
-        i32           a    = func(tup);
-        REQUIRE(a == 4 * 2);
-    }*/
-    SUBCASE("pair parameter")
+    SUBCASE("param: std::pair<int, float>")
     {
         auto res = run("function foo(x) {return x[0] * x[1]} ");
         REQUIRE(res);
@@ -357,7 +344,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Container")
         f32  a    = func(tup);
         REQUIRE(a == 4 * 2.4f);
     }
-    SUBCASE("map parameter")
+    SUBCASE("param: std::map and std::unordered_map")
     {
         auto res = run("function foo(x) {return x.test} ");
         REQUIRE(res);
@@ -370,7 +357,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Container")
         a                                         = func(umap);
         REQUIRE(a == 245);
     }
-    SUBCASE("get/set vector")
+    SUBCASE("interop: get/set std::vector by index")
     {
         std::vector<std::string> vec = {"test", "123"};
         global["foo"]                = vec;
@@ -379,7 +366,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Container")
         std::string b = *run<std::string>("return foo[1] ");
         REQUIRE(b == "123");
     }
-    SUBCASE("get/set deque")
+    SUBCASE("interop: get/set std::deque by index")
     {
         std::deque<std::string> deck = {"test", "123"};
         global["foo"]                = deck;
@@ -388,7 +375,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Container")
         std::string b = *run<std::string>("return foo[1] ");
         REQUIRE(b == "123");
     }
-    SUBCASE("get/set span")
+    SUBCASE("interop: get/set std::span by index")
     {
         std::vector<std::string> vec {"test", "123"};
         std::span<std::string>   s {vec.data(), vec.size()};
@@ -398,45 +385,45 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Container")
         std::string b = *run<std::string>("return foo[1] ");
         REQUIRE(b == vec[1]);
     }
-    SUBCASE("get map")
+    SUBCASE("interop: convert Sq table to std::map")
     {
         auto res = run("rectF <- {x=2.7, y=3.1, width=2.3, height=55.2} ");
         REQUIRE(res);
         auto rectF = global["rectF"].as<std::map<std::string, f32>>();
         REQUIRE(rectF["x"] == 2.7f);
     }
-    SUBCASE("get/set map")
+    SUBCASE("interop: get/set std::map<string, int>")
     {
         std::map<std::string, i32> map = {{"test", 123}};
         global["foo"]                  = map;
         i32 a                          = *run<i32>("return foo.test ");
         REQUIRE(a == 123);
     }
-    SUBCASE("get multiple return values as pair")
+    SUBCASE("return: multiple values as std::pair")
     {
         std::pair<std::string, i32> x = *run<std::pair<std::string, i32>>("return [\"ok\", 10]");
         REQUIRE(x.first == "ok");
         REQUIRE(x.second == 10);
     }
-    SUBCASE("pair parameter")
+    SUBCASE("param: std::pair<string, int>")
     {
         auto func = global["test"]["PairPara"].as<function<i32>>();
         i32  a    = func(std::pair {"ok"s, 4});
         REQUIRE(a == 4);
     }
-    SUBCASE("get/set set")
+    SUBCASE("interop: get/set std::set<string>")
     {
         std::set<std::string> set1 {"test", "test2"};
         global["foo"]              = set1;
         std::set<std::string> set2 = *run<std::set<std::string>>("return foo ");
         REQUIRE(set1 == set2);
     }
-    SUBCASE("set return")
+    SUBCASE("return: std::set<int> from Sq table")
     {
         std::set<i32> set = *run<std::set<i32>>("return [1, 2, 3, 1, 2, 3, 4, 2] ");
         REQUIRE(set == std::set<i32> {1, 2, 3, 4});
     }
-    SUBCASE("get/set unordered_set")
+    SUBCASE("interop: get/set std::unordered_set<string>")
     {
         std::unordered_set<std::string> set1 {"test", "test2"};
         global["foo"]                        = set1;
@@ -577,7 +564,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Functions")
             REQUIRE(res);
             auto func = global["foo"].as<function<i32>>();
 
-            parameter_pack<std::variant<i32, bool>> pack;
+            parameter_pack<i32, bool> pack;
             pack.Items = {2, true, 3};
             i32 a      = func(pack);
             REQUIRE(a == 5);
@@ -585,6 +572,22 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Functions")
             a          = func(pack);
             REQUIRE(a == 8);
         }
+    }
+    SUBCASE("recurse")
+    {
+        auto res = run("function recurse(n) { if (n == 0) { return 1 } return cppFunc(n - 1) }");
+        REQUIRE(res);
+        auto func         = std::function<i32(i32)>([&](i32 n) { return global["recurse"].as<function<i32>>()(n); });
+        global["cppFunc"] = &func;
+        auto result       = global["recurse"].as<function<i32>>()(10);
+        REQUIRE(result == 1);
+    }
+    SUBCASE("closure capture")
+    {
+        auto res = run("function make_adder(x) {return function(y) {return x + y}} ");
+        REQUIRE(res);
+        auto f = global["make_adder"].as<function<function<i32>>>()(5);
+        REQUIRE(f(3) == 8);
     }
     SUBCASE("misc")
     {
@@ -962,7 +965,6 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.IsHas")
         REQUIRE(global.is<table>("e"));
         REQUIRE(global.is<function<void>>("f"));
         REQUIRE((global.is<std::map<std::string, i32>>("g")));
-        //  REQUIRE((global.is<std::map<i32, i32>>("h")));
         REQUIRE((global.is<std::vector<i32>>("h")));
 
         REQUIRE_FALSE(global.is<bool>("a"));
@@ -1347,7 +1349,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Table")
             table                    tab = *run<table>("local tab = { a = 2.4, b = true, c = \"hello\" }; tab[1] <- 42; return tab ");
             std::vector<std::string> vect {"a", "b", "c"};
             std::vector<std::string> keys = tab.get_keys<std::string>();
-            std::sort(keys.begin(), keys.end());
+            std::ranges::sort(keys);
             REQUIRE(keys == vect);
         }
         {

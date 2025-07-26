@@ -101,8 +101,8 @@ public:
         return static_cast<f32>(vec.size());
     }
 
-    auto virtualMethod() -> i32 override { return 84; }
-    auto abstractMethod() -> i32 override { return 42; }
+    auto virtualMethod() -> i32 override { return _value * 2; }
+    auto abstractMethod() -> i32 override { return _value * 4; }
 
     std::map<std::string, i32> _testMap;
     i32                        _value = 0;
