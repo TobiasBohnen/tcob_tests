@@ -1,8 +1,6 @@
 #include "WrapperTestsClass.hpp"
 #include "tests.hpp"
 
-#include <numeric>
-
 using namespace tcob::scripting;
 using namespace tcob::scripting::squirrel;
 
@@ -21,17 +19,17 @@ TEST_CASE_FIXTURE(SquirrelWrapperTests, "Script.SquirrelWrapper.Type")
 {
     auto wrapper = create_wrapper<TestScriptClass>("TSC");
 
-    wrapper->wrap_method<&TestScriptClass::foo>("foo");
-    wrapper->wrap_method<&TestScriptClass::abstractMethod>("abstract");
-    wrapper->wrap_method<&TestScriptClass::virtualMethod>("virtual");
-    wrapper->wrap_method<&TestScriptClass::baseMethod>("basem");
-    wrapper->wrap_property<&TestScriptClass::FieldValue>("field");
-    wrapper->wrap_property<&TestScriptClass::get_value, &TestScriptClass::set_value>("value");
+    wrapper->method<&TestScriptClass::foo>("foo");
+    wrapper->method<&TestScriptClass::abstractMethod>("abstract");
+    wrapper->method<&TestScriptClass::virtualMethod>("virtual");
+    wrapper->method<&TestScriptClass::baseMethod>("basem");
+    wrapper->property<&TestScriptClass::FieldValue>("field");
+    wrapper->property<&TestScriptClass::get_value, &TestScriptClass::set_value>("value");
 
     auto f1 = resolve_overload<f32(i32, f32)>(&TestScriptClass::overload);
     auto f2 = resolve_overload<f32(f32, i32)>(&TestScriptClass::overload);
     auto f3 = resolve_overload<f32(std::vector<f32> const&)>(&TestScriptClass::overload);
-    wrapper->wrap_overload("overload", f1, f2, f3);
+    wrapper->overload("overload", f1, f2, f3);
 
     SUBCASE("pointer ping pong")
     {
@@ -218,21 +216,21 @@ TEST_CASE_FIXTURE(SquirrelWrapperTests, "Script.SquirrelWrapper.Equals")
 TEST_CASE_FIXTURE(SquirrelWrapperTests, "Script.SquirrelWrapper.Metamethods")
 {
     auto wrapper = create_wrapper<TestScriptClass>("TSCB");
-    wrapper->wrap_metamethod(
+    wrapper->metamethod(
         metamethod::Add, [](TestScriptClass* instance1, i32 x) { return instance1->get_value() + x; });
-    wrapper->wrap_metamethod(
+    wrapper->metamethod(
         metamethod::Subtract, [](TestScriptClass* instance1, i32 x) { return instance1->get_value() - x; });
-    wrapper->wrap_metamethod(
+    wrapper->metamethod(
         metamethod::Divide, [](TestScriptClass* instance1, i32 x) { return instance1->get_value() / x; });
-    wrapper->wrap_metamethod(
+    wrapper->metamethod(
         metamethod::Multiply, [](TestScriptClass* instance1, i32 x) { return instance1->get_value() * x; });
-    wrapper->wrap_metamethod(
+    wrapper->metamethod(
         metamethod::UnaryMinus, [](TestScriptClass* instance1) { return -instance1->get_value(); });
-    wrapper->wrap_metamethod(
+    wrapper->metamethod(
         metamethod::ToString, [](TestScriptClass* instance1) {
             return std::to_string(instance1->get_value());
         });
-    wrapper->wrap_metamethod(
+    wrapper->metamethod(
         metamethod::Call, [](TestScriptClass* instance1, table const& /*env*/, i32 x, i32 y) {
             return x * instance1->get_value() * y;
         });

@@ -1,6 +1,5 @@
 #include "WrapperTestsClass.hpp"
 #include "tests.hpp"
-#include <type_traits>
 
 class LuaWrapperTests : public lua::script {
 public:
@@ -115,28 +114,28 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
 
     auto wrapper = create_wrapper<TestScriptClass>("TSC");
 
-    wrapper->wrap_method<&TestScriptClass::foo>("foo");
-    wrapper->wrap_method<&TestScriptClass::bar>("bar");
-    wrapper->wrap_method<[]() -> i32 { return 40; }>("lambda_func");
-    wrapper->wrap_method<&TestScriptClass::add_value>("add");
-    wrapper->wrap_method<&TestScriptClass::abstractMethod>("abstract");
-    wrapper->wrap_method<&TestScriptClass::virtualMethod>("virtual");
-    wrapper->wrap_method<&TestScriptClass::baseMethod>("base");
-    wrapper->wrap_method<&TestScriptClass::ptr>("ptr");
+    wrapper->method<&TestScriptClass::foo>("foo");
+    wrapper->method<&TestScriptClass::bar>("bar");
+    wrapper->method<[]() -> i32 { return 40; }>("lambda_func");
+    wrapper->method<&TestScriptClass::add_value>("add");
+    wrapper->method<&TestScriptClass::abstractMethod>("abstract");
+    wrapper->method<&TestScriptClass::virtualMethod>("virtual");
+    wrapper->method<&TestScriptClass::baseMethod>("base");
+    wrapper->method<&TestScriptClass::ptr>("ptr");
 
-    wrapper->wrap_property<&TestScriptClass::FieldValue>("field");
-    wrapper->wrap_property<&TestScriptClass::PropertyValue>("prop");
+    wrapper->property<&TestScriptClass::FieldValue>("field");
+    wrapper->property<&TestScriptClass::PropertyValue>("prop");
 
-    wrapper->wrap_property<&TestScriptClass::get_value, &TestScriptClass::set_value>("value");
-    wrapper->wrap_property(
+    wrapper->property<&TestScriptClass::get_value, &TestScriptClass::set_value>("value");
+    wrapper->property(
         "lambda_prop",
         [&lambdaValue]() { return lambdaValue; },
         [&lambdaValue](TestScriptClass*, i32 val) { lambdaValue = val; });
-    wrapper->wrap_getter<&TestScriptClass::get_value>("readonly_value");
-    wrapper->wrap_setter<&TestScriptClass::set_value>("writeonly_value");
-    wrapper->wrap_getter<&TestScriptClass::get_map>("map");
+    wrapper->getter<&TestScriptClass::get_value>("readonly_value");
+    wrapper->setter<&TestScriptClass::set_value>("writeonly_value");
+    wrapper->getter<&TestScriptClass::get_map>("map");
 
-    wrapper->wrap_constructors<TestScriptClass(i32), TestScriptClass(i32, f32), TestScriptClass()>();
+    wrapper->constructors<TestScriptClass(i32), TestScriptClass(i32, f32), TestScriptClass()>();
 
     auto f1 = resolve_overload<f32(i32, f32)>(&TestScriptClass::overload);
     auto f2 = resolve_overload<f32(f32, i32)>(&TestScriptClass::overload);
@@ -144,7 +143,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
     auto f4 = resolve_overload<f32(i32, f32, f32)>(&TestScriptClass::overload);
     auto f5 = resolve_overload<f32(f32, i32, f32)>(&TestScriptClass::overload);
     auto f6 = [](f32 x) -> f32 { return x + 40.0f; };
-    wrapper->wrap_overload("overload", f1, f2, f3, f4, f5, f6);
+    wrapper->overload("overload", f1, f2, f3, f4, f5, f6);
 
     SUBCASE("early wrap")
     {
@@ -333,7 +332,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper2")
     std::string name {"Dave"};
 
     auto& wrapper {*create_wrapper<Player>("Player")};
-    wrapper.wrap_constructors<Player(std::string, i32, i32)>();
+    wrapper.constructors<Player(std::string, i32, i32)>();
 
     wrapper["get_health"]      = &Player::get_health;
     wrapper["take_damage"]     = &Player::take_damage;
@@ -410,15 +409,15 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper2")
 TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
 {
     auto wrapper = create_wrapper<TestScriptClass>("TSCB");
-    wrapper->wrap_metamethod(
+    wrapper->metamethod(
         lua::metamethod::Add, [](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() + x)); });
-    wrapper->wrap_metamethod(
+    wrapper->metamethod(
         lua::metamethod::Subtract, [](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() - x)); });
-    wrapper->wrap_metamethod(
+    wrapper->metamethod(
         lua::metamethod::Divide, [](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() / x)); });
-    wrapper->wrap_metamethod(
+    wrapper->metamethod(
         lua::metamethod::Multiply, [](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() * x)); });
-    wrapper->wrap_metamethod(
+    wrapper->metamethod(
         lua::metamethod::LessThan,
         [](std::variant<TestScriptClass*, i32> left, std::variant<TestScriptClass*, i32> right) {
             i32 const leftValue {std::holds_alternative<i32>(left) ? std::get<i32>(left) : std::get<TestScriptClass*>(left)->get_value()};
@@ -426,7 +425,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
 
             return leftValue < rightValue;
         });
-    wrapper->wrap_metamethod(
+    wrapper->metamethod(
         lua::metamethod::LessOrEqualThan,
         [](std::variant<TestScriptClass*, i32> left, std::variant<TestScriptClass*, i32> right) {
             i32 const leftValue {std::holds_alternative<i32>(left) ? std::get<i32>(left) : std::get<TestScriptClass*>(left)->get_value()};
@@ -434,17 +433,17 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
 
             return leftValue <= rightValue;
         });
-    wrapper->wrap_metamethod(
+    wrapper->metamethod(
         lua::metamethod::UnaryMinus, [](TestScriptClass* instance1) { return -instance1->get_value(); });
-    wrapper->wrap_metamethod(
+    wrapper->metamethod(
         lua::metamethod::Length, [](TestScriptClass* instance1) { return instance1->get_value(); });
-    wrapper->wrap_metamethod(
+    wrapper->metamethod(
         lua::metamethod::ToString, [](TestScriptClass* instance1) { return std::to_string(instance1->get_value()); });
-    wrapper->wrap_metamethod(
+    wrapper->metamethod(
         lua::metamethod::Concat, [](TestScriptClass* instance1, i32 x) { return std::stoi(std::to_string(instance1->get_value()) + std::to_string(x)); });
-    wrapper->wrap_metamethod(
+    wrapper->metamethod(
         lua::metamethod::Call, [](TestScriptClass* instance1, i32 x) { return x * instance1->get_value(); });
-    wrapper->wrap_metamethod(
+    wrapper->metamethod(
         lua::metamethod::Close, [](TestScriptClass* instance1) { return instance1->Closed = true; });
 
     SUBCASE("Metatable")
@@ -634,7 +633,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.ChainFunctions")
         };
 
         auto wrapper = create_wrapper<TestScriptClass>("TSCB");
-        wrapper->wrap_method("foo", foo);
+        wrapper->method("foo", foo);
 
         {
             TestScriptClass t;
@@ -661,7 +660,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.ChainFunctions")
         l = lua::make_shared_closure(std::function(text_adder));
 
         auto wrapper = create_wrapper<TestScriptClass>("TSCB");
-        wrapper->wrap_method("foo", text_setter);
+        wrapper->method("foo", text_setter);
         {
             TestScriptClass t;
             global["wrap"] = &t;
