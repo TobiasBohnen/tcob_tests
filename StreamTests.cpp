@@ -212,6 +212,7 @@ TEST_CASE("IO.Stream.Open")
 
         auto stream0 {io::ifstream::Open(file)};
         REQUIRE_FALSE(stream0);
+        REQUIRE(stream0.error() == io::error_code::FileNotFound);
 
         PrepareFile(file);
 

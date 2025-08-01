@@ -39,7 +39,7 @@ TEST_CASE("Data.Yaml.Save")
 
             {
                 object load;
-                REQUIRE(load.load(file) == load_status::Ok);
+                REQUIRE(load.load(file));
                 REQUIRE(load["section1"]["valueBool"].as<bool>() == true);
                 REQUIRE(load["section1"]["valueStr"].as<std::string>() == "test123");
                 REQUIRE(load["section1"]["valueFloat"].as<f64>() == 123.45);
@@ -75,7 +75,7 @@ TEST_CASE("Data.Yaml.Save")
 
             {
                 object t;
-                REQUIRE(t.load(file) == load_status::Ok);
+                REQUIRE(t.load(file));
                 REQUIRE(t["key1"].as<f64>() == 123);
                 REQUIRE(t["section1"]["key1"].as<f64>() == 456);
                 REQUIRE(t["section2"]["key1"].as<f64>() == 789);
@@ -109,7 +109,7 @@ TEST_CASE("Data.Yaml.Save")
 
         {
             array load;
-            REQUIRE(load.load(file) == load_status::Ok);
+            REQUIRE(load.load(file));
 
             REQUIRE(load.size() == 5);
             REQUIRE(load[0].as<std::string>() == "a");

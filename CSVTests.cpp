@@ -30,7 +30,7 @@ TEST_CASE("Data.CSV.Parse")
             REQUIRE(tab.Rows[0].size() == 7);
             for (usize i {0}; i < tab.Rows.size(); ++i) {
                 for (usize j {0}; j < tab.Rows[i].size(); ++j) {
-                    REQUIRE(tab.Rows[i][j] == std::to_string(i * 7 + j + 1));
+                    REQUIRE(tab.Rows[i][j] == std::to_string((i * 7) + j + 1));
                 }
             }
         }
@@ -78,7 +78,7 @@ TEST_CASE("Data.CSV.Save")
         REQUIRE(tab0.save("test0.csv"));
 
         table tab1;
-        REQUIRE(tab1.load("test0.csv") == load_status::Ok);
+        REQUIRE(tab1.load("test0.csv"));
         REQUIRE(tab1.Rows.size() == 1);
         REQUIRE(tab1.Rows[0].size() == 6);
         REQUIRE(tab1.Header == std::vector<std::string> {"A", "B", "C", "D", "E", "F"});
@@ -97,7 +97,7 @@ TEST_CASE("Data.CSV.Save")
         stream.seek(0, io::seek_dir::Begin);
 
         table tab1;
-        REQUIRE(tab1.load(stream) == load_status::Ok);
+        REQUIRE(tab1.load(stream));
         REQUIRE(tab1.Rows.size() == 1);
         REQUIRE(tab1.Rows[0].size() == 6);
         REQUIRE(tab1.Header == std::vector<std::string> {"A", "B", "C", "D", "E", "F"});

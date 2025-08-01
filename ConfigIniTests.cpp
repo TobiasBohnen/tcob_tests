@@ -337,7 +337,7 @@ TEST_CASE("Data.Ini.Save")
 
         {
             object load;
-            REQUIRE(load.load(file) == load_status::Ok);
+            REQUIRE(load.load(file));
             REQUIRE(load["key1"].as<f64>() == 123);
             REQUIRE(load["key.10"].as<f64>() == 321);
             REQUIRE(load["section1"]["valueBool"].as<bool>() == true);
@@ -398,7 +398,7 @@ TEST_CASE("Data.Ini.Save")
 
         {
             array load;
-            REQUIRE(load.load(file) == load_status::Ok);
+            REQUIRE(load.load(file));
 
             REQUIRE(load.size() == 5);
             REQUIRE(load[0].as<std::string>() == "a");
@@ -423,7 +423,7 @@ TEST_CASE("Data.Ini.Save")
 
         {
             object load;
-            REQUIRE(load.load(file) == load_status::Ok);
+            REQUIRE(load.load(file));
             REQUIRE(load["key1"].as<f64>() == 123);
 
             REQUIRE(load["1"].as<std::string>() == "a");
@@ -493,7 +493,7 @@ TEST_CASE("Data.Ini.Save")
 
         {
             array load;
-            REQUIRE(load.load(file) == load_status::Ok);
+            REQUIRE(load.load(file));
 
             REQUIRE(load.size() == 5);
             REQUIRE(load[0].as<std::string>() == "a");
