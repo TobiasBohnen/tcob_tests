@@ -354,6 +354,7 @@ TEST_CASE("Core.POD.Point")
             REQUIRE(p3 == p1);
         }
     }
+
     SUBCASE("length")
     {
         REQUIRE(point_f::Zero.length() == 0.f);
@@ -361,17 +362,20 @@ TEST_CASE("Core.POD.Point")
         REQUIRE(point_f {8, 15}.length() == 17.f);
         REQUIRE(point_i {8, 15}.length() == 17.f);
     }
+
     SUBCASE("distance_to")
     {
         REQUIRE(point_f::Zero.distance_to(point_f::Zero) == 0.f);
         REQUIRE(point_f {8, 11}.distance_to(point_f {5, 7}) == 5.f);
     }
+
     SUBCASE("as_normalized")
     {
         REQUIRE(point_f::Zero.as_normalized() == point_d::Zero);
         REQUIRE(point_f {3, 4}.as_normalized() == point_d {0.6, 0.8});
         REQUIRE(point_f {7, 24}.as_normalized() == point_d {0.28, 0.96});
     }
+
     SUBCASE("angle_to")
     {
         point_d p {10, 10};
@@ -384,6 +388,7 @@ TEST_CASE("Core.POD.Point")
         REQUIRE(p.angle_to({5, 10}) == degree_d {270});
         REQUIRE(p.angle_to({5, 5}) == degree_d {315});
     }
+
     SUBCASE("Format")
     {
         REQUIRE(std::format("{}", point_f {10.123f, 23.434f}) == "(x:10.123,y:23.434)");

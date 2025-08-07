@@ -24,6 +24,7 @@ set(TEST_SRCFILES
   RayTests.cpp
   RectTests.cpp
   SignalTests.cpp
+  SizeTests.cpp
   StreamTests.cpp
   StyleTests.cpp
   TransformTests.cpp
