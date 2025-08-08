@@ -19,7 +19,7 @@ TEST_CASE("Core.Signal.Connect")
                 Value = val;
             }
         };
-
+        Value = 0;
         signal<i32 const> sig0;
         SignalTest        inst;
         REQUIRE(Value != ExpValue);
@@ -31,9 +31,19 @@ TEST_CASE("Core.Signal.Connect")
     }
     SUBCASE("Free Function")
     {
+        Value = 0;
         signal<i32 const> sig0;
         REQUIRE(Value != ExpValue);
         sig0.connect(&Test);
+        sig0(ExpValue);
+        REQUIRE(Value == ExpValue);
+    }
+    SUBCASE("+=")
+    {
+        Value = 0;
+        signal<i32 const> sig0;
+        REQUIRE(Value != ExpValue);
+        sig0 += &Test;
         sig0(ExpValue);
         REQUIRE(Value == ExpValue);
     }
@@ -63,8 +73,8 @@ TEST_CASE("Core.Signal.Disconnect")
     {
         signal<> sig0;
         REQUIRE(sig0.slot_count() == 0);
-        auto id0 = sig0.connect([]() {}).id();
-        auto id1 = sig0.connect([]() {}).id();
+        auto id0 = sig0.connect([]() { }).id();
+        auto id1 = sig0.connect([]() { }).id();
         REQUIRE(sig0.slot_count() == 2);
         sig0.disconnect(id0);
         REQUIRE(sig0.slot_count() == 1);
@@ -74,12 +84,23 @@ TEST_CASE("Core.Signal.Disconnect")
     {
         signal<> sig0;
         REQUIRE(sig0.slot_count() == 0);
-        auto id0 = sig0.connect([]() {}).id();
-        auto id1 = sig0.connect([]() {}).id();
+        auto id0 = sig0.connect([]() { }).id();
+        auto id1 = sig0.connect([]() { }).id();
         REQUIRE(sig0.slot_count() == 2);
         sig0.disconnect(id1);
         REQUIRE(sig0.slot_count() == 1);
         sig0.disconnect(id0);
+        REQUIRE(sig0.slot_count() == 0);
+    }
+    {
+        signal<> sig0;
+        REQUIRE(sig0.slot_count() == 0);
+        auto c0  = sig0 += []() { };
+        auto id0 = (sig0 += []() { }).id();
+        REQUIRE(sig0.slot_count() == 2);
+        sig0 -= id0;
+        REQUIRE(sig0.slot_count() == 1);
+        sig0 -= c0;
         REQUIRE(sig0.slot_count() == 0);
     }
 }
@@ -91,7 +112,7 @@ TEST_CASE("Core.Signal.Lifetime")
         signal<> sig0;
         REQUIRE(sig0.slot_count() == 0);
         {
-            scoped_connection conn {sig0.connect([] {})};
+            scoped_connection conn {sig0.connect([] { })};
             REQUIRE(sig0.slot_count() == 1);
         }
         REQUIRE(sig0.slot_count() == 0);
