@@ -1,7 +1,5 @@
 #include "tests.hpp"
 
-#include <queue>
-
 using namespace tcob::gfx;
 using namespace tcob::literals;
 
@@ -659,11 +657,11 @@ TEST_CASE("Core.Tween.Curve")
     {
         f32                           out {0};
         std::vector<curve_point<f32>> points {
-            {0.0f, 0},
-            {0.25f, 10},
-            {0.5f, 5},
-            {0.75f, 25},
-            {1.0f, 10}};
+            {.Position = 0.0f, .Value = 0},
+            {.Position = 0.25f, .Value = 10},
+            {.Position = 0.5f, .Value = 5},
+            {.Position = 0.75f, .Value = 25},
+            {.Position = 1.0f, .Value = 10}};
         curve_tween<f32> contr {milliseconds {1000}, {points}};
         contr.add_output(&out);
 
