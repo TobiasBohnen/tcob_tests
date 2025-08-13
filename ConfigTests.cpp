@@ -572,10 +572,11 @@ TEST_CASE("Data.Config.Array")
 TEST_CASE("Data.Config.TcobTypes")
 {
     object obj;
-    obj["point"] = point_i {100, 350};
-    obj["color"] = color {15, 30, 12, 0};
-    obj["size"]  = size_i {300, 450};
-    obj["rect"]  = rect_f {4.5f, 2.5f, 30.1f, 45.01f};
+    obj["point"]      = point_i {100, 350};
+    obj["color"]      = color {15, 30, 12, 0};
+    obj["size"]       = size_i {300, 450};
+    obj["rect"]       = rect_f {4.5f, 2.5f, 30.1f, 45.01f};
+    obj["alignments"] = alignments {.Horizontal = horizontal_alignment::Centered, .Vertical = vertical_alignment::Middle};
 
     REQUIRE(obj.is<point_i>("point"));
     REQUIRE(obj["point"].as<point_i>() == point_i {100, 350});
@@ -588,6 +589,9 @@ TEST_CASE("Data.Config.TcobTypes")
 
     REQUIRE(obj.is<rect_f>("rect"));
     REQUIRE(obj["rect"].as<rect_f>() == rect_f {4.5f, 2.5f, 30.1f, 45.01f});
+
+    REQUIRE(obj.is<alignments>("alignments"));
+    REQUIRE(obj["alignments"].as<alignments>() == alignments {.Horizontal = horizontal_alignment::Centered, .Vertical = vertical_alignment::Middle});
 }
 
 TEST_CASE("Data.Config.STLTypes")

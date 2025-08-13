@@ -2185,6 +2185,12 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.TcobTypes")
         REQUIRE(res.Position == 150.f);
         REQUIRE(res.Value == color {10, 20, 40, 255});
     }
+    SUBCASE("api: texture_region")
+    {
+        auto res = run<texture_region>("return { level = 5, rect = { x = 1, y = 2, width = 3, height = 4 } }").value();
+        REQUIRE(res.Level == 5);
+        REQUIRE(res.UVRect == rect_f {1, 2, 3, 4});
+    }
 }
 
 TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.TypeCoercion")

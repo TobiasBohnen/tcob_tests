@@ -59,10 +59,10 @@ TEST_CASE("Data.Ini.Multiline")
             }
 
             xy_regions  = {
-                acidic_floor0  = { level = 0, height = 32, width = 32, x = 36, y = 1856 },
-                black_cobalt03 = { level = 0, height = 32, width = 32, x = 71, y = 36   },
-                bog_green2     = { level = 0, height = 32, width = 32, x = 71, y = 456  },
-                cobble_blood10 = { level = 0, height = 32, width = 32, x = 71, y = 771  }
+                acidic_floor0  = { level = 0, rect = { height = 32, width = 32, x = 36, y = 1856 } },
+                black_cobalt03 = { level = 0, rect = { height = 32, width = 32, x = 71, y = 36 }  },
+                bog_green2     = { level = 0, rect = { height = 32, width = 32, x = 71, y = 456 } },
+                cobble_blood10 = { level = 0, rect = { height = 32, width = 32, x = 71, y = 771 } }
             }
 
             multiLineString0 = '
@@ -110,6 +110,9 @@ TEST_CASE("Data.Ini.Multiline")
     REQUIRE(t["section1"]["multiLineString2"].as<std::string>() == "abc\ndef\nghi");
     REQUIRE(t["section1"]["multiLineString3"].is<std::string>());
     REQUIRE(t["section1"]["multiLineString3"].as<std::string>() == "abc\n\n\ndef\n\nghi");
+
+    REQUIRE(t["section1"]["xy_regions"]["acidic_floor0"].is<texture_region>());
+    REQUIRE(t["section1"]["xy_regions"]["acidic_floor0"].as<texture_region>() == texture_region {.UVRect = {36, 1856, 32, 32}, .Level = 0});
 }
 
 TEST_CASE("Data.Ini.Sections")
