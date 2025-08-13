@@ -596,79 +596,66 @@ TEST_CASE("Data.Config.TcobTypes")
 
 TEST_CASE("Data.Config.STLTypes")
 {
-    object obj;
-    obj["stringArray"]       = std::vector<std::string> {"One", "Two", "Three"};
-    obj["intArray"]          = std::vector<int> {1, 2, 3};
-    obj["stringintMap"]["a"] = 123;
-    obj["stringintMap"]["b"] = 456;
-    obj["variantMap"]["f"]   = 1.5;
-    obj["variantMap"]["b"]   = true;
-    obj["variantMap"]["s"]   = "ok";
-    obj["duration"]          = 100;
-    obj["tuple"]             = std::tuple<int, std::string, bool> {123, "ok", true};
-    obj["pair"]              = std::pair<std::string, int> {"ok", 100};
-    obj["set"]               = std::vector<int> {1, 1, 2, 2, 3, 3};
-
     SUBCASE("vector")
     {
         {
-            auto objectarr0 = obj["stringArray"].as<std::vector<std::string>>();
+            object obj;
+            obj["stringArray"] = std::vector<std::string> {"One", "Two", "Three"};
+            auto objectarr0    = obj["stringArray"].as<std::vector<std::string>>();
             REQUIRE(objectarr0 == std::vector<std::string> {"One", "Two", "Three"});
 
-            auto objectarr1 = obj["intArray"].as<std::vector<int>>();
-            REQUIRE(objectarr1 == std::vector<int> {1, 2, 3});
-        }
-
-        {
-            obj["stringArray2"] = std::vector<std::string> {"a", "b", "c"};
-            auto objectarr0     = obj["stringArray2"].as<std::vector<std::string>>();
-            REQUIRE(objectarr0 == std::vector<std::string> {"a", "b", "c"});
+            obj["intArray"] = std::vector<i32> {1, 2, 3};
+            auto objectarr1 = obj["intArray"].as<std::vector<i32>>();
+            REQUIRE(objectarr1 == std::vector<i32> {1, 2, 3});
 
             obj["intArray2"] = std::vector<i64> {0, 5, 10};
-            auto objectarr1  = obj["intArray2"].as<std::vector<int>>();
-            REQUIRE(objectarr1 == std::vector<int> {0, 5, 10});
+            auto objectarr2  = obj["intArray2"].as<std::vector<i64>>();
+            REQUIRE(objectarr2 == std::vector<i64> {0, 5, 10});
         }
     }
 
     SUBCASE("array")
     {
         {
-            auto objectarr0 = obj["stringArray"].as<std::array<std::string, 3>>();
+            object obj;
+            obj["stringArray"] = std::vector<std::string> {"One", "Two", "Three"};
+            auto objectarr0    = obj["stringArray"].as<std::array<std::string, 3>>();
             REQUIRE(objectarr0 == std::array<std::string, 3> {"One", "Two", "Three"});
 
+            obj["intArray"] = std::vector<int> {1, 2, 3};
             auto objectarr1 = obj["intArray"].as<std::array<int, 3>>();
             REQUIRE(objectarr1 == std::array<int, 3> {1, 2, 3});
-        }
 
-        {
             obj["stringArray2"] = std::array<std::string, 3> {"a", "b", "c"};
-            auto objectarr0     = obj["stringArray2"].as<std::array<std::string, 3>>();
-            REQUIRE(objectarr0 == std::array<std::string, 3> {"a", "b", "c"});
+            auto objectarr2     = obj["stringArray2"].as<std::array<std::string, 3>>();
+            REQUIRE(objectarr2 == std::array<std::string, 3> {"a", "b", "c"});
 
             obj["intArray2"] = std::array<int, 3> {0, 5, 10};
-            auto objectarr1  = obj["intArray2"].as<std::array<int, 3>>();
-            REQUIRE(objectarr1 == std::array<int, 3> {0, 5, 10});
+            auto objectarr3  = obj["intArray2"].as<std::array<int, 3>>();
+            REQUIRE(objectarr3 == std::array<int, 3> {0, 5, 10});
         }
     }
 
     SUBCASE("tuple")
     {
         {
-            auto tup0 = obj["tuple"].as<std::tuple<i32, std::string, bool>>();
+            object obj;
+            obj["tuple"] = std::tuple<int, std::string, bool> {123, "ok", true};
+            auto tup0    = obj["tuple"].as<std::tuple<i32, std::string, bool>>();
             REQUIRE(tup0 == std::tuple<i32, std::string, bool> {123, "ok", true});
-        }
 
-        {
             obj["tuple2"] = std::tuple<std::string, bool, f32> {"a", false, 3.5f};
-            auto tup0     = obj["tuple2"].as<std::tuple<std::string, bool, f32>>();
-            REQUIRE(tup0 == std::tuple<std::string, bool, f32> {"a", false, 3.5f});
+            auto tup1     = obj["tuple2"].as<std::tuple<std::string, bool, f32>>();
+            REQUIRE(tup1 == std::tuple<std::string, bool, f32> {"a", false, 3.5f});
         }
     }
 
     SUBCASE("pair")
     {
         {
-            auto pair0 = obj["pair"].as<std::pair<std::string, i32>>();
+            object obj;
+            obj["pair"] = std::pair<std::string, int> {"ok", 100};
+            auto pair0  = obj["pair"].as<std::pair<std::string, i32>>();
             REQUIRE(pair0 == std::pair<std::string, i32> {"ok", 100});
         }
     }
@@ -676,7 +663,9 @@ TEST_CASE("Data.Config.STLTypes")
     SUBCASE("variant")
     {
         {
-            auto var = obj["duration"].as<std::variant<std::string, i32>>();
+            object obj;
+            obj["duration"] = 100;
+            auto var        = obj["duration"].as<std::variant<std::string, i32>>();
             REQUIRE(std::get<int>(var) == 100);
         }
     }
@@ -684,26 +673,49 @@ TEST_CASE("Data.Config.STLTypes")
     SUBCASE("optional")
     {
         {
-            auto var = obj["duration"].as<std::optional<i32>>();
+            object obj;
+            obj["optional"] = 100;
+            auto var        = obj["optional"].as<std::optional<i32>>();
             REQUIRE(var);
             REQUIRE(*var == 100);
-        }
-        {
-            auto var = obj["duration"].as<std::optional<bool>>();
+
+            std::optional<i32> opt {std::nullopt};
+            obj["optional2"] = opt;
+            var              = obj["optional2"].as<std::optional<i32>>();
             REQUIRE_FALSE(var);
+
+            opt              = 1234;
+            obj["optional3"] = opt;
+            var              = obj["optional3"].as<std::optional<i32>>();
+            REQUIRE(*var == 1234);
+
+            opt              = std::nullopt;
+            obj["optional3"] = opt;
+            REQUIRE(obj["optional3"].is<std::monostate>());
+            REQUIRE(obj["optional3"].as<std::optional<i32>>() == std::nullopt);
+
+            obj["optional4"] = 123;
+            REQUIRE(obj["optional4"].as<std::optional<i32>>() == 123);
+            obj["optional4"] = std::nullopt;
+            REQUIRE(obj["optional4"].is<std::monostate>());
+            REQUIRE(obj["optional4"].as<std::optional<i32>>() == std::nullopt);
         }
     }
 
     SUBCASE("map")
     {
         {
-            auto objectMap = obj["stringintMap"].as<std::map<std::string, int>>();
+            object obj;
+            obj["stringintMap"]["a"] = 123;
+            obj["stringintMap"]["b"] = 456;
+            auto objectMap           = obj["stringintMap"].as<std::map<std::string, int>>();
             REQUIRE(objectMap.size() == 2);
             REQUIRE(objectMap["a"] == 123);
             REQUIRE(objectMap["b"] == 456);
         }
 
         {
+            object obj;
             obj["stringintMap2"] = std::map<std::string, int> {{"c", 555}, {"d", 666}};
             auto objectMap       = obj["stringintMap2"].as<std::map<std::string, int>>();
             REQUIRE(objectMap.size() == 2);
@@ -712,7 +724,11 @@ TEST_CASE("Data.Config.STLTypes")
         }
 
         {
-            auto objectMap = obj["variantMap"].as<std::map<std::string, cfg_value>>();
+            object obj;
+            obj["variantMap"]["f"] = 1.5;
+            obj["variantMap"]["b"] = true;
+            obj["variantMap"]["s"] = "ok";
+            auto objectMap         = obj["variantMap"].as<std::map<std::string, cfg_value>>();
             REQUIRE(objectMap.size() == 3);
             REQUIRE(std::get<f64>(objectMap["f"]) == 1.5);
             REQUIRE(std::get<bool>(objectMap["b"]) == true);
@@ -723,13 +739,17 @@ TEST_CASE("Data.Config.STLTypes")
     SUBCASE("unordered_map")
     {
         {
-            auto objectMap = obj["stringintMap"].as<std::unordered_map<std::string, int>>();
+            object obj;
+            obj["stringintMap"]["a"] = 123;
+            obj["stringintMap"]["b"] = 456;
+            auto objectMap           = obj["stringintMap"].as<std::unordered_map<std::string, int>>();
             REQUIRE(objectMap.size() == 2);
             REQUIRE(objectMap["a"] == 123);
             REQUIRE(objectMap["b"] == 456);
         }
 
         {
+            object obj;
             obj["stringintMap2"] = std::map<std::string, int> {{"c", 555}, {"d", 666}};
             auto objectMap       = obj["stringintMap2"].as<std::unordered_map<std::string, int>>();
             REQUIRE(objectMap.size() == 2);
@@ -741,6 +761,11 @@ TEST_CASE("Data.Config.STLTypes")
     SUBCASE("set")
     {
         {
+            object obj;
+            obj["stringArray"] = std::vector<std::string> {"One", "Two", "Three"};
+            obj["intArray"]    = std::vector<int> {1, 2, 3};
+            obj["set"]         = std::vector<int> {1, 1, 2, 2, 3, 3};
+
             auto objectarr0 = obj["stringArray"].as<std::set<std::string>>();
             REQUIRE(objectarr0 == std::set<std::string> {"One", "Two", "Three"});
 
@@ -755,6 +780,11 @@ TEST_CASE("Data.Config.STLTypes")
     SUBCASE("unordered_set")
     {
         {
+            object obj;
+            obj["stringArray"] = std::vector<std::string> {"One", "Two", "Three"};
+            obj["intArray"]    = std::vector<int> {1, 2, 3};
+            obj["set"]         = std::vector<int> {1, 1, 2, 2, 3, 3};
+
             auto objectarr0 = obj["stringArray"].as<std::unordered_set<std::string>>();
             REQUIRE(objectarr0 == std::unordered_set<std::string> {"One", "Two", "Three"});
 
@@ -769,11 +799,14 @@ TEST_CASE("Data.Config.STLTypes")
     SUBCASE("duration")
     {
         {
-            auto value = obj["duration"].as<milliseconds>();
+            object obj;
+            obj["duration"] = 100;
+            auto value      = obj["duration"].as<milliseconds>();
             REQUIRE(value == milliseconds {100});
         }
 
         {
+            object obj;
             obj["duration2"] = milliseconds {360};
             auto value       = obj["duration2"].as<milliseconds>();
             REQUIRE(value == milliseconds {360});
