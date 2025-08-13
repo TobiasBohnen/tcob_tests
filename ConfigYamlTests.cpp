@@ -23,6 +23,8 @@ TEST_CASE("Data.Yaml.Save")
             save["section3"]["valueSection"]["xyz"]             = true;
             save["section3"]["valueSection"]["subsection"]["a"] = 100;
 
+            save["monostate"] = std::monostate {};
+
             object arraySubSection;
             arraySubSection["ay"] = 123;
             arraySubSection["xy"] = 436;
@@ -136,6 +138,8 @@ number: 12 #trailing
 float: 1.2
 bool:
   true
+nope:
+  null
 stringArray:
   - One
   - Two
@@ -192,6 +196,7 @@ flowmap: {"a": 1, "b": 2})"};
         REQUIRE(obj["number"].as<i32>() == 12);
         REQUIRE(obj["float"].as<f64>() == 1.2);
         REQUIRE(obj["bool"].as<bool>() == true);
+        REQUIRE(obj["nope"].is<std::monostate>());
         REQUIRE(obj["object"]["childString1"].as<std::string>() == "foo1");
         REQUIRE(obj["object"]["childString2"].as<std::string>() == "foo2");
         REQUIRE(obj["object"]["childString3"].as<std::string>() == "foo3");

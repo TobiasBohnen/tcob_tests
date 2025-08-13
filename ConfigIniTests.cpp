@@ -313,6 +313,8 @@ TEST_CASE("Data.Ini.Save")
     save["section3"]["valueSection"]["subsection"]["a.b"]["x.y"] = 100;
     save["long"]                                                 = std::string(600, 'a');
 
+    save["monostate"] = std::monostate {};
+
     object arraySubSection;
     arraySubSection["ay"] = 123;
     arraySubSection["xy"] = 436;

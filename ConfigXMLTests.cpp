@@ -26,6 +26,8 @@ TEST_CASE("Data.XML.Save")
             save["section4"]["emptySection"] = object {};
             save["section4"]["emptyArray"]   = array {};
 
+            save["monostate"] = std::monostate {};
+
             object arraySubSection;
             arraySubSection["ay"] = 123;
             arraySubSection["xy"] = 436;
