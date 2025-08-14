@@ -14,6 +14,7 @@ TEST_CASE("Data.Config.Get")
     t["section1"]["valueSec"]["c"]["m"] = 32;
     t["section1"]["valueArr"]           = std::vector<int> {3, 5, 9, 13};
     t["section1"]["valueFloat"]         = 123.45;
+    t["section1"]["max"]                = std::numeric_limits<u64>::max();
 
     t["section2"]["valueBool"]  = false;
     t["section2"]["valueStr"]   = "test456";
@@ -51,6 +52,8 @@ TEST_CASE("Data.Config.Get")
         REQUIRE(obj.as<bool>("valueBool") == true);
         REQUIRE(obj.as<std::string>("valueStr") == "test123");
         REQUIRE(obj.as<f64>("valueFloat") == 123.45);
+
+        REQUIRE(obj.as<u64>("max") == std::numeric_limits<u64>::max());
     }
     SUBCASE("subscript")
     {

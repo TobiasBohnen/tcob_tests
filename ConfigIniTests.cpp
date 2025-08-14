@@ -312,6 +312,7 @@ TEST_CASE("Data.Ini.Save")
     save["section3"]["valueSection"]["subsection"]["a"]          = 100;
     save["section3"]["valueSection"]["subsection"]["a.b"]["x.y"] = 100;
     save["long"]                                                 = std::string(600, 'a');
+    save["max"]                                                  = std::numeric_limits<u64>::max();
 
     save["section4"]["point_particle_emitter::settings"] = point_particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100};
 
@@ -392,6 +393,8 @@ TEST_CASE("Data.Ini.Save")
             REQUIRE(load["section3"]["valueSection"]["subsection"]["a.b"]["x.y"].as<i64>() == 100);
 
             REQUIRE(load["section4"]["point_particle_emitter::settings"].as<point_particle_emitter::settings>() == point_particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100});
+
+            REQUIRE(load["max"].as<u64>() == std::numeric_limits<u64>::max());
         }
     }
 
@@ -487,6 +490,8 @@ TEST_CASE("Data.Ini.Save")
             REQUIRE(load["section3"]["valueSection"]["subsection"]["a"].as<i64>() == 100);
 
             REQUIRE(load["long"].as<std::string>() == std::string(600, 'a'));
+
+            REQUIRE(load["max"].as<u64>() == std::numeric_limits<u64>::max());
         }
     }
 
