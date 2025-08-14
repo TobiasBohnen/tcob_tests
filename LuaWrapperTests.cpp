@@ -116,7 +116,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
 
     wrapper->method<&TestScriptClass::foo>("foo");
     wrapper->method<&TestScriptClass::bar>("bar");
-    wrapper->method<[]() -> i32 { return 40; }>("lambda_func");
+    wrapper->method<[] -> i32 { return 40; }>("lambda_func");
     wrapper->method<&TestScriptClass::add_value>("add");
     wrapper->method<&TestScriptClass::abstractMethod>("abstract");
     wrapper->method<&TestScriptClass::virtualMethod>("virtual");
@@ -129,7 +129,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
     wrapper->property<&TestScriptClass::get_value, &TestScriptClass::set_value>("value");
     wrapper->property(
         "lambda_prop",
-        [&lambdaValue]() { return lambdaValue; },
+        [&lambdaValue] { return lambdaValue; },
         [&lambdaValue](TestScriptClass*, i32 val) { lambdaValue = val; });
     wrapper->getter<&TestScriptClass::get_value>("readonly_value");
     wrapper->setter<&TestScriptClass::set_value>("writeonly_value");
@@ -344,7 +344,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper2")
     wrapper["mana"]            = getter {&Player::get_mana};
     wrapper["mana"]            = setter {&Player::set_mana};
     wrapper["health"]          = property {&Player::get_health, &Player::set_health};
-    wrapper["name"]            = getter {[&name]() { return name; }};
+    wrapper["name"]            = getter {[&name] { return name; }};
 
     auto f1                     = resolve_overload<void(std::string const&)>(&Player::add_to_inventory);
     auto f2                     = resolve_overload<void(int)>(&Player::add_to_inventory);

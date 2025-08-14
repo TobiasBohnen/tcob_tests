@@ -61,7 +61,7 @@ TEST_CASE("Core.Signal.Connect")
             signal<i32 const> sig0;
             i32               value {0};
             REQUIRE(value != ExpValue);
-            sig0.connect([&value]() { value = ExpValue * 10; });
+            sig0.connect([&value] { value = ExpValue * 10; });
             sig0(ExpValue);
             REQUIRE(value == ExpValue * 10);
         }
@@ -73,8 +73,8 @@ TEST_CASE("Core.Signal.Disconnect")
     {
         signal<> sig0;
         REQUIRE(sig0.slot_count() == 0);
-        auto id0 = sig0.connect([]() { }).id();
-        auto id1 = sig0.connect([]() { }).id();
+        auto id0 = sig0.connect([] { }).id();
+        auto id1 = sig0.connect([] { }).id();
         REQUIRE(sig0.slot_count() == 2);
         sig0.disconnect(id0);
         REQUIRE(sig0.slot_count() == 1);
@@ -84,8 +84,8 @@ TEST_CASE("Core.Signal.Disconnect")
     {
         signal<> sig0;
         REQUIRE(sig0.slot_count() == 0);
-        auto id0 = sig0.connect([]() { }).id();
-        auto id1 = sig0.connect([]() { }).id();
+        auto id0 = sig0.connect([] { }).id();
+        auto id1 = sig0.connect([] { }).id();
         REQUIRE(sig0.slot_count() == 2);
         sig0.disconnect(id1);
         REQUIRE(sig0.slot_count() == 1);
@@ -95,8 +95,8 @@ TEST_CASE("Core.Signal.Disconnect")
     {
         signal<> sig0;
         REQUIRE(sig0.slot_count() == 0);
-        auto c0  = sig0 += []() { };
-        auto id0 = (sig0 += []() { }).id();
+        auto c0  = sig0 += [] { };
+        auto id0 = (sig0 += [] { }).id();
         REQUIRE(sig0.slot_count() == 2);
         sig0 -= id0;
         REQUIRE(sig0.slot_count() == 1);

@@ -246,11 +246,11 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Closures")
 
 TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Container")
 {
-    std::function testFuncVector = []() {
+    std::function testFuncVector = [] {
         return std::vector<std::string> {"1", "2", "3", "4", "5"};
     };
 
-    std::function testFuncArray = []() {
+    std::function testFuncArray = [] {
         return std::array<std::string, 5> {"1", "2", "3", "4", "5"};
     };
 
@@ -262,12 +262,12 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Container")
             return std::tuple(d * 5, std::to_string(d));
         };
     */
-    std::function testFuncMap = []() {
+    std::function testFuncMap = [] {
         return std::map<std::string, i32> {
             {"abc", 123},
             {"def", 234}};
     };
-    std::function testFuncUMap = []() {
+    std::function testFuncUMap = [] {
         return std::unordered_map<std::string, i32> {
             {"abc", 123}, {"def", 234}};
     };
@@ -1127,7 +1127,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Overloads")
     SUBCASE("Lambdas")
     {
         auto const overload = make_unique_overload(
-            []() { return 2.5f; },
+            [] { return 2.5f; },
             [](f32 i) { return i * 2.5f; },
             [](f32 i0, f32 i1) { return i0 * i1 * 2.5f; },
             [](std::array<f32, 5> arr) { return std::accumulate(arr.begin(), arr.end(), 1.f, std::multiplies {}) * 2.5f; });

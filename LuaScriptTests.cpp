@@ -172,7 +172,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
     }
     SUBCASE("return: std::map<string, int>")
     {
-        global["test"]["Map"] = +[]() { return std::map<std::string, i32> {{"abc", 123}, {"def", 234}}; };
+        global["test"]["Map"] = +[] { return std::map<std::string, i32> {{"abc", 123}, {"def", 234}}; };
         auto res              = run("x = test.Map()");
         REQUIRE(res);
         auto x = global["x"].as<std::map<std::string, i32>>();
@@ -181,7 +181,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
     }
     SUBCASE("return: std::unordered_map<string, int>")
     {
-        global["test"]["UMap"] = +[]() { return std::unordered_map<std::string, i32> {{"abc", 123}, {"def", 234}}; };
+        global["test"]["UMap"] = +[] { return std::unordered_map<std::string, i32> {{"abc", 123}, {"def", 234}}; };
         auto res               = run("x = test.UMap()");
         REQUIRE(res);
         auto x = global["x"].as<std::unordered_map<std::string, i32>>();
@@ -190,7 +190,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
     }
     SUBCASE("return: std::vector<string>")
     {
-        global["test"]["Vector"] = +[]() { return std::vector<std::string> {"1", "2", "3", "4", "5"}; };
+        global["test"]["Vector"] = +[] { return std::vector<std::string> {"1", "2", "3", "4", "5"}; };
         auto res                 = run("x = test.Vector()");
         REQUIRE(res);
         auto vec = global["x"].as<std::vector<std::string>>();
@@ -199,7 +199,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
     }
     SUBCASE("return: std::array<string, N>")
     {
-        global["test"]["Array"] = +[]() { return std::array<std::string, 5> {"1", "2", "3", "4", "5"}; };
+        global["test"]["Array"] = +[] { return std::array<std::string, 5> {"1", "2", "3", "4", "5"}; };
         auto res                = run("x = test.Array()");
         REQUIRE(res);
         auto vec = global["x"].as<std::array<std::string, 5>>();
@@ -1482,7 +1482,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Overloads")
     SUBCASE("Lambdas")
     {
         auto overload = make_unique_overload(
-            []() {
+            [] {
                 return 2.5f;
             },
             [](f32 i) {

@@ -46,7 +46,7 @@ TEST_CASE("Core.Property.Validate")
 TEST_CASE("Core.Property.Function")
 {
     i32          result {0};
-    prop_fn<i32> prop {{12, [&]() { return result; }, [&](i32 val) { result = val; }}};
+    prop_fn<i32> prop {{12, [&] { return result; }, [&](i32 val) { result = val; }}};
     REQUIRE(result == 12);
     REQUIRE(prop == 12);
 
