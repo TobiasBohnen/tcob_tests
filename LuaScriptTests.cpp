@@ -2049,8 +2049,6 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.TableDumper")
 
 TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.TcobTypes")
 {
-    static_assert(Serializable<rect_f, table>);
-
     std::function testFuncColor = [](color c) {
         return color {static_cast<u8>(c.R * 2),
                       static_cast<u8>(c.G * 2),

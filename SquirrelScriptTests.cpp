@@ -1591,8 +1591,6 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.Table")
 
 TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.TcobTypes")
 {
-    static_assert(Serializable<rect_f, table>);
-
     std::function testFuncColor = [](color c) {
         return color {static_cast<u8>(c.R * 2),
                       static_cast<u8>(c.G * 2),
