@@ -92,7 +92,7 @@ TEST_CASE_FIXTURE(LuaDSLTests, "Script.LuaDSL.Form")
         });
     }};
 
-    std::array const layouts {"static_layout", "flex_size_layout", "grid_layout", "horizontal_layout", "vertical_layout"};
+    std::array const layouts {"manual_layout", "flex_size_layout", "grid_layout", "horizontal_layout", "vertical_layout"};
     for (auto const& l : layouts) {
         global["ui"][l] = make_layout_func(l);
     }
