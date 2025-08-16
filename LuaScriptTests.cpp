@@ -20,7 +20,7 @@ auto static testfuncpair(std::pair<i32, f32> const& p) -> f32
 {
     return static_cast<f32>(p.first) * p.second;
 }
-auto static testfuncfloat2(std::expected<f32, error_code> f, std::expected<f32, error_code> x, int i) -> f32
+auto static testfuncfloat2(std::expected<f32, error_code> f, std::expected<f32, error_code> x, i32 i) -> f32
 {
     return f.value() * x.value() * static_cast<f32>(i);
 }
@@ -170,7 +170,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
         REQUIRE(a == 5.22 * 5);
         REQUIRE(b == std::to_string(5.22));
     }
-    SUBCASE("return: std::map<string, int>")
+    SUBCASE("return: std::map<string, i32>")
     {
         global["test"]["Map"] = +[] { return std::map<std::string, i32> {{"abc", 123}, {"def", 234}}; };
         auto res              = run("x = test.Map()");
@@ -179,7 +179,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
         REQUIRE(x["abc"] == 123);
         REQUIRE(x["def"] == 234);
     }
-    SUBCASE("return: std::unordered_map<string, int>")
+    SUBCASE("return: std::unordered_map<string, i32>")
     {
         global["test"]["UMap"] = +[] { return std::unordered_map<std::string, i32> {{"abc", 123}, {"def", 234}}; };
         auto res               = run("x = test.UMap()");
@@ -268,7 +268,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
         i32  a    = func(tup);
         REQUIRE(a == 4 * 2);
     }
-    SUBCASE("param: std::pair<int, float>")
+    SUBCASE("param: std::pair<i32, float>")
     {
         auto res = run("function foo(x, y) return x * y end");
         REQUIRE(res);
@@ -325,7 +325,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
         auto rectF = global["rectF"].as<std::map<std::string, f32>>();
         REQUIRE(rectF["x"] == 2.7f);
     }
-    SUBCASE("interop: get/set std::map<string, int>")
+    SUBCASE("interop: get/set std::map<string, i32>")
     {
         std::map<std::string, i32> map = {{"test", 123}};
         global["foo"]                  = map;
@@ -345,7 +345,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
         REQUIRE(i == 10);
         REQUIRE(b == true);
     }
-    SUBCASE("param: std::pair<string, int>")
+    SUBCASE("param: std::pair<string, i32>")
     {
         global["test"]["PairPara"] = +[](std::pair<std::string, i32> const& pair) { return pair.second; };
         auto func                  = global["test"]["PairPara"].as<function<i32>>();
@@ -359,7 +359,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
         std::set<std::string> set2 = *run<std::set<std::string>>("return foo ");
         REQUIRE(set1 == set2);
     }
-    SUBCASE("return: std::set<int> from Lua table")
+    SUBCASE("return: std::set<i32> from Lua table")
     {
         std::set<i32> set = *run<std::set<i32>>("return { 1, 2, 3, 1, 2, 3, 4, 2 } ");
         REQUIRE(set == std::set<i32> {1, 2, 3, 4});
@@ -370,6 +370,19 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
         global["foo"] = set1;
         auto set2     = *run<std::unordered_set<std::string>>("return foo ");
         REQUIRE(set1 == set2);
+    }
+    SUBCASE("interop: convert Lua table to std::vector with try_get")
+    {
+        auto res = run("vec = {1,2,3,4} ");
+        REQUIRE(res);
+
+        std::vector<i32> vec0 {};
+        REQUIRE(global.try_get(vec0, "vec"));
+        REQUIRE(vec0 == std::vector<i32> {1, 2, 3, 4});
+
+        std::vector<i32> vec1 {5, 6, 7};
+        REQUIRE(global.try_get(vec1, "vec"));
+        REQUIRE(vec1 == std::vector<i32> {1, 2, 3, 4});
     }
 }
 
@@ -777,7 +790,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Functions")
                 "table = { } "
                 "table.func = function() return 100, { a = 200, b = 300 }, false end ");
             REQUIRE(res);
-            auto func      = global["table"]["func"].as<function<std::tuple<i32, std::map<std::string, int>, bool>>>();
+            auto func      = global["table"]["func"].as<function<std::tuple<i32, std::map<std::string, i32>, bool>>>();
             auto [a, b, c] = func.protected_call().value();
 
             REQUIRE(a == 100);
@@ -1634,11 +1647,11 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
             REQUIRE(res);
 
             i32 x {0};
-            REQUIRE(global["tableX"]["top"].as<table>().try_get<i32>(x, "x"));
+            REQUIRE(global["tableX"]["top"].as<table>().try_get(x, "x"));
             REQUIRE(x == 10);
 
-            REQUIRE_FALSE(global.try_get<i32>(x, "x"));
-            REQUIRE_FALSE(global.try_get<i32>(x, "tableX"));
+            REQUIRE_FALSE(global.try_get(x, "x"));
+            REQUIRE_FALSE(global.try_get(x, "tableX"));
 
             point_f y;
             REQUIRE(global["tableX"].as<table>().try_get(y, "top"));
@@ -1937,7 +1950,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
     }
     SUBCASE("proxy")
     {
-        SUBCASE("int")
+        SUBCASE("i32")
         {
             auto tab = table::Create(get_view());
             tab["x"] = 100;
@@ -2193,7 +2206,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.TcobTypes")
 
 TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.TypeCoercion")
 {
-    SUBCASE("string from int")
+    SUBCASE("string from i32")
     {
         auto res = run("a = 100 ");
         REQUIRE(res);
@@ -2430,41 +2443,41 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Variant")
             REQUIRE(std::get<f64>(var) == 100.01);
         }
         {
-            auto const var = run<std::variant<int, std::vector<std::string>, bool>>("return {'ok','ko'}").value();
+            auto const var = run<std::variant<i32, std::vector<std::string>, bool>>("return {'ok','ko'}").value();
             REQUIRE(std::get<std::vector<std::string>>(var) == std::vector<std::string> {"ok", "ko"});
         }
         {
-            auto const var = run<std::variant<int, std::vector<int>, bool>>("return {1,2,3}").value();
-            REQUIRE(std::get<std::vector<int>>(var) == std::vector<int> {1, 2, 3});
+            auto const var = run<std::variant<i32, std::vector<i32>, bool>>("return {1,2,3}").value();
+            REQUIRE(std::get<std::vector<i32>>(var) == std::vector<i32> {1, 2, 3});
         }
         {
-            auto const var = run<std::variant<int, std::vector<bool>, bool>>("return {true,false,true,false,true}").value();
+            auto const var = run<std::variant<i32, std::vector<bool>, bool>>("return {true,false,true,false,true}").value();
             REQUIRE(std::get<std::vector<bool>>(var) == std::vector<bool> {true, false, true, false, true});
         }
         {
-            auto const var = run<std::variant<std::vector<int>, std::vector<std::string>, int>>("return {'ok','ko'}").value();
+            auto const var = run<std::variant<std::vector<i32>, std::vector<std::string>, i32>>("return {'ok','ko'}").value();
             REQUIRE(std::get<std::vector<std::string>>(var) == std::vector<std::string> {"ok", "ko"});
         }
         {
-            auto const var0 = run<std::variant<std::vector<int>, std::vector<std::string>, int>>("return {1,2,3}").value();
-            REQUIRE(std::get<std::vector<int>>(var0) == std::vector<int> {1, 2, 3});
-            auto const var1 = run<std::variant<std::vector<std::string>, std::vector<int>, int>>("return {1,2,3}").value();
-            REQUIRE(std::get<std::vector<int>>(var1) == std::vector<int> {1, 2, 3});
+            auto const var0 = run<std::variant<std::vector<i32>, std::vector<std::string>, i32>>("return {1,2,3}").value();
+            REQUIRE(std::get<std::vector<i32>>(var0) == std::vector<i32> {1, 2, 3});
+            auto const var1 = run<std::variant<std::vector<std::string>, std::vector<i32>, i32>>("return {1,2,3}").value();
+            REQUIRE(std::get<std::vector<i32>>(var1) == std::vector<i32> {1, 2, 3});
         }
         {
-            auto const var = run<std::variant<std::vector<bool>, point_f, int>>("return {x=1,y=2}").value();
+            auto const var = run<std::variant<std::vector<bool>, point_f, i32>>("return {x=1,y=2}").value();
             REQUIRE(std::get<point_f>(var) == point_f {1, 2});
         }
         {
-            auto const var = run<std::variant<std::vector<bool>, size_f, int>>("return {width=1,height=2}").value();
+            auto const var = run<std::variant<std::vector<bool>, size_f, i32>>("return {width=1,height=2}").value();
             REQUIRE(std::get<size_f>(var) == size_f {1, 2});
         }
         {
-            auto const var = run<std::variant<std::vector<bool>, rect_f, int>>("return {x=1,y=2,width=3,height=4}").value();
+            auto const var = run<std::variant<std::vector<bool>, rect_f, i32>>("return {x=1,y=2,width=3,height=4}").value();
             REQUIRE(std::get<rect_f>(var) == rect_f {1, 2, 3, 4});
         }
         {
-            auto const var = run<std::variant<std::vector<bool>, color, int>>("return {r=1,g=2,b=4}").value();
+            auto const var = run<std::variant<std::vector<bool>, color, i32>>("return {r=1,g=2,b=4}").value();
             REQUIRE(std::get<color>(var) == color {1, 2, 4, 255});
         }
     }

@@ -12,7 +12,7 @@ TEST_CASE("Data.Config.Get")
     t["section1"]["valueSec"]["b"]      = false;
     t["section1"]["valueSec"]["c"]["l"] = 1;
     t["section1"]["valueSec"]["c"]["m"] = 32;
-    t["section1"]["valueArr"]           = std::vector<int> {3, 5, 9, 13};
+    t["section1"]["valueArr"]           = std::vector<i32> {3, 5, 9, 13};
     t["section1"]["valueFloat"]         = 123.45;
     t["section1"]["max"]                = std::numeric_limits<u64>::max();
 
@@ -35,6 +35,10 @@ TEST_CASE("Data.Config.Get")
         REQUIRE_FALSE(obj.try_get<bool>(b, "valueFloat"));
 
         REQUIRE(t.try_get<bool>(b, "section1", "valueSec", "b"));
+
+        std::vector<i32> vec {4, 5, 6};
+        REQUIRE(obj.try_get(vec, "valueArr"));
+        REQUIRE(vec == std::vector<i32> {3, 5, 9, 13});
     }
     SUBCASE("'as' function")
     {
@@ -173,8 +177,8 @@ TEST_CASE("Data.Config.Is")
     t["section1"]["valueSec"]["a"]         = 100;
     t["section1"]["valueSec"]["valueBool"] = false;
     t["section1"]["valueSec2"]["a"]        = 100;
-    t["section1"]["valueSec2"]["arr"]      = std::vector<std::variant<int, bool, std::string>> {0, false, "ok"};
-    t["section1"]["valueArr"]              = std::vector<std::variant<int, bool, std::string>> {0, false, "ok"};
+    t["section1"]["valueSec2"]["arr"]      = std::vector<std::variant<i32, bool, std::string>> {0, false, "ok"};
+    t["section1"]["valueArr"]              = std::vector<std::variant<i32, bool, std::string>> {0, false, "ok"};
 
     t["section2"]["valueBool"] = false;
 
@@ -632,17 +636,17 @@ TEST_CASE("Data.Config.STLTypes")
             auto objectarr0    = obj["stringArray"].as<std::array<std::string, 3>>();
             REQUIRE(objectarr0 == std::array<std::string, 3> {"One", "Two", "Three"});
 
-            obj["intArray"] = std::vector<int> {1, 2, 3};
-            auto objectarr1 = obj["intArray"].as<std::array<int, 3>>();
-            REQUIRE(objectarr1 == std::array<int, 3> {1, 2, 3});
+            obj["intArray"] = std::vector<i32> {1, 2, 3};
+            auto objectarr1 = obj["intArray"].as<std::array<i32, 3>>();
+            REQUIRE(objectarr1 == std::array<i32, 3> {1, 2, 3});
 
             obj["stringArray2"] = std::array<std::string, 3> {"a", "b", "c"};
             auto objectarr2     = obj["stringArray2"].as<std::array<std::string, 3>>();
             REQUIRE(objectarr2 == std::array<std::string, 3> {"a", "b", "c"});
 
-            obj["intArray2"] = std::array<int, 3> {0, 5, 10};
-            auto objectarr3  = obj["intArray2"].as<std::array<int, 3>>();
-            REQUIRE(objectarr3 == std::array<int, 3> {0, 5, 10});
+            obj["intArray2"] = std::array<i32, 3> {0, 5, 10};
+            auto objectarr3  = obj["intArray2"].as<std::array<i32, 3>>();
+            REQUIRE(objectarr3 == std::array<i32, 3> {0, 5, 10});
         }
     }
 
@@ -650,7 +654,7 @@ TEST_CASE("Data.Config.STLTypes")
     {
         {
             object obj;
-            obj["tuple"] = std::tuple<int, std::string, bool> {123, "ok", true};
+            obj["tuple"] = std::tuple<i32, std::string, bool> {123, "ok", true};
             auto tup0    = obj["tuple"].as<std::tuple<i32, std::string, bool>>();
             REQUIRE(tup0 == std::tuple<i32, std::string, bool> {123, "ok", true});
 
@@ -664,7 +668,7 @@ TEST_CASE("Data.Config.STLTypes")
     {
         {
             object obj;
-            obj["pair"] = std::pair<std::string, int> {"ok", 100};
+            obj["pair"] = std::pair<std::string, i32> {"ok", 100};
             auto pair0  = obj["pair"].as<std::pair<std::string, i32>>();
             REQUIRE(pair0 == std::pair<std::string, i32> {"ok", 100});
         }
@@ -676,7 +680,7 @@ TEST_CASE("Data.Config.STLTypes")
             object obj;
             obj["duration"] = 100;
             auto var        = obj["duration"].as<std::variant<std::string, i32>>();
-            REQUIRE(std::get<int>(var) == 100);
+            REQUIRE(std::get<i32>(var) == 100);
         }
     }
 
@@ -718,7 +722,7 @@ TEST_CASE("Data.Config.STLTypes")
             object obj;
             obj["stringintMap"]["a"] = 123;
             obj["stringintMap"]["b"] = 456;
-            auto objectMap           = obj["stringintMap"].as<std::map<std::string, int>>();
+            auto objectMap           = obj["stringintMap"].as<std::map<std::string, i32>>();
             REQUIRE(objectMap.size() == 2);
             REQUIRE(objectMap["a"] == 123);
             REQUIRE(objectMap["b"] == 456);
@@ -726,8 +730,8 @@ TEST_CASE("Data.Config.STLTypes")
 
         {
             object obj;
-            obj["stringintMap2"] = std::map<std::string, int> {{"c", 555}, {"d", 666}};
-            auto objectMap       = obj["stringintMap2"].as<std::map<std::string, int>>();
+            obj["stringintMap2"] = std::map<std::string, i32> {{"c", 555}, {"d", 666}};
+            auto objectMap       = obj["stringintMap2"].as<std::map<std::string, i32>>();
             REQUIRE(objectMap.size() == 2);
             REQUIRE(objectMap["c"] == 555);
             REQUIRE(objectMap["d"] == 666);
@@ -752,7 +756,7 @@ TEST_CASE("Data.Config.STLTypes")
             object obj;
             obj["stringintMap"]["a"] = 123;
             obj["stringintMap"]["b"] = 456;
-            auto objectMap           = obj["stringintMap"].as<std::unordered_map<std::string, int>>();
+            auto objectMap           = obj["stringintMap"].as<std::unordered_map<std::string, i32>>();
             REQUIRE(objectMap.size() == 2);
             REQUIRE(objectMap["a"] == 123);
             REQUIRE(objectMap["b"] == 456);
@@ -760,8 +764,8 @@ TEST_CASE("Data.Config.STLTypes")
 
         {
             object obj;
-            obj["stringintMap2"] = std::map<std::string, int> {{"c", 555}, {"d", 666}};
-            auto objectMap       = obj["stringintMap2"].as<std::unordered_map<std::string, int>>();
+            obj["stringintMap2"] = std::map<std::string, i32> {{"c", 555}, {"d", 666}};
+            auto objectMap       = obj["stringintMap2"].as<std::unordered_map<std::string, i32>>();
             REQUIRE(objectMap.size() == 2);
             REQUIRE(objectMap["c"] == 555);
             REQUIRE(objectMap["d"] == 666);
@@ -773,8 +777,8 @@ TEST_CASE("Data.Config.STLTypes")
         {
             object obj;
             obj["stringArray"] = std::vector<std::string> {"One", "Two", "Three"};
-            obj["intArray"]    = std::vector<int> {1, 2, 3};
-            obj["set"]         = std::vector<int> {1, 1, 2, 2, 3, 3};
+            obj["intArray"]    = std::vector<i32> {1, 2, 3};
+            obj["set"]         = std::vector<i32> {1, 1, 2, 2, 3, 3};
 
             auto objectarr0 = obj["stringArray"].as<std::set<std::string>>();
             REQUIRE(objectarr0 == std::set<std::string> {"One", "Two", "Three"});
@@ -792,8 +796,8 @@ TEST_CASE("Data.Config.STLTypes")
         {
             object obj;
             obj["stringArray"] = std::vector<std::string> {"One", "Two", "Three"};
-            obj["intArray"]    = std::vector<int> {1, 2, 3};
-            obj["set"]         = std::vector<int> {1, 1, 2, 2, 3, 3};
+            obj["intArray"]    = std::vector<i32> {1, 2, 3};
+            obj["set"]         = std::vector<i32> {1, 1, 2, 2, 3, 3};
 
             auto objectarr0 = obj["stringArray"].as<std::unordered_set<std::string>>();
             REQUIRE(objectarr0 == std::unordered_set<std::string> {"One", "Two", "Three"});
