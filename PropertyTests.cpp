@@ -269,6 +269,74 @@ TEST_CASE("Core.Property.Subscript")
     }
 }
 
+TEST_CASE("Core.Property.Bind")
+{
+    prop<i32> a {10};
+    prop<i32> b {20};
+    prop<i32> c {30};
+
+    a.bind(b, c);
+
+    SUBCASE("initial values are independent until set")
+    {
+        REQUIRE(static_cast<i32>(a) == 10);
+        REQUIRE(static_cast<i32>(b) == 20);
+        REQUIRE(static_cast<i32>(c) == 30);
+    }
+
+    SUBCASE("assigning A updates B + C")
+    {
+        a = 42;
+        REQUIRE(static_cast<i32>(a) == 42);
+        REQUIRE(static_cast<i32>(b) == 42);
+        REQUIRE(static_cast<i32>(c) == 42);
+    }
+
+    SUBCASE("assigning B updates A + C")
+    {
+        b = 99;
+        REQUIRE(static_cast<i32>(a) == 99);
+        REQUIRE(static_cast<i32>(b) == 99);
+        REQUIRE(static_cast<i32>(c) == 99);
+    }
+
+    SUBCASE("assigning C updates A + B")
+    {
+        c = 103;
+        REQUIRE(static_cast<i32>(a) == 103);
+        REQUIRE(static_cast<i32>(b) == 103);
+        REQUIRE(static_cast<i32>(c) == 103);
+    }
+
+    SUBCASE("Changed call count")
+    {
+        i32 a_changed_count {0};
+        i32 b_changed_count {0};
+        i32 c_changed_count {0};
+
+        a.Changed.connect([&](i32) { ++a_changed_count; });
+        b.Changed.connect([&](i32) { ++b_changed_count; });
+        c.Changed.connect([&](i32) { ++c_changed_count; });
+
+        a = 123;
+        REQUIRE(a_changed_count == 1);
+        REQUIRE(b_changed_count == 1);
+        REQUIRE(c_changed_count == 1);
+
+        REQUIRE(static_cast<i32>(a) == 123);
+        REQUIRE(static_cast<i32>(b) == 123);
+        REQUIRE(static_cast<i32>(c) == 123);
+
+        a = 123;
+        b = 123;
+        c = 123;
+
+        REQUIRE(a_changed_count == 1);
+        REQUIRE(b_changed_count == 1);
+        REQUIRE(c_changed_count == 1);
+    }
+}
+
 template <typename T>
 class queue_source final {
 public:
