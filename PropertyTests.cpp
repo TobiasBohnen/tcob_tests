@@ -14,7 +14,7 @@ TEST_CASE("Core.Property.Copying")
 TEST_CASE("Core.Property.Event")
 {
     bool      changed {false};
-    prop<i32> vt;
+    prop<i32> vt {0};
     vt.Changed.connect([&](i32) { changed = true; });
     REQUIRE_FALSE(vt == 100);
     vt = {100};
@@ -58,14 +58,14 @@ TEST_CASE("Core.Property.Function")
 TEST_CASE("Core.Property.Field")
 {
     {
-        prop<i32> prop;
+        prop<i32> prop {0};
         prop = 234;
         REQUIRE(prop == 234);
         prop = 500;
         REQUIRE(prop == 500);
     }
     {
-        prop<f32> prop;
+        prop<f32> prop {0.f};
         prop = 23.4f;
         REQUIRE(prop == 23.4f);
         prop = 50.0f;
@@ -78,7 +78,7 @@ TEST_CASE("Core.Property.Field")
         REQUIRE(prop == 12);
     }
     {
-        prop<bool> prop {};
+        prop<bool> prop {false};
         REQUIRE(prop == false);
         prop = true;
         REQUIRE(prop == true);
@@ -138,19 +138,19 @@ TEST_CASE("Core.Property.Arithmetic")
     SUBCASE("+")
     {
         {
-            prop<i32> prop;
+            prop<i32> prop {0};
             prop = 234;
             prop += 100;
             REQUIRE(prop == 334);
         }
         {
-            prop<point_i> prop {};
+            prop<point_i> prop {point_i::Zero};
             prop = {123, 456};
             prop += {100, 200};
             REQUIRE(prop == point_i {223, 656});
         }
         {
-            prop<point_i> prop {};
+            prop<point_i> prop {point_i::Zero};
             prop = {123, 456};
             prop += point_i {100, 200};
             REQUIRE(prop == point_i {223, 656});
@@ -158,7 +158,7 @@ TEST_CASE("Core.Property.Arithmetic")
             REQUIRE(prop == point_i {323, 856});
         }
         {
-            prop<i32> prop;
+            prop<i32> prop {0};
             prop = 0;
             prop = prop + 100;
             REQUIRE(prop == 100);
@@ -169,19 +169,19 @@ TEST_CASE("Core.Property.Arithmetic")
     SUBCASE("-")
     {
         {
-            prop<i32> prop;
+            prop<i32> prop {0};
             prop = 234;
             prop -= 100;
             REQUIRE(prop == 134);
         }
         {
-            prop<point_i> prop {};
+            prop<point_i> prop {point_i::Zero};
             prop = {123, 456};
             prop -= {100, 200};
             REQUIRE(prop == point_i {23, 256});
         }
         {
-            prop<i32> prop;
+            prop<i32> prop {0};
             prop = 200;
             prop = prop - 100;
             REQUIRE(prop == 100);
@@ -192,20 +192,20 @@ TEST_CASE("Core.Property.Arithmetic")
     SUBCASE("*")
     {
         {
-            prop<i32> prop;
+            prop<i32> prop {0};
             prop = 10;
             prop *= 100;
             REQUIRE(prop == 1000);
         }
         {
-            prop<point_i> prop {};
+            prop<point_i> prop {point_i::Zero};
             static_assert(std::is_same_v<decltype(prop.operator->()), point_i const*>);
             prop = {123, 456};
             prop *= {100, 200};
             REQUIRE(prop == point_i {12300, 91200});
         }
         {
-            prop<i32> prop;
+            prop<i32> prop {0};
             prop = 10;
             prop = prop * 100;
             REQUIRE(prop == 1000);
@@ -216,19 +216,19 @@ TEST_CASE("Core.Property.Arithmetic")
     SUBCASE("/")
     {
         {
-            prop<i32> prop;
+            prop<i32> prop {0};
             prop = 200;
             prop /= 100;
             REQUIRE(prop == 2);
         }
         {
-            prop<point_i> prop {};
+            prop<point_i> prop {point_i::Zero};
             prop = {500, 600};
             prop /= {100, 200};
             REQUIRE(prop == point_i {5, 3});
         }
         {
-            prop<i32> prop;
+            prop<i32> prop {0};
             prop = 234;
             prop = prop / 100;
             REQUIRE(prop == 2);
@@ -241,7 +241,7 @@ TEST_CASE("Core.Property.Arithmetic")
 TEST_CASE("Core.Property.Subscript")
 {
     {
-        prop<std::vector<i32>> prop;
+        prop<std::vector<i32>> prop {std::vector<i32> {}};
         prop.mutate([](auto& vec) {
             vec.resize(100);
             vec[0]  = 100;
@@ -252,7 +252,7 @@ TEST_CASE("Core.Property.Subscript")
         REQUIRE(prop[10] == 25);
     }
     {
-        prop<grid<i32>> prop;
+        prop<grid<i32>> prop {grid<i32> {}};
         prop.mutate([](auto& vec) {
             vec.resize({10, 20});
             vec[0, 10] = 100;
@@ -344,6 +344,8 @@ public:
     using return_type       = type;
     using const_return_type = type;
 
+    queue_source() = default;
+
     auto get() const -> const_return_type
     {
         auto front {_values.front()};
@@ -363,7 +365,7 @@ private:
 
 TEST_CASE("Core.Property.CustomSource")
 {
-    tcob::detail::prop_base<i32, queue_source<i32>> prop;
+    tcob::detail::prop_base<i32, queue_source<i32>> prop {};
     prop = 100;
     prop = 200;
     prop = 400;
