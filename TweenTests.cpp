@@ -530,7 +530,7 @@ TEST_CASE("Core.Tween.TriangeWaveFunction")
     {
         auto out = 15.;
 
-        triange_wave_tween<f64> contr {milliseconds {1000}, {10., 50., 2.f, 1.f}};
+        triangle_wave_tween<f64> contr {milliseconds {1000}, {10., 50., 2.f, 1.f}};
 
         contr.add_output(&out);
 
@@ -547,7 +547,7 @@ TEST_CASE("Core.Tween.TriangeWaveFunction")
         color c2 {0xFF, 0, 0xFF, 0};
         color out;
 
-        triange_wave_tween<color> contr {milliseconds {1000}, {c1, c2, 1.f, 1.f}};
+        triangle_wave_tween<color> contr {milliseconds {1000}, {c1, c2, 1.f, 1.f}};
 
         contr.add_output(&out);
 
@@ -569,8 +569,8 @@ TEST_CASE("Core.Tween.TriangeWaveFunction")
         REQUIRE(out.A == 0x3F);
     }
     {
-        triange_wave_tween<f32> contr {milliseconds {50}, {0.f, 2.f, 1.f, 0}};
-        std::vector<f32>        out;
+        triangle_wave_tween<f32> contr {milliseconds {50}, {0.f, 2.f, 1.f, 0}};
+        std::vector<f32>         out;
         contr.Value.Changed.connect([&out](f32 val) { out.push_back(val); });
 
         contr.start();
