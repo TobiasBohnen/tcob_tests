@@ -183,6 +183,21 @@ TEST_CASE("Core.POD.AngleUnits")
     {
         REQUIRE(degree_f {90}.sin() == 1.0f);
         REQUIRE(degree_f {270}.sin() == -1.0f);
-        REQUIRE(radian_f {0.5f}.sin() == std::sin(0.5f));
+
+        radian_f const rad {radian_f {0.5f}};
+        REQUIRE(rad.sin() == std::sin(0.5f));
+        REQUIRE(rad.cos() == std::cos(0.5f));
+        REQUIRE(rad.tan() == std::tan(0.5f));
+        REQUIRE(rad.asin() == std::asin(0.5f));
+        REQUIRE(rad.acos() == std::acos(0.5f));
+        REQUIRE(rad.atan() == std::atan(0.5f));
+
+        degree_f const deg {degree_f {radian_f {0.5f}}};
+        REQUIRE(deg.sin() == std::sin(0.5f));
+        REQUIRE(deg.cos() == std::cos(0.5f));
+        REQUIRE(deg.tan() == std::tan(0.5f));
+        REQUIRE(deg.asin() == std::asin(0.5f));
+        REQUIRE(deg.acos() == std::acos(0.5f));
+        REQUIRE(deg.atan() == std::atan(0.5f));
     }
 }
