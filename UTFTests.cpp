@@ -46,3 +46,9 @@ TEST_CASE("Core.UTF.Substr")
     REQUIRE(utf8::substr(s0, 2, 3) == "23ä");
     REQUIRE(utf8::substr(s0, 3, 3) == "3äa");
 }
+
+TEST_CASE("Core.UTF.ToUtf32")
+{
+    utf8_string s0 {"ä123äabc"};
+    REQUIRE(utf8::to_utf32(s0) == U"ä123äabc");
+}
