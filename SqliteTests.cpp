@@ -663,7 +663,7 @@ TEST_CASE("Data.Sqlite.Constraints")
 TEST_CASE("Data.Sqlite.VacuumInto")
 {
     string tableName {"testTable"};
-    string fileName {"test0.db"};
+    string fileName {"test'.db"};
     {
         database db {database::OpenMemory()};
 
@@ -687,7 +687,7 @@ TEST_CASE("Data.Sqlite.Attach")
     {
         string const mainTable {"mainTable"};
         string const attachedTable {"attachedTable"};
-        string const attachedFile {"attached.db"};
+        string const attachedFile {"attach'd.db"};
         string const aliasSchema {"other"};
 
         {
