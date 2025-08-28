@@ -1058,3 +1058,67 @@ TEST_CASE("Data.Sqlite.TableInfo")
     REQUIRE_FALSE(info[4].NotNull);
     REQUIRE_FALSE(info[4].IsPrimaryKey);
 }
+
+TEST_CASE("Data.Sqlite.RenameTable")
+{
+    string tableName {"originalTable"};
+    string newTableName {"renamedTable"};
+
+    database db {database::OpenMemory()};
+
+    // Create initial table
+    auto dbTable {db.create_table(tableName,
+                                  int_column<primary_key> {.Name = "ID"},
+                                  text_column {.Name = "Name"})};
+    REQUIRE(dbTable);
+    REQUIRE(dbTable->name() == tableName);
+
+    // Insert sample data
+    REQUIRE(dbTable->insert_into("ID", "Name")(1, "Alice"));
+    auto rows {dbTable->select_from<i32, string>("ID", "Name")()};
+    REQUIRE(rows.size() == 1);
+    REQUIRE(rows[0] == std::tuple {1, "Alice"});
+
+    // Rename table
+    REQUIRE(dbTable->rename(newTableName));
+    REQUIRE(dbTable->name() == newTableName);
+
+    // Verify data still exists under new table name
+    auto renamedTable {db.get_table(newTableName)};
+    REQUIRE(renamedTable);
+    auto renamedRows {renamedTable->select_from<i32, string>("ID", "Name")()};
+    REQUIRE(renamedRows.size() == 1);
+    REQUIRE(renamedRows[0] == std::tuple {1, "Alice"});
+
+    // Old table name should no longer exist
+    REQUIRE_FALSE(db.table_exists(tableName));
+}
+
+TEST_CASE("Data.Sqlite.AddColumn")
+{
+    database db {database::OpenMemory()};
+    auto     tbl {db.create_table("testTable",
+                                  int_column {.Name = "ID"})};
+    REQUIRE(tbl);
+
+    // Initially only "ID" exists
+    auto cols {tbl->column_names()};
+    REQUIRE(cols.size() == 1);
+    REQUIRE(cols.contains("ID"));
+
+    // Add a new column
+    REQUIRE(tbl->add_column(text_column {.Name = "Name"}));
+
+    // Verify new column exists
+    cols = tbl->column_names();
+    REQUIRE(cols.size() == 2);
+    REQUIRE(cols.contains("ID"));
+    REQUIRE(cols.contains("Name"));
+
+    // Insert values into new column
+    REQUIRE(tbl->insert_into("ID", "Name")(1, "Alice"));
+
+    auto const rows {tbl->select_from<i32, string>("ID", "Name")()};
+    REQUIRE(rows.size() == 1);
+    REQUIRE(rows[0] == std::tuple {1, "Alice"});
+}
