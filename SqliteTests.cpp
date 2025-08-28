@@ -445,7 +445,7 @@ TEST_CASE("Data.Sqlite.Insert")
     database db {database::OpenMemory()};
 
     auto dbTable {db.create_table(tableName,
-                                  int_column {.Name = "ID"},
+                                  int_column<primary_key> {.Name = "ID"},
                                   text_column {.Name = "Name"},
                                   int_column {.Name = "Age"},
                                   real_column {.Name = "Height"})};
@@ -453,15 +453,27 @@ TEST_CASE("Data.Sqlite.Insert")
 
     SUBCASE("tuples")
     {
-        std::tuple tup0 {1, "A", 100, 1.5f};
-        std::tuple tup1 {2, "B", 200, 4.5f};
+        SUBCASE("1")
+        {
+            std::tuple tup0 {1, "A", 100, 1.5f};
 
-        REQUIRE(dbTable->insert_into("ID", "Name", "Age", "Height")(tup0, tup1));
-        auto const rows {dbTable->select_from<i32, string, i32, f32>("ID", "Name", "Age", "Height")()};
-        REQUIRE(rows.size() == 2);
-        REQUIRE(rows[0] == tup0);
-        REQUIRE(rows[1] == tup1);
+            REQUIRE(dbTable->insert_into("ID", "Name", "Age", "Height")(tup0));
+            auto const rows {dbTable->select_from<i32, string, i32, f32>("ID", "Name", "Age", "Height")()};
+            REQUIRE(rows.size() == 1);
+            REQUIRE(rows[0] == tup0);
+        }
+        SUBCASE("2")
+        {
+            std::tuple tup0 {1, "A", 100, 1.5f};
+            std::tuple tup1 {2, "B", 200, 4.5f};
+            REQUIRE(dbTable->insert_into("ID", "Name", "Age", "Height")(tup0, tup1));
+            auto const rows {dbTable->select_from<i32, string, i32, f32>("ID", "Name", "Age", "Height")()};
+            REQUIRE(rows.size() == 2);
+            REQUIRE(rows[0] == tup0);
+            REQUIRE(rows[1] == tup1);
+        }
     }
+
     SUBCASE("vector of tuples")
     {
         auto vec {std::vector {std::tuple {1, "A", 100, 1.5f}, std::tuple {2, "B", 200, 4.5f}}};
@@ -472,13 +484,54 @@ TEST_CASE("Data.Sqlite.Insert")
         REQUIRE(rows[0] == vec[0]);
         REQUIRE(rows[1] == vec[1]);
     }
+
     SUBCASE("values")
     {
-        REQUIRE(dbTable->insert_into("Age")(100, 200));
-        auto const rows {dbTable->select_from<i32>("Age")()};
-        REQUIRE(rows.size() == 2);
-        REQUIRE(rows[0] == 100);
-        REQUIRE(rows[1] == 200);
+        SUBCASE("single column, multiple rows")
+        {
+            REQUIRE(dbTable->insert_into("Age")(100, 200));
+            auto const rows {dbTable->select_from<i32>("Age")()};
+            REQUIRE(rows.size() == 2);
+            REQUIRE(rows[0] == 100);
+            REQUIRE(rows[1] == 200);
+        }
+        SUBCASE("single row, multiple columns")
+        {
+            REQUIRE(dbTable->insert_into("ID", "Name", "Age", "Height")(1, "A", 100, 1.5f));
+            auto const rows {dbTable->select_from<i32, string, i32, f32>("ID", "Name", "Age", "Height")()};
+            REQUIRE(rows.size() == 1);
+            REQUIRE(rows[0] == std::tuple {1, "A", 100, 1.5f});
+        }
+    }
+
+    SUBCASE("insert modes")
+    {
+        // Insert row with ID=1
+        REQUIRE(dbTable->insert_into("ID", "Name", "Age")(std::tuple {1, "First", 10}));
+
+        SUBCASE("Normal/Abort (default)")
+        {
+            // Should fail inserting duplicate primary key
+            REQUIRE_FALSE(dbTable->insert_into("ID", "Name")(std::tuple {1, "Dupe"}));
+        }
+
+        SUBCASE("Ignore")
+        {
+            // Will ignore duplicate, keep original row
+            REQUIRE(dbTable->insert_into(ignore, "ID", "Name")(std::tuple {1, "Ignored"}));
+            auto rows {dbTable->select_from<string>("Name")()};
+            REQUIRE(rows.size() == 1);
+            REQUIRE(rows[0] == "First");
+        }
+
+        SUBCASE("Replace")
+        {
+            // Will replace duplicate row
+            REQUIRE(dbTable->insert_into(replace, "ID", "Name")(std::tuple {1, "Replaced"}));
+            auto rows {dbTable->select_from<string>("Name")()};
+            REQUIRE(rows.size() == 1);
+            REQUIRE(rows[0] == "Replaced");
+        }
     }
 }
 
