@@ -1122,3 +1122,86 @@ TEST_CASE("Data.Sqlite.AddColumn")
     REQUIRE(rows.size() == 1);
     REQUIRE(rows[0] == std::tuple {1, "Alice"});
 }
+
+TEST_CASE("Data.Sqlite.SetOperations")
+{
+    database db {database::OpenMemory()};
+
+    auto t1 {db.create_table("T1",
+                             int_column<primary_key> {.Name = "ID", .NotNull = true},
+                             text_column {.Name = "Name"})};
+    REQUIRE(t1);
+
+    auto t2 {db.create_table("T2",
+                             int_column<primary_key> {.Name = "ID", .NotNull = true},
+                             text_column {.Name = "Name"})};
+    REQUIRE(t2);
+
+    auto t3 {db.create_table("T3",
+                             int_column<primary_key> {.Name = "ID", .NotNull = true},
+                             text_column {.Name = "Name"})};
+    REQUIRE(t3);
+
+    // Fill tables
+    REQUIRE(t1->insert_into("ID", "Name")(std::tuple {1, "A"}, std::tuple {2, "B"}, std::tuple {3, "C"}));
+    REQUIRE(t2->insert_into("ID", "Name")(std::tuple {2, "B"}, std::tuple {3, "C"}, std::tuple {4, "D"}));
+    REQUIRE(t3->insert_into("ID", "Name")(std::tuple {3, "C"}));
+
+    auto s1 {t1->select_from<i32, string>("ID", "Name")};
+    auto s2 {t2->select_from<i32, string>("ID", "Name")};
+    auto s3 {t3->select_from<i32, string>("ID", "Name")};
+
+    SUBCASE("union_with removes duplicates")
+    {
+        auto rows {s1.union_with(s2)()};
+        REQUIRE(rows.size() == 4);
+
+        std::set<std::tuple<i32, string>> expected {
+            {1, "A"}, {2, "B"}, {3, "C"}, {4, "D"}};
+        for (auto const& r : rows) {
+            REQUIRE(expected.contains(r));
+        }
+    }
+
+    SUBCASE("union_all_with keeps duplicates")
+    {
+        auto rows {s1.union_all_with(s2)()};
+        REQUIRE(rows.size() == 6);
+
+        // both 2/B and 3/C appear twice across sets
+        std::multiset<std::tuple<i32, string>> expected {
+            {1, "A"}, {2, "B"}, {2, "B"}, {3, "C"}, {3, "C"}, {4, "D"}};
+
+        for (auto const& r : rows) {
+            REQUIRE(expected.contains(r));
+        }
+    }
+
+    SUBCASE("intersect_with returns only common rows")
+    {
+        auto rows {s1.intersect_with(s2)()};
+        REQUIRE(rows.size() == 2);
+
+        std::set<std::tuple<i32, string>> expected {
+            {2, "B"}, {3, "C"}};
+        for (auto const& r : rows) {
+            REQUIRE(expected.contains(r));
+        }
+    }
+
+    SUBCASE("except_with subtracts rows from second set")
+    {
+        auto rows {s1.except_with(s2)()};
+        REQUIRE(rows.size() == 1);
+
+        REQUIRE(rows[0] == std::tuple {1, string {"A"}});
+    }
+
+    SUBCASE("chaining works (intersect then except)")
+    {
+        auto rows {s1.intersect_with(s2).except_with(s3)()};
+        REQUIRE(rows.size() == 1);
+
+        REQUIRE(rows[0] == std::tuple {2, string {"B"}});
+    }
+}
