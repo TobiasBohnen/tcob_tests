@@ -49,7 +49,7 @@ struct std::hash<foo_rect_ptr> {
     }
 };
 
-auto static CheckQuery(auto&& vec, auto&& exp)
+static auto CheckQuery(auto&& vec, auto&& exp)
 {
     std::unordered_set set(vec.begin(), vec.end());
     REQUIRE(set.size() == vec.size());

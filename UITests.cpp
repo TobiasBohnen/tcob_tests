@@ -39,7 +39,7 @@ TEST_CASE("GFX.UI.Bounds")
     REQUIRE(cPanel0->content_bounds() == rect_f {295, 345, 120, 370});
     REQUIRE(cButton0->content_bounds() == rect_f {18, 63, 174, 74});
 
-    auto static global_content_bounds {[](auto&& widget) { return widget->content_bounds().as_moved_by(widget->form_offset() + widget->form().Bounds->Position); }};
+    static auto global_content_bounds {[](auto&& widget) { return widget->content_bounds().as_moved_by(widget->form_offset() + widget->form().Bounds->Position); }};
     REQUIRE(global_content_bounds(panel0) == rect_f {125, 145, 670, 570});
     REQUIRE(global_content_bounds(button0) == rect_f {148, 178, 174, 74});
     REQUIRE(global_content_bounds(cPanel0) == rect_f {420, 490, 120, 370});

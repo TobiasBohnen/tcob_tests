@@ -8,20 +8,20 @@
 using namespace tcob::scripting;
 using namespace tcob::scripting::squirrel;
 
-auto static testfuncstr() -> std::string
+static auto testfuncstr() -> std::string
 {
     return "huhu";
 }
 
-auto static testfuncfloat() -> float
+static auto testfuncfloat() -> float
 {
     return 4.2f;
 }
-auto static testfuncpair(std::pair<i32, f32> const& p) -> f32
+static auto testfuncpair(std::pair<i32, f32> const& p) -> f32
 {
     return static_cast<f32>(p.first) * p.second;
 }
-auto static testfuncfloat2(std::expected<f32, error_code> f, std::expected<f32, error_code> x, int i) -> f32
+static auto testfuncfloat2(std::expected<f32, error_code> f, std::expected<f32, error_code> x, int i) -> f32
 {
     return f.value() * x.value() * static_cast<f32>(i);
 }
@@ -35,13 +35,13 @@ struct foo {
 namespace tcob::scripting::squirrel {
 template <>
 struct converter<foo> {
-    auto static IsType(vm_view ls, SQInteger idx) -> bool
+    static auto IsType(vm_view ls, SQInteger idx) -> bool
     {
         table lt {table::Acquire(ls, idx)};
         return lt.has("x") && lt.has("y") && lt.has("z");
     }
 
-    auto static From(vm_view ls, SQInteger& idx, foo& value) -> bool
+    static auto From(vm_view ls, SQInteger& idx, foo& value) -> bool
     {
         if (ls.is_table(idx)) {
             table lt {table::Acquire(ls, idx++)};
@@ -53,7 +53,7 @@ struct converter<foo> {
         return true;
     }
 
-    void static To(vm_view ls, foo const& value)
+    static void To(vm_view ls, foo const& value)
     {
         ls.new_table();
         table lt {table::Acquire(ls, -1)};

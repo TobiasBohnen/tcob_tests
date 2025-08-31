@@ -4,7 +4,7 @@ i32 const ExpValue = 45234;
 
 static i32 Value {0};
 
-void static Test(i32 val)
+static void Test(i32 val)
 {
     Value = val;
 }
