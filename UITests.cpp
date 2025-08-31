@@ -29,20 +29,21 @@ TEST_CASE("GFX.UI.Bounds")
     form0.Styles = styles;
     form0.update(milliseconds {0});
 
-    REQUIRE(panel0->global_position() == point_f {60, 80});
-    REQUIRE(button0->global_position() == point_f {135, 165});
-    REQUIRE(cPanel0->global_position() == point_f {355, 425});
-    REQUIRE(cButton0->global_position() == point_f {425, 540});
+    REQUIRE(local_to_screen(*panel0, panel0->Bounds->Position) == point_f {60, 80});
+    REQUIRE(local_to_screen(*button0, button0->Bounds->Position) == point_f {135, 165});
+    REQUIRE(local_to_screen(*cPanel0, cPanel0->Bounds->Position) == point_f {355, 425});
+    REQUIRE(local_to_screen(*cButton0, cButton0->Bounds->Position) == point_f {425, 540});
 
     REQUIRE(panel0->content_bounds() == rect_f {65, 65, 670, 570});
     REQUIRE(button0->content_bounds() == rect_f {23, 33, 174, 74});
     REQUIRE(cPanel0->content_bounds() == rect_f {295, 345, 120, 370});
     REQUIRE(cButton0->content_bounds() == rect_f {18, 63, 174, 74});
 
-    REQUIRE(panel0->global_content_bounds() == rect_f {125, 145, 670, 570});
-    REQUIRE(button0->global_content_bounds() == rect_f {148, 178, 174, 74});
-    REQUIRE(cPanel0->global_content_bounds() == rect_f {420, 490, 120, 370});
-    REQUIRE(cButton0->global_content_bounds() == rect_f {438, 553, 174, 74});
+    auto static global_content_bounds {[](auto&& widget) { return widget->content_bounds().as_moved_by(widget->form_offset() + widget->form().Bounds->Position); }};
+    REQUIRE(global_content_bounds(panel0) == rect_f {125, 145, 670, 570});
+    REQUIRE(global_content_bounds(button0) == rect_f {148, 178, 174, 74});
+    REQUIRE(global_content_bounds(cPanel0) == rect_f {420, 490, 120, 370});
+    REQUIRE(global_content_bounds(cButton0) == rect_f {438, 553, 174, 74});
 
     REQUIRE(panel0->hit_test_bounds() == rect_f {80, 100, 760, 660});
     REQUIRE(button0->hit_test_bounds() == rect_f {139, 169, 192, 92});
