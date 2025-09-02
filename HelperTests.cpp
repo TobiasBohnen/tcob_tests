@@ -139,6 +139,7 @@ TEST_CASE("Core.Helper.WildcardMatch")
     {
         REQUIRE(helper::wildcard_match("", ""));
         REQUIRE(helper::wildcard_match("a", "a"));
+        REQUIRE(helper::wildcard_match("abc", "abc"));
 
         REQUIRE_FALSE(helper::wildcard_match("", "a"));
         REQUIRE_FALSE(helper::wildcard_match("a", ""));
@@ -189,6 +190,7 @@ TEST_CASE("Core.Helper.WildcardMatch")
         REQUIRE_FALSE(helper::wildcard_match("xyyb", "x?b"));
         REQUIRE_FALSE(helper::wildcard_match("xyz.txt", "?.txt"));
         REQUIRE_FALSE(helper::wildcard_match("x", "??"));
+        REQUIRE_FALSE(helper::wildcard_match("", "?"));
     }
     SUBCASE("*?")
     {
