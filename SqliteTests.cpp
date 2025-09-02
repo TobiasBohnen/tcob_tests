@@ -487,7 +487,7 @@ TEST_CASE("Data.Sqlite.Insert")
 
     SUBCASE("values")
     {
-        SUBCASE("single column, multiple rows")
+        SUBCASE("2 rows, 1 column")
         {
             REQUIRE(dbTable->insert_into("Age")(100, 200));
             auto const rows {dbTable->select_from<i32>("Age")()};
@@ -495,12 +495,26 @@ TEST_CASE("Data.Sqlite.Insert")
             REQUIRE(rows[0] == 100);
             REQUIRE(rows[1] == 200);
         }
-        SUBCASE("single row, multiple columns")
+        SUBCASE("1 row, 4 columns")
         {
             REQUIRE(dbTable->insert_into("ID", "Name", "Age", "Height")(1, "A", 100, 1.5f));
             auto const rows {dbTable->select_from<i32, string, i32, f32>("ID", "Name", "Age", "Height")()};
             REQUIRE(rows.size() == 1);
             REQUIRE(rows[0] == std::tuple {1, "A", 100, 1.5f});
+        }
+        SUBCASE("2 rows, 4 columns")
+        {
+            REQUIRE(dbTable->insert_into("ID", "Name", "Age", "Height")(1, "A", 100, 1.5f,
+                                                                        2, "B", 200, 4.5f));
+            auto const rows {dbTable->select_from<i32, string, i32, f32>("ID", "Name", "Age", "Height")()};
+            REQUIRE(rows.size() == 2);
+            REQUIRE(rows[0] == std::tuple {1, "A", 100, 1.5f});
+            REQUIRE(rows[1] == std::tuple {2, "B", 200, 4.5f});
+        }
+        SUBCASE("column/value mismatch")
+        {
+            REQUIRE_FALSE(dbTable->insert_into("ID", "Name", "Age", "Height")(1, "A", 100, 1.5f,
+                                                                              2, "B"));
         }
     }
 
@@ -927,6 +941,81 @@ TEST_CASE("Data.Sqlite.Join")
         REQUIRE(rows[0] == std::tuple {"Peter", "UK"});
         REQUIRE(rows[1] == std::tuple {"Paul", "UK"});
         REQUIRE(rows[2] == std::tuple {"Marie", "USA"});
+    }
+    SUBCASE("RightJoin")
+    {
+        {
+            auto dbTable {db.create_table(tableName0,
+                                          int_column<primary_key> {.Name = "ID", .NotNull = true},
+                                          text_column {.Name = "Name"},
+                                          int_column {.Name = "CountryID"})};
+            REQUIRE(db.table_exists(tableName0));
+
+            std::tuple tup0 {"Peter", 1};
+            std::tuple tup1 {"Paul", 1};
+            std::tuple tup2 {"Marie", 2};
+
+            REQUIRE(dbTable->insert_into("Name", "CountryID")(tup0, tup1, tup2));
+        }
+
+        auto dbTable {db.create_table(tableName1,
+                                      int_column<primary_key> {.Name = "ID", .NotNull = true},
+                                      text_column {.Name = "Code"})};
+        REQUIRE(db.table_exists(tableName1));
+
+        std::tuple tup0 {1, "UK"};
+        std::tuple tup1 {2, "USA"};
+        std::tuple tup2 {3, "DE"};
+
+        REQUIRE(dbTable->insert_into("ID", "Code")(tup0, tup1, tup2));
+
+        auto const rows {db.get_table(tableName0)
+                             ->select_from<string, string>("Name", "Code")
+                             .right_join(*dbTable, on {.LeftColumn = "CountryID", .RightColumn = "ID"})()};
+        REQUIRE(rows.size() == 4);
+        REQUIRE(rows[0] == std::tuple {"Peter", "UK"});
+        REQUIRE(rows[1] == std::tuple {"Paul", "UK"});
+        REQUIRE(rows[2] == std::tuple {"Marie", "USA"});
+        REQUIRE(rows[3] == std::tuple {"", "DE"}); // No match on CountryID = 3
+    }
+
+    SUBCASE("FullJoin")
+    {
+        {
+            auto dbTable {db.create_table(tableName0,
+                                          int_column<primary_key> {.Name = "ID", .NotNull = true},
+                                          text_column {.Name = "Name"},
+                                          int_column {.Name = "CountryID"})};
+            REQUIRE(db.table_exists(tableName0));
+
+            std::tuple tup0 {"Peter", 1};
+            std::tuple tup1 {"Paul", 1};
+            std::tuple tup2 {"Marie", 2};
+            std::tuple tup3 {"Anna", 4}; // no matching country
+
+            REQUIRE(dbTable->insert_into("Name", "CountryID")(tup0, tup1, tup2, tup3));
+        }
+
+        auto dbTable {db.create_table(tableName1,
+                                      int_column<primary_key> {.Name = "ID", .NotNull = true},
+                                      text_column {.Name = "Code"})};
+        REQUIRE(db.table_exists(tableName1));
+
+        std::tuple tup0 {1, "UK"};
+        std::tuple tup1 {2, "USA"};
+        std::tuple tup2 {3, "DE"};
+
+        REQUIRE(dbTable->insert_into("ID", "Code")(tup0, tup1, tup2));
+
+        auto const rows {db.get_table(tableName0)
+                             ->select_from<string, string>("Name", "Code")
+                             .full_join(*dbTable, on {.LeftColumn = "CountryID", .RightColumn = "ID"})()};
+        REQUIRE(rows.size() == 5);
+        REQUIRE(rows[0] == std::tuple {"Peter", "UK"});
+        REQUIRE(rows[1] == std::tuple {"Paul", "UK"});
+        REQUIRE(rows[2] == std::tuple {"Marie", "USA"});
+        REQUIRE(rows[3] == std::tuple {"Anna", ""}); // only on left
+        REQUIRE(rows[4] == std::tuple {"", "DE"});   // only on right
     }
     SUBCASE("InnerJoin")
     {
