@@ -1060,7 +1060,7 @@ TEST_CASE("Data.Sqlite.Join")
             REQUIRE(db.get_table(tableName1)->insert_into("Number")(1, 2));
         }
 
-        auto const rows {db.get_table(tableName0)->select_from<string, i32>("Color", "Number").cross_join(tableName1)()};
+        auto const rows {db.get_table(tableName0)->select_from<string, i32>("Color", "Number").cross_join(*db.get_table(tableName1))()};
         REQUIRE(rows.size() == 6);
         REQUIRE(rows[0] == std::tuple {"Green", 1});
         REQUIRE(rows[1] == std::tuple {"Green", 2});
