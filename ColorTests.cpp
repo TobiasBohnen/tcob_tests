@@ -162,36 +162,68 @@ TEST_CASE("Core.POD.Color")
     }
 }
 
-TEST_CASE("GFX.ColorGradient.SingleColor")
+TEST_CASE("GFX.ColorGradient.Basic")
 {
-    gfx::color_gradient grad {colors::Green, colors::Green};
-    auto const          colors {grad.colors()};
-    for (usize i {0}; i < colors.size(); ++i) {
-        REQUIRE(colors[i] == colors::Green);
+    SUBCASE("single color")
+    {
+        color_gradient grad {colors::Green};
+        auto const     cols {grad.colors()};
+        for (auto const& c : cols) {
+            REQUIRE(c == colors::Green);
+        }
     }
-}
 
-TEST_CASE("GFX.ColorGradient.TwoColors")
-{
-    SUBCASE("grayscale")
+    SUBCASE("two colors grayscale")
     {
         color_gradient grad {colors::Black, colors::White};
-        auto const     colors {grad.colors()};
-        for (usize i {0}; i < colors.size(); ++i) {
-            u8 val {static_cast<u8>(i)};
-            REQUIRE(colors[i] == color {val, val, val, 255});
+        auto const     cols {grad.colors()};
+        for (usize i {0}; i < cols.size(); ++i) {
+            u8 val = static_cast<u8>(i);
+            REQUIRE(cols[i] == color {val, val, val, 255});
         }
 
         color_gradient grad2 {colors::Black, colors::White};
         REQUIRE(grad == grad2);
     }
-    SUBCASE("red to blue")
+
+    SUBCASE("two colors red to blue")
     {
         color_gradient grad {colors::Red, colors::Blue};
-        auto const     colors {grad.colors()};
-        REQUIRE(colors[0] == color {255, 0, 0, 255});
-        u8 val {127};
-        REQUIRE(colors[127] == color {val, 0, val, 255});
-        REQUIRE(colors[255] == color {0, 0, 255, 255});
+        auto const     cols {grad.colors()};
+        REQUIRE(cols[0] == color {255, 0, 0, 255});
+        REQUIRE(cols[127] == color {127, 0, 127, 255});
+        REQUIRE(cols[255] == color {0, 0, 255, 255});
+    }
+
+    SUBCASE("three stops")
+    {
+        color_gradient grad {colors::Red, colors::Green, colors::Blue};
+        auto const     cols {grad.colors()};
+
+        // First stop
+        REQUIRE(cols[0] == colors::Red);
+        // Middle stop (should be Green at ~127)
+        REQUIRE(cols[127] == colors::Green);
+        // Last stop
+        REQUIRE(cols[255] == colors::Blue);
+    }
+
+    SUBCASE("premultiplied alpha")
+    {
+        color          semiRed {255, 0, 0, 128};
+        color_gradient grad {semiRed, colors::Transparent};
+        auto const     cols {grad.colors(true)};
+
+        // First color should be premultiplied red
+        REQUIRE(cols[0] == semiRed.as_alpha_premultiplied());
+        // Last color should be transparent (all zeros)
+        REQUIRE(cols[255] == colors::Transparent);
+    }
+
+    SUBCASE("inequality")
+    {
+        color_gradient grad1 {colors::Red, colors::Blue};
+        color_gradient grad2 {colors::Red, colors::Green};
+        REQUIRE_FALSE(grad1 == grad2);
     }
 }
