@@ -45,8 +45,8 @@ TEST_CASE("GFX.UI.Bounds")
     REQUIRE(global_content_bounds(cPanel0) == rect_f {420, 490, 120, 370});
     REQUIRE(global_content_bounds(cButton0) == rect_f {438, 553, 174, 74});
 
-    REQUIRE(panel0->hit_test_bounds() == rect_f {80, 100, 760, 660});
-    REQUIRE(button0->hit_test_bounds() == rect_f {139, 169, 192, 92});
-    REQUIRE(cPanel0->hit_test_bounds() == rect_f {375, 445, 210, 270});
-    REQUIRE(cButton0->hit_test_bounds() == rect_f {429, 544, 111, 92});
+    REQUIRE(panel0->hit_test_bounds() == rect_f {75, 95, 770, 670});
+    REQUIRE(button0->hit_test_bounds() == rect_f {138, 168, 194, 94});
+    REQUIRE(cPanel0->hit_test_bounds() == rect_f {370, 440, 220, 275});
+    REQUIRE(cButton0->hit_test_bounds() == rect_f {428, 543, 112, 94});
 }
