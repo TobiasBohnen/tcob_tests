@@ -215,15 +215,44 @@ TEST_CASE("GFX.Decoder.webp")
 }
 #endif
 
-#if defined(TCOB_ENABLE_FILETYPES_GFX_QOI)
-
 TEST_CASE("GFX.Decoder.QOI")
 {
-    #define TEST_IMAGE_QOI(imageName) TEST_IMAGE(imageName, "qoi")
+#define TEST_IMAGE_QOI(imageName) TEST_IMAGE(imageName, "qoi")
 
     TEST_IMAGE_QOI(basi3p02);
+    TEST_IMAGE_QOI(basi3p04);
+
+    SUBCASE("Compare")
+    {
+        auto compare {[](image const& png, image const& qoi) {
+            auto const pngData {png.data()};
+            auto const qoiData {qoi.data()};
+            if (png.info().Format == qoi.info().Format) {
+                for (usize i {0}; i < qoiData.size(); ++i) {
+                    REQUIRE(pngData[i] == qoiData[i]);
+                }
+            } else if (png.info().Format == image::format::RGBA && qoi.info().Format == image::format::RGB) {
+                REQUIRE(png.info().size_in_bytes() / 4 * 3 == qoi.info().size_in_bytes());
+                for (u32 i {0}, x {0}; i < qoiData.size(); i += 3, x++) {
+                    REQUIRE(pngData[i + 0 + x] == qoiData[i + 0]);
+                    REQUIRE(pngData[i + 1 + x] == qoiData[i + 1]);
+                    REQUIRE(pngData[i + 2 + x] == qoiData[i + 2]);
+                }
+            } else {
+                REQUIRE(false);
+            }
+        }};
+
+        compare(*image::Load("testfiles/qoi/compare/dice.png"), *image::Load("testfiles/qoi/compare/dice.qoi"));
+        compare(*image::Load("testfiles/qoi/compare/edgecase.png"), *image::Load("testfiles/qoi/compare/edgecase.qoi"));
+        compare(*image::Load("testfiles/qoi/compare/kodim10.png"), *image::Load("testfiles/qoi/compare/kodim10.qoi"));
+        compare(*image::Load("testfiles/qoi/compare/kodim23.png"), *image::Load("testfiles/qoi/compare/kodim23.qoi"));
+        compare(*image::Load("testfiles/qoi/compare/qoi_logo.png"), *image::Load("testfiles/qoi/compare/qoi_logo.qoi"));
+        compare(*image::Load("testfiles/qoi/compare/testcard.png"), *image::Load("testfiles/qoi/compare/testcard.qoi"));
+        compare(*image::Load("testfiles/qoi/compare/testcard_rgba.png"), *image::Load("testfiles/qoi/compare/testcard_rgba.qoi"));
+        compare(*image::Load("testfiles/qoi/compare/wikipedia_008.png"), *image::Load("testfiles/qoi/compare/wikipedia_008.qoi"));
+    }
 }
-#endif
 
 TEST_CASE("GFX.Decoder.PNM")
 {
@@ -294,7 +323,7 @@ TEST_CASE("GFX.Encoder.RGBA")
         srcData[i] = i;
     }
 
-    auto compareRGB {[srcData](std::span<u8> s1) {
+    auto compareRGB {[srcData](std::span<u8> s1) -> void {
         REQUIRE(srcData.size_bytes() / 4 * 3 == s1.size_bytes());
         for (u32 i {0}, x {0}; i < s1.size(); i += 3, x++) {
             REQUIRE(srcData[i + 0 + x] == s1[i + 0]);
@@ -303,14 +332,14 @@ TEST_CASE("GFX.Encoder.RGBA")
         }
     }};
 
-    auto compareRGBA {[srcData](std::span<u8> s1) {
+    auto compareRGBA {[srcData](std::span<u8> s1) -> void {
         REQUIRE(srcData.size_bytes() == s1.size_bytes());
         for (usize i {0}; i < srcData.size(); ++i) {
             REQUIRE(srcData[i] == s1[i]);
         }
     }};
 
-    auto test {[&src](string const& ext) {
+    auto test {[&src](string const& ext) -> std::optional<image> {
         io::iomstream str {};
         REQUIRE(src.save(str, ext));
         str.seek(0, io::seek_dir::Begin);
@@ -351,12 +380,24 @@ TEST_CASE("GFX.Encoder.RGBA")
     }
 #endif
 
-#if defined(TCOB_ENABLE_FILETYPES_GFX_QOI)
     SUBCASE("qoi")
     {
+        std::array<color, 7> row = {
+            color {255, 0, 0, 255}, // RGB explicit
+            color {254, 1, 0, 255}, // DIFF (-1,+1,0)
+            color {250, 2, 0, 255}, // LUMA (-4,+1,0) relative to previous
+            color {0, 2, 255, 255}, // RUN starts (repeat previous pixel)
+            color {0, 2, 255, 255}  // RUN continues
+        };
+
+        for (int y = 0; y < 7; ++y) {
+            for (int x = 0; x < 5; ++x) {
+                src.set_pixel({x, y}, row[x % row.size()]);
+            }
+        }
+
         compareRGBA(test(".qoi")->data());
     }
-#endif
 }
 
 TEST_CASE("GFX.Encoder.RGB")
@@ -367,14 +408,14 @@ TEST_CASE("GFX.Encoder.RGB")
         srcData[i] = i;
     }
 
-    auto compareRGB {[srcData](std::span<u8> s1) {
+    auto compareRGB {[srcData](std::span<u8> s1) -> void {
         REQUIRE(srcData.size_bytes() == s1.size_bytes());
         for (usize i {0}; i < srcData.size(); ++i) {
             REQUIRE(srcData[i] == s1[i]);
         }
     }};
 
-    auto compareRGBA {[srcData](std::span<u8> s1) {
+    auto compareRGBA {[srcData](std::span<u8> s1) -> void {
         REQUIRE(srcData.size_bytes() / 3 * 4 == s1.size_bytes());
         for (u32 i {0}, x {0}; i < srcData.size(); i += 3, x++) {
             REQUIRE(srcData[i + 0] == s1[i + 0 + x]);
@@ -383,7 +424,7 @@ TEST_CASE("GFX.Encoder.RGB")
         }
     }};
 
-    auto test {[&src](string const& ext) {
+    auto test {[&src](string const& ext) -> std::optional<image> {
         io::iomstream str {};
         REQUIRE(src.save(str, ext));
         str.seek(0, io::seek_dir::Begin);
@@ -424,10 +465,21 @@ TEST_CASE("GFX.Encoder.RGB")
     }
 #endif
 
-#if defined(TCOB_ENABLE_FILETYPES_GFX_QOI)
     SUBCASE("qoi")
     {
+        std::array<color, 7> row = {
+            color {255, 0, 0, 255}, // RGB explicit
+            color {254, 1, 0, 255}, // DIFF (-1,+1,0)
+            color {250, 2, 0, 255}, // LUMA (-4,+1,0) relative to previous
+            color {0, 2, 255, 255}, // RUN starts (repeat previous pixel)
+            color {0, 2, 255, 255}  // RUN continues
+        };
+
+        for (int y = 0; y < 7; ++y) {
+            for (int x = 0; x < 5; ++x) {
+                src.set_pixel({x, y}, row[x % row.size()]);
+            }
+        }
         compareRGB(test(".qoi")->data());
     }
-#endif
 }
