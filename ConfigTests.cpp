@@ -578,34 +578,71 @@ TEST_CASE("Data.Config.Array")
 
 TEST_CASE("Data.Config.TcobTypes")
 {
-    object obj;
+    SUBCASE("to/from")
+    {
+        object obj;
 
-    obj["point"] = point_i {100, 350};
-    REQUIRE(obj.is<point_i>("point"));
-    REQUIRE(obj["point"].as<point_i>() == point_i {100, 350});
+        obj["point"] = point_i {100, 350};
+        REQUIRE(obj.is<point_i>("point"));
+        REQUIRE(obj["point"].as<point_i>() == point_i {100, 350});
 
-    obj["color"] = color {15, 30, 12, 0};
-    REQUIRE(obj.is<color>("color"));
-    REQUIRE(obj["color"].as<color>() == color {15, 30, 12, 0});
+        obj["color"] = color {15, 30, 12, 0};
+        REQUIRE(obj.is<color>("color"));
+        REQUIRE(obj["color"].as<color>() == color {15, 30, 12, 0});
 
-    obj["size"] = size_i {300, 450};
-    REQUIRE(obj.is<size_i>("size"));
-    REQUIRE(obj["size"].as<size_i>() == size_i {300, 450});
+        obj["size"] = size_i {300, 450};
+        REQUIRE(obj.is<size_i>("size"));
+        REQUIRE(obj["size"].as<size_i>() == size_i {300, 450});
 
-    obj["rect"] = rect_f {4.5f, 2.5f, 30.1f, 45.01f};
-    REQUIRE(obj.is<rect_f>("rect"));
-    REQUIRE(obj["rect"].as<rect_f>() == rect_f {4.5f, 2.5f, 30.1f, 45.01f});
+        obj["rect"] = rect_f {4.5f, 2.5f, 30.1f, 45.01f};
+        REQUIRE(obj.is<rect_f>("rect"));
+        REQUIRE(obj["rect"].as<rect_f>() == rect_f {4.5f, 2.5f, 30.1f, 45.01f});
 
-    obj["alignments"] = alignments {.Horizontal = horizontal_alignment::Centered, .Vertical = vertical_alignment::Middle};
-    REQUIRE(obj.is<alignments>("alignments"));
-    REQUIRE(obj["alignments"].as<alignments>() == alignments {.Horizontal = horizontal_alignment::Centered, .Vertical = vertical_alignment::Middle});
+        obj["alignments"] = alignments {.Horizontal = horizontal_alignment::Centered, .Vertical = vertical_alignment::Middle};
+        REQUIRE(obj.is<alignments>("alignments"));
+        REQUIRE(obj["alignments"].as<alignments>() == alignments {.Horizontal = horizontal_alignment::Centered, .Vertical = vertical_alignment::Middle});
 
-    obj["point_particle_emitter::settings"] = point_particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100, .Lifetime = 100s};
-    REQUIRE(obj.is<point_particle_emitter::settings>("point_particle_emitter::settings"));
-    REQUIRE(obj["point_particle_emitter::settings"].as<point_particle_emitter::settings>() == point_particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100, .Lifetime = 100s});
-    obj["point_particle_emitter::settings2"] = point_particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100};
-    REQUIRE(obj.is<point_particle_emitter::settings>("point_particle_emitter::settings2"));
-    REQUIRE(obj["point_particle_emitter::settings2"].as<point_particle_emitter::settings>() == point_particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100});
+        obj["point_particle_emitter::settings"] = point_particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100, .Lifetime = 100s};
+        REQUIRE(obj.is<point_particle_emitter::settings>("point_particle_emitter::settings"));
+        REQUIRE(obj["point_particle_emitter::settings"].as<point_particle_emitter::settings>() == point_particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100, .Lifetime = 100s});
+        obj["point_particle_emitter::settings2"] = point_particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100};
+        REQUIRE(obj.is<point_particle_emitter::settings>("point_particle_emitter::settings2"));
+        REQUIRE(obj["point_particle_emitter::settings2"].as<point_particle_emitter::settings>() == point_particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100});
+    }
+
+    SUBCASE("from object")
+    {
+        object obj;
+
+        obj["point"] = object {{"x", 100}, {"y", 350}};
+        REQUIRE(obj.is<point_i>("point"));
+        REQUIRE(obj.as<point_i>("point") == point_i {100, 350});
+
+        obj["size"] = object {{"width", 100}, {"height", 350}};
+        REQUIRE(obj.is<size_i>("size"));
+        REQUIRE(obj.as<size_i>("size") == size_i {100, 350});
+
+        obj["rect"] = object {{"x", 100}, {"y", 350}, {"width", 200}, {"height", 450}};
+        REQUIRE(obj.is<rect_i>("rect"));
+        REQUIRE(obj.as<rect_i>("rect") == rect_i {100, 350, 200, 450});
+    }
+
+    SUBCASE("from array")
+    {
+        object obj;
+
+        obj["point"] = array {100, 350};
+        REQUIRE(obj.is<point_i>("point"));
+        REQUIRE(obj.as<point_i>("point") == point_i {100, 350});
+
+        obj["size"] = array {100, 350};
+        REQUIRE(obj.is<size_i>("size"));
+        REQUIRE(obj.as<size_i>("size") == size_i {100, 350});
+
+        obj["rect"] = array {100, 350, 200, 450};
+        REQUIRE(obj.is<rect_i>("rect"));
+        REQUIRE(obj.as<rect_i>("rect") == rect_i {100, 350, 200, 450});
+    }
 }
 
 TEST_CASE("Data.Config.STLTypes")

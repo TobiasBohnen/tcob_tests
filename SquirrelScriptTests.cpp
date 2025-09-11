@@ -1634,6 +1634,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.TcobTypes")
         auto res = run(
             "rectI <- {x=3, y=6, width=10, height=20}; "
             "rectI = test.RectI(rectI); "
+            "rectIArr <- [0,1,2,3]; "
 
             "rectF <- {x=2.7, y=3.1, width=2.3, height=55.2}; "
             "rectF = test.RectF(rectF); "
@@ -1643,6 +1644,7 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.TcobTypes")
 
             "pointI <- { x = 20, y = 400 }; "
             "pointI = test.PointI(pointI); "
+            "pointIArr <- [20, 400]; "
 
             "pointF <- { x = 4.5, y = 3.23 }; "
             "pointF = test.PointF(pointF); "
@@ -1666,6 +1668,9 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.TcobTypes")
         REQUIRE(global.is<point_i>("pointI"));
         REQUIRE(global.is<point_i>("pointIS"));
         REQUIRE(p1 == point_i(20 * 2, 400 * 2));
+        auto p1a = global["pointIArr"].as<point_i>();
+        REQUIRE(global.is<point_i>("pointIArr"));
+        REQUIRE(p1a == point_i(20, 400));
 
         auto p2 = global["pointF"].as<point_f>();
         REQUIRE(global.is<point_f>("pointF"));
@@ -1680,6 +1685,9 @@ TEST_CASE_FIXTURE(SquirrelScriptTests, "Script.Squirrel.TcobTypes")
         REQUIRE(global.is<rect_i>("rectI"));
         REQUIRE(global.is<rect_i>("rectIS"));
         REQUIRE(r1 == rect_i(3 * 2, 6 * 2, 10 * 2, 20 * 2));
+        auto r1a = global["rectIArr"].as<rect_i>();
+        REQUIRE(global.is<rect_i>("rectIArr"));
+        REQUIRE(r1a == rect_i(0, 1, 2, 3));
 
         auto r2 = global["rectF"].as<rect_f>();
         REQUIRE(global.is<rect_f>("rectF"));
