@@ -423,4 +423,28 @@ TEST_CASE("Core.POD.Point")
         REQUIRE(chebyshev_distance<i32>({10, 2}, {13, 20}) == 18);
         REQUIRE(chebyshev_distance<i32>({-4, 8}, {10, 12}) == 14);
     }
+
+    SUBCASE("dot")
+    {
+        constexpr point<i32> p1 {1, 0};
+        constexpr point<i32> p2 {0, 1};
+        constexpr point<i32> p3 {3, 4};
+
+        REQUIRE(p1.dot(p2) == 0.0);
+        REQUIRE(p3.dot(p3) == Approx(25.0));
+        REQUIRE(p1.dot(point<i32> {-1, 0}) == Approx(-1.0));
+    }
+
+    SUBCASE("cross")
+    {
+        constexpr point<i32> p1 {1, 0};
+        constexpr point<i32> p2 {0, 1};
+        constexpr point<i32> p3 {-1, 0};
+        constexpr point<i32> p4 {2, 2};
+
+        REQUIRE(p1.cross(p2) == Approx(1.0));
+        REQUIRE(p2.cross(p1) == Approx(-1.0));
+        REQUIRE(p1.cross(p3) == Approx(0.0));
+        REQUIRE(p1.cross(p4) == Approx(2.0));
+    }
 }
