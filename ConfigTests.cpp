@@ -692,12 +692,18 @@ TEST_CASE("Data.Config.STLTypes")
         {
             object obj;
             obj["tuple"] = std::tuple<i32, std::string, bool> {123, "ok", true};
-            auto tup0    = obj["tuple"].as<std::tuple<i32, std::string, bool>>();
+            REQUIRE(obj["tuple"].is<std::tuple<i32, std::string, bool>>());
+            auto tup0 = obj["tuple"].as<std::tuple<i32, std::string, bool>>();
             REQUIRE(tup0 == std::tuple<i32, std::string, bool> {123, "ok", true});
 
             obj["tuple2"] = std::tuple<std::string, bool, f32> {"a", false, 3.5f};
-            auto tup1     = obj["tuple2"].as<std::tuple<std::string, bool, f32>>();
+            REQUIRE(obj["tuple2"].is<std::tuple<std::string, bool, f32>>());
+            auto tup1 = obj["tuple2"].as<std::tuple<std::string, bool, f32>>();
             REQUIRE(tup1 == std::tuple<std::string, bool, f32> {"a", false, 3.5f});
+
+            REQUIRE_FALSE(obj["tuple"].is<std::tuple<i32, std::string>>());
+            REQUIRE_FALSE(obj["tuple"].is<std::tuple<std::string, i32, bool>>());
+            REQUIRE_FALSE(obj["tuple"].is<std::tuple<i32, f32, bool>>());
         }
     }
 
@@ -759,7 +765,8 @@ TEST_CASE("Data.Config.STLTypes")
             object obj;
             obj["stringintMap"]["a"] = 123;
             obj["stringintMap"]["b"] = 456;
-            auto objectMap           = obj["stringintMap"].as<std::map<std::string, i32>>();
+            REQUIRE(obj["stringintMap"].is<std::map<std::string, i32>>());
+            auto objectMap = obj["stringintMap"].as<std::map<std::string, i32>>();
             REQUIRE(objectMap.size() == 2);
             REQUIRE(objectMap["a"] == 123);
             REQUIRE(objectMap["b"] == 456);
@@ -768,7 +775,8 @@ TEST_CASE("Data.Config.STLTypes")
         {
             object obj;
             obj["stringintMap2"] = std::map<std::string, i32> {{"c", 555}, {"d", 666}};
-            auto objectMap       = obj["stringintMap2"].as<std::map<std::string, i32>>();
+            REQUIRE(obj["stringintMap2"].is<std::map<std::string, i32>>());
+            auto objectMap = obj["stringintMap2"].as<std::map<std::string, i32>>();
             REQUIRE(objectMap.size() == 2);
             REQUIRE(objectMap["c"] == 555);
             REQUIRE(objectMap["d"] == 666);
@@ -779,7 +787,8 @@ TEST_CASE("Data.Config.STLTypes")
             obj["variantMap"]["f"] = 1.5;
             obj["variantMap"]["b"] = true;
             obj["variantMap"]["s"] = "ok";
-            auto objectMap         = obj["variantMap"].as<std::map<std::string, cfg_value>>();
+            REQUIRE(obj["variantMap"].is<std::unordered_map<std::string, cfg_value>>());
+            auto objectMap = obj["variantMap"].as<std::map<std::string, cfg_value>>();
             REQUIRE(objectMap.size() == 3);
             REQUIRE(std::get<f64>(objectMap["f"]) == 1.5);
             REQUIRE(std::get<bool>(objectMap["b"]) == true);
@@ -793,7 +802,8 @@ TEST_CASE("Data.Config.STLTypes")
             object obj;
             obj["stringintMap"]["a"] = 123;
             obj["stringintMap"]["b"] = 456;
-            auto objectMap           = obj["stringintMap"].as<std::unordered_map<std::string, i32>>();
+            REQUIRE(obj["stringintMap"].is<std::unordered_map<std::string, i32>>());
+            auto objectMap = obj["stringintMap"].as<std::unordered_map<std::string, i32>>();
             REQUIRE(objectMap.size() == 2);
             REQUIRE(objectMap["a"] == 123);
             REQUIRE(objectMap["b"] == 456);
@@ -802,7 +812,8 @@ TEST_CASE("Data.Config.STLTypes")
         {
             object obj;
             obj["stringintMap2"] = std::map<std::string, i32> {{"c", 555}, {"d", 666}};
-            auto objectMap       = obj["stringintMap2"].as<std::unordered_map<std::string, i32>>();
+            REQUIRE(obj["stringintMap2"].is<std::unordered_map<std::string, i32>>());
+            auto objectMap = obj["stringintMap2"].as<std::unordered_map<std::string, i32>>();
             REQUIRE(objectMap.size() == 2);
             REQUIRE(objectMap["c"] == 555);
             REQUIRE(objectMap["d"] == 666);
@@ -817,12 +828,15 @@ TEST_CASE("Data.Config.STLTypes")
             obj["intArray"]    = std::vector<i32> {1, 2, 3};
             obj["set"]         = std::vector<i32> {1, 1, 2, 2, 3, 3};
 
+            REQUIRE(obj["stringArray"].is<std::set<std::string>>());
             auto objectarr0 = obj["stringArray"].as<std::set<std::string>>();
             REQUIRE(objectarr0 == std::set<std::string> {"One", "Two", "Three"});
 
+            REQUIRE(obj["intArray"].is<std::set<i32>>());
             auto objectarr1 = obj["intArray"].as<std::set<i32>>();
             REQUIRE(objectarr1 == std::set<i32> {1, 2, 3});
 
+            REQUIRE(obj["set"].is<std::set<i32>>());
             auto objectarr2 = obj["set"].as<std::set<i32>>();
             REQUIRE(objectarr2 == std::set<i32> {1, 2, 3});
         }
