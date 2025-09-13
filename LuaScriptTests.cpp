@@ -1566,7 +1566,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.RawPointers")
         REQUIRE(t.get_value() == 101);
     }
 
-    SUBCASE("LuaOwnedPtr")
+    SUBCASE("managed_ptr")
     {
         REQUIRE(TestScriptClass::ObjCount == 0);
         managed_ptr<TestScriptClass> t {new TestScriptClass};
