@@ -223,7 +223,21 @@ TEST_CASE("Data.Config.Object")
         REQUIRE(obj2["xyz"].as<std::string>() == "testString");
     }
 
-    SUBCASE("adding and removing object")
+    SUBCASE("assure insertion order")
+    {
+        std::vector<string> source {"x8", "x2", "x3", "x5", "x1", "x4", "x10", "x9"};
+        object              t;
+        for (auto const& o : source) {
+            t[o] = 0;
+        }
+        std::vector<string> order {};
+        for (auto const& o : t) {
+            order.push_back(o.first);
+        }
+        REQUIRE(source == order);
+    }
+
+    SUBCASE("adding and removing keys")
     {
         object t;
         object obj {{"a", 100}, {"b", false}, {"xyz", "testString"}};
