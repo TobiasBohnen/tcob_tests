@@ -24,35 +24,30 @@ TEST_CASE("Core.Property.Event")
 
 TEST_CASE("Core.Property.Validate")
 {
-    {
-        i32 const     expected = 32;
-        prop_val<i32> prop {{[&](i32 const&) { return expected; }}};
-        prop.Changed.connect([&](i32 const& val) { REQUIRE(val == expected); });
-        prop = 300;
-        REQUIRE(expected == 32);
-        REQUIRE(prop == expected);
-    }
-    {
-        i32 const     expected = 32;
-        prop_val<i32> prop {{12, [&](i32 const&) { return expected; }}};
-        REQUIRE(prop == 12);
-        prop.Changed.connect([&](i32 const& val) { REQUIRE(val == expected); });
-        prop = 300;
-        REQUIRE(expected == 32);
-        REQUIRE(prop == expected);
-    }
+    i32 const     expected = 32;
+    prop_val<i32> prop {{[&](i32 const&) { return expected; }}};
+    prop.Changed.connect([&](i32 const& val) { REQUIRE(val == expected); });
+    prop = 300;
+    REQUIRE(expected == 32);
+    REQUIRE(prop == expected);
 }
 
 TEST_CASE("Core.Property.Function")
 {
-    i32          result {0};
-    prop_fn<i32> prop {{12, [&] { return result; }, [&](i32 val) { result = val; }}};
-    REQUIRE(result == 12);
+    struct foo {
+        i32 result {12};
+    };
+
+    foo          f;
+    prop_fn<i32> prop {{&f,
+                        [](void* f) -> i32 { return static_cast<foo*>(f)->result; },
+                        [](void* f, i32 const& val) -> void { static_cast<foo*>(f)->result = val; }}};
+    REQUIRE(f.result == 12);
     REQUIRE(prop == 12);
 
     prop = 300;
-    REQUIRE(result == 300);
-    REQUIRE(prop == result);
+    REQUIRE(f.result == 300);
+    REQUIRE(prop == f.result);
 }
 
 TEST_CASE("Core.Property.Field")
