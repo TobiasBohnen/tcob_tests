@@ -408,43 +408,28 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper2")
 
 TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
 {
-    auto wrapper = create_wrapper<TestScriptClass>("TSCB");
-    wrapper->metamethod(
-        metamethod_type::Add, [](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() + x)); });
-    wrapper->metamethod(
-        metamethod_type::Subtract, [](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() - x)); });
-    wrapper->metamethod(
-        metamethod_type::Divide, [](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() / x)); });
-    wrapper->metamethod(
-        metamethod_type::Multiply, [](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() * x)); });
-    wrapper->metamethod(
-        metamethod_type::LessThan,
-        [](std::variant<TestScriptClass*, i32> left, std::variant<TestScriptClass*, i32> right) {
-            i32 const leftValue {std::holds_alternative<i32>(left) ? std::get<i32>(left) : std::get<TestScriptClass*>(left)->get_value()};
-            i32 const rightValue {std::holds_alternative<i32>(right) ? std::get<i32>(right) : std::get<TestScriptClass*>(right)->get_value()};
+    auto& wrapper                             = *create_wrapper<TestScriptClass>("TSCB");
+    wrapper[metamethod_type::Add]             = [](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() + x)); };
+    wrapper[metamethod_type::Subtract]        = ([](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() - x)); });
+    wrapper[metamethod_type::Divide]          = ([](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() / x)); });
+    wrapper[metamethod_type::Multiply]        = ([](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() * x)); });
+    wrapper[metamethod_type::LessThan]        = ([](std::variant<TestScriptClass*, i32> left, std::variant<TestScriptClass*, i32> right) {
+        i32 const leftValue {std::holds_alternative<i32>(left) ? std::get<i32>(left) : std::get<TestScriptClass*>(left)->get_value()};
+        i32 const rightValue {std::holds_alternative<i32>(right) ? std::get<i32>(right) : std::get<TestScriptClass*>(right)->get_value()};
+        return leftValue < rightValue;
+    });
+    wrapper[metamethod_type::LessOrEqualThan] = ([](std::variant<TestScriptClass*, i32> left, std::variant<TestScriptClass*, i32> right) {
+        i32 const leftValue {std::holds_alternative<i32>(left) ? std::get<i32>(left) : std::get<TestScriptClass*>(left)->get_value()};
+        i32 const rightValue {std::holds_alternative<i32>(right) ? std::get<i32>(right) : std::get<TestScriptClass*>(right)->get_value()};
 
-            return leftValue < rightValue;
-        });
-    wrapper->metamethod(
-        metamethod_type::LessOrEqualThan,
-        [](std::variant<TestScriptClass*, i32> left, std::variant<TestScriptClass*, i32> right) {
-            i32 const leftValue {std::holds_alternative<i32>(left) ? std::get<i32>(left) : std::get<TestScriptClass*>(left)->get_value()};
-            i32 const rightValue {std::holds_alternative<i32>(right) ? std::get<i32>(right) : std::get<TestScriptClass*>(right)->get_value()};
-
-            return leftValue <= rightValue;
-        });
-    wrapper->metamethod(
-        metamethod_type::UnaryMinus, [](TestScriptClass* instance1) { return -instance1->get_value(); });
-    wrapper->metamethod(
-        metamethod_type::Length, [](TestScriptClass* instance1) { return instance1->get_value(); });
-    wrapper->metamethod(
-        metamethod_type::ToString, [](TestScriptClass* instance1) { return std::to_string(instance1->get_value()); });
-    wrapper->metamethod(
-        metamethod_type::Concat, [](TestScriptClass* instance1, i32 x) { return std::stoi(std::to_string(instance1->get_value()) + std::to_string(x)); });
-    wrapper->metamethod(
-        metamethod_type::Call, [](TestScriptClass* instance1, i32 x) { return x * instance1->get_value(); });
-    wrapper->metamethod(
-        metamethod_type::Close, [](TestScriptClass* instance1) { return instance1->Closed = true; });
+        return leftValue <= rightValue;
+    });
+    wrapper[metamethod_type::UnaryMinus]      = ([](TestScriptClass* instance1) { return -instance1->get_value(); });
+    wrapper[metamethod_type::Length]          = ([](TestScriptClass* instance1) { return instance1->get_value(); });
+    wrapper[metamethod_type::ToString]        = ([](TestScriptClass* instance1) { return std::to_string(instance1->get_value()); });
+    wrapper[metamethod_type::Concat]          = ([](TestScriptClass* instance1, i32 x) { return std::stoi(std::to_string(instance1->get_value()) + std::to_string(x)); });
+    wrapper[metamethod_type::Call]            = ([](TestScriptClass* instance1, i32 x) { return x * instance1->get_value(); });
+    wrapper[metamethod_type::Close]           = ([](TestScriptClass* instance1) { return instance1->Closed = true; });
 
     SUBCASE("Metatable")
     {
@@ -454,7 +439,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
         auto r0 = run<std::optional<table>>("return getmetatable(wrap1)").value();
         REQUIRE(r0.has_value());
 
-        wrapper->hide_metatable("nope");
+        wrapper.hide_metatable("nope");
         auto r1 = run<std::optional<table>>("return getmetatable(wrap1)").value();
         REQUIRE_FALSE(r1.has_value());
 
@@ -462,7 +447,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
         REQUIRE(r2.has_value());
         REQUIRE(r2 == "nope");
 
-        wrapper->hide_metatable(nullptr);
+        wrapper.hide_metatable(nullptr);
         auto r3 = run<std::optional<table>>("return getmetatable(wrap1)").value();
         REQUIRE(r3.has_value());
     }
