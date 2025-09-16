@@ -42,13 +42,6 @@ if(TCOB_ENABLE_ADDON_SCRIPTING_LUA)
   )
 endif()
 
-if(TCOB_ENABLE_ADDON_SCRIPTING_SQUIRREL)
-  list(APPEND TEST_SRCFILES
-    SquirrelScriptTests.cpp
-    SquirrelWrapperTests.cpp
-  )
-endif()
-
 if(TCOB_ENABLE_ADDON_DATA_SQLITE)
   list(APPEND TEST_SRCFILES
     SqliteTests.cpp
