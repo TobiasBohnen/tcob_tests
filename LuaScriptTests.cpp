@@ -6,7 +6,6 @@
 #include "tests.hpp"
 
 using namespace tcob::scripting;
-using namespace tcob::scripting::lua;
 
 static auto testfuncstr() -> std::string
 {
@@ -31,7 +30,7 @@ struct foo {
     i32 z = 0;
 };
 
-namespace tcob::scripting::lua {
+namespace tcob::scripting {
 template <>
 struct converter<foo> {
     static auto IsType(state_view ls, i32 idx) -> bool
@@ -64,7 +63,7 @@ struct converter<foo> {
 };
 }
 
-class LuaScriptTests : public lua::script {
+class LuaScriptTests : public script {
 public:
     LuaScriptTests()
         : global(global_table())

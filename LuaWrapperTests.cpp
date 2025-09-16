@@ -1,7 +1,7 @@
 #include "WrapperTestsClass.hpp"
 #include "tests.hpp"
 
-class LuaWrapperTests : public lua::script {
+class LuaWrapperTests : public script {
 public:
     LuaWrapperTests()
         : global(global_table())
@@ -9,7 +9,7 @@ public:
         open_libraries();
     }
 
-    lua::table global;
+    table global;
 };
 
 TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.MapWrapper")
@@ -233,7 +233,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
             auto res = run("function foo(x) return x.value end ");
             REQUIRE(res.has_value());
 
-            auto func = global["foo"].as<lua::function<i32>>();
+            auto func = global["foo"].as<function<i32>>();
             i32  x    = func(&t);
             REQUIRE(x == 350);
         }
@@ -411,15 +411,15 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
 {
     auto wrapper = create_wrapper<TestScriptClass>("TSCB");
     wrapper->metamethod(
-        lua::metamethod::Add, [](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() + x)); });
+        metamethod_type::Add, [](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() + x)); });
     wrapper->metamethod(
-        lua::metamethod::Subtract, [](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() - x)); });
+        metamethod_type::Subtract, [](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() - x)); });
     wrapper->metamethod(
-        lua::metamethod::Divide, [](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() / x)); });
+        metamethod_type::Divide, [](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() / x)); });
     wrapper->metamethod(
-        lua::metamethod::Multiply, [](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() * x)); });
+        metamethod_type::Multiply, [](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() * x)); });
     wrapper->metamethod(
-        lua::metamethod::LessThan,
+        metamethod_type::LessThan,
         [](std::variant<TestScriptClass*, i32> left, std::variant<TestScriptClass*, i32> right) {
             i32 const leftValue {std::holds_alternative<i32>(left) ? std::get<i32>(left) : std::get<TestScriptClass*>(left)->get_value()};
             i32 const rightValue {std::holds_alternative<i32>(right) ? std::get<i32>(right) : std::get<TestScriptClass*>(right)->get_value()};
@@ -427,7 +427,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
             return leftValue < rightValue;
         });
     wrapper->metamethod(
-        lua::metamethod::LessOrEqualThan,
+        metamethod_type::LessOrEqualThan,
         [](std::variant<TestScriptClass*, i32> left, std::variant<TestScriptClass*, i32> right) {
             i32 const leftValue {std::holds_alternative<i32>(left) ? std::get<i32>(left) : std::get<TestScriptClass*>(left)->get_value()};
             i32 const rightValue {std::holds_alternative<i32>(right) ? std::get<i32>(right) : std::get<TestScriptClass*>(right)->get_value()};
@@ -435,28 +435,28 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
             return leftValue <= rightValue;
         });
     wrapper->metamethod(
-        lua::metamethod::UnaryMinus, [](TestScriptClass* instance1) { return -instance1->get_value(); });
+        metamethod_type::UnaryMinus, [](TestScriptClass* instance1) { return -instance1->get_value(); });
     wrapper->metamethod(
-        lua::metamethod::Length, [](TestScriptClass* instance1) { return instance1->get_value(); });
+        metamethod_type::Length, [](TestScriptClass* instance1) { return instance1->get_value(); });
     wrapper->metamethod(
-        lua::metamethod::ToString, [](TestScriptClass* instance1) { return std::to_string(instance1->get_value()); });
+        metamethod_type::ToString, [](TestScriptClass* instance1) { return std::to_string(instance1->get_value()); });
     wrapper->metamethod(
-        lua::metamethod::Concat, [](TestScriptClass* instance1, i32 x) { return std::stoi(std::to_string(instance1->get_value()) + std::to_string(x)); });
+        metamethod_type::Concat, [](TestScriptClass* instance1, i32 x) { return std::stoi(std::to_string(instance1->get_value()) + std::to_string(x)); });
     wrapper->metamethod(
-        lua::metamethod::Call, [](TestScriptClass* instance1, i32 x) { return x * instance1->get_value(); });
+        metamethod_type::Call, [](TestScriptClass* instance1, i32 x) { return x * instance1->get_value(); });
     wrapper->metamethod(
-        lua::metamethod::Close, [](TestScriptClass* instance1) { return instance1->Closed = true; });
+        metamethod_type::Close, [](TestScriptClass* instance1) { return instance1->Closed = true; });
 
     SUBCASE("Metatable")
     {
         TestScriptClass t1;
         global["wrap1"] = &t1;
 
-        auto r0 = run<std::optional<lua::table>>("return getmetatable(wrap1)").value();
+        auto r0 = run<std::optional<table>>("return getmetatable(wrap1)").value();
         REQUIRE(r0.has_value());
 
         wrapper->hide_metatable("nope");
-        auto r1 = run<std::optional<lua::table>>("return getmetatable(wrap1)").value();
+        auto r1 = run<std::optional<table>>("return getmetatable(wrap1)").value();
         REQUIRE_FALSE(r1.has_value());
 
         auto r2 = run<std::optional<std::string>>("return getmetatable(wrap1)").value();
@@ -464,7 +464,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
         REQUIRE(r2 == "nope");
 
         wrapper->hide_metatable(nullptr);
-        auto r3 = run<std::optional<lua::table>>("return getmetatable(wrap1)").value();
+        auto r3 = run<std::optional<table>>("return getmetatable(wrap1)").value();
         REQUIRE(r3.has_value());
     }
     SUBCASE("Call")
@@ -621,7 +621,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
 TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.ChainFunctions")
 {
     {
-        lua::native_closure_shared_ptr l;
+        native_closure_shared_ptr l;
 
         auto foo = [&l](TestScriptClass* instance1, i32 x) mutable {
             instance1->set_value(x * 10);
@@ -629,7 +629,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.ChainFunctions")
                 return instance1->get_value() + y;
             };
 
-            l = lua::make_shared_closure(std::function(lambda));
+            l = make_shared_closure(std::function(lambda));
             return l.get();
         };
 
@@ -647,7 +647,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.ChainFunctions")
     {
         std::string text {};
 
-        lua::native_closure_shared_ptr l;
+        native_closure_shared_ptr l;
 
         auto text_adder = [&l, &text](std::string& y) {
             text += y;
@@ -658,7 +658,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.ChainFunctions")
             return l.get();
         };
 
-        l = lua::make_shared_closure(std::function(text_adder));
+        l = make_shared_closure(std::function(text_adder));
 
         auto wrapper = create_wrapper<TestScriptClass>("TSCB");
         wrapper->method("foo", text_setter);
@@ -686,7 +686,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.UnknownHandler")
     {
         auto res = run("function foo(p) p.unhandled_newindex=400 end");
         REQUIRE(res.has_value());
-        auto f = global["foo"].as<lua::function<void>>();
+        auto f = global["foo"].as<function<void>>();
         foo  test {};
         REQUIRE_FALSE(f.protected_call(&test).has_value());
         REQUIRE_FALSE(test.z == 400);
@@ -695,7 +695,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.UnknownHandler")
     {
         auto res = run("function foo(p) p.z=400 end");
         REQUIRE(res.has_value());
-        auto f = global["foo"].as<lua::function<void>>();
+        auto f = global["foo"].as<function<void>>();
 
         wrap->UnknownSet.connect([](auto&& ev) {
             if (ev.Name == "z") {
@@ -712,14 +712,14 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.UnknownHandler")
         auto res = run("function foo(p) return p.unhandled_index end");
         REQUIRE(res.has_value());
         foo        test {};
-        auto const funcres = global["foo"].as<lua::function<i32>>().protected_call(&test);
+        auto const funcres = global["foo"].as<function<i32>>().protected_call(&test);
         REQUIRE_FALSE(funcres.has_value());
     }
     SUBCASE("handled getter (index)")
     {
         auto res = run("function foo(p) return p.x end");
         REQUIRE(res.has_value());
-        auto f = global["foo"].as<lua::function<i32>>();
+        auto f = global["foo"].as<function<i32>>();
 
         wrap->UnknownGet.connect([](auto&& ev) {
             if (ev.Name == "x") {
@@ -738,16 +738,16 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.UnknownHandler")
         auto res = run("function foo(p) p.unhandled_index() end");
         REQUIRE(res.has_value());
         foo        test {};
-        auto const funcres = global["foo"].as<lua::function<i32>>().protected_call(&test);
+        auto const funcres = global["foo"].as<function<i32>>().protected_call(&test);
         REQUIRE_FALSE(funcres.has_value());
     }
     SUBCASE("handled function (index)")
     {
         auto res = run("function foo(p) return p:y() end");
         REQUIRE(res.has_value());
-        auto f = global["foo"].as<lua::function<i32>>();
+        auto f = global["foo"].as<function<i32>>();
 
-        auto yfunc = lua::make_shared_closure(std::function([](foo* fx) { return fx->y(); }));
+        auto yfunc = make_shared_closure(std::function([](foo* fx) { return fx->y(); }));
         wrap->UnknownGet.connect([yfunc](auto&& ev) {
             if (ev.Name == "y") {
                 ev.return_value(yfunc.get());

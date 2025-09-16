@@ -1,9 +1,8 @@
 #include "tests.hpp"
 
 using namespace tcob::scripting;
-using namespace tcob::scripting::lua;
 
-class LuaDSLTests : public lua::script {
+class LuaDSLTests : public script {
 public:
     LuaDSLTests()
         : global(global_table())
