@@ -112,38 +112,37 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
 
     i32 lambdaValue {0};
 
-    auto wrapper = create_wrapper<TestScriptClass>("TSC");
+    auto& wrapper = *create_wrapper<TestScriptClass>("TSC");
 
-    wrapper->method<&TestScriptClass::foo>("foo");
-    wrapper->method<&TestScriptClass::bar>("bar");
-    wrapper->method<[] -> i32 { return 40; }>("lambda_func");
-    wrapper->method<&TestScriptClass::add_value>("add");
-    wrapper->method<&TestScriptClass::abstractMethod>("abstract");
-    wrapper->method<&TestScriptClass::virtualMethod>("virtual");
-    wrapper->method<&TestScriptClass::baseMethod>("base");
-    wrapper->method<&TestScriptClass::ptr>("ptr");
+    wrapper["foo"]         = &TestScriptClass::foo;
+    wrapper["bar"]         = &TestScriptClass::bar;
+    wrapper["lambda_func"] = [] -> i32 { return 40; };
+    wrapper["add"]         = &TestScriptClass::add_value;
+    wrapper["abstract"]    = &TestScriptClass::abstractMethod;
+    wrapper["virtual"]     = &TestScriptClass::virtualMethod;
+    wrapper["base"]        = &TestScriptClass::baseMethod;
+    wrapper["ptr"]         = &TestScriptClass::ptr;
 
-    wrapper->property<&TestScriptClass::FieldValue>("field");
-    wrapper->property<&TestScriptClass::PropertyValue>("prop");
+    wrapper["field"] = property([](TestScriptClass* t) { return t->FieldValue; }, [](TestScriptClass* t, i32 val) { t->FieldValue = val; });
+    wrapper["prop"]  = property([](TestScriptClass* t) { return *t->PropertyValue; }, [](TestScriptClass* t, i32 val) { t->PropertyValue = val; });
 
-    wrapper->property<&TestScriptClass::get_value, &TestScriptClass::set_value>("value");
-    wrapper->property(
-        "lambda_prop",
+    wrapper["value"]       = property(&TestScriptClass::get_value, &TestScriptClass::set_value);
+    wrapper["lambda_prop"] = property(
         [&lambdaValue] { return lambdaValue; },
         [&lambdaValue](TestScriptClass*, i32 val) { lambdaValue = val; });
-    wrapper->getter<&TestScriptClass::get_value>("readonly_value");
-    wrapper->setter<&TestScriptClass::set_value>("writeonly_value");
-    wrapper->getter<&TestScriptClass::get_map>("map");
+    wrapper["readonly_value"]  = getter(&TestScriptClass::get_value);
+    wrapper["writeonly_value"] = setter(&TestScriptClass::set_value);
+    wrapper["map"]             = getter(&TestScriptClass::get_map);
 
-    wrapper->constructors<TestScriptClass(i32), TestScriptClass(i32, f32), TestScriptClass()>();
+    wrapper.constructors<TestScriptClass(i32), TestScriptClass(i32, f32), TestScriptClass()>();
 
-    auto f1 = resolve_overload<f32(i32, f32)>(&TestScriptClass::overload);
-    auto f2 = resolve_overload<f32(f32, i32)>(&TestScriptClass::overload);
-    auto f3 = resolve_overload<f32(std::vector<f32> const&)>(&TestScriptClass::overload);
-    auto f4 = resolve_overload<f32(i32, f32, f32)>(&TestScriptClass::overload);
-    auto f5 = resolve_overload<f32(f32, i32, f32)>(&TestScriptClass::overload);
-    auto f6 = [](f32 x) -> f32 { return x + 40.0f; };
-    wrapper->overload("overload", f1, f2, f3, f4, f5, f6);
+    auto f1             = resolve_overload<f32(i32, f32)>(&TestScriptClass::overload);
+    auto f2             = resolve_overload<f32(f32, i32)>(&TestScriptClass::overload);
+    auto f3             = resolve_overload<f32(std::vector<f32> const&)>(&TestScriptClass::overload);
+    auto f4             = resolve_overload<f32(i32, f32, f32)>(&TestScriptClass::overload);
+    auto f5             = resolve_overload<f32(f32, i32, f32)>(&TestScriptClass::overload);
+    auto f6             = [](f32 x) -> f32 { return x + 40.0f; };
+    wrapper["overload"] = overload(f1, f2, f3, f4, f5, f6);
 
     SUBCASE("early wrap")
     {
@@ -633,8 +632,8 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.ChainFunctions")
             return l.get();
         };
 
-        auto wrapper = create_wrapper<TestScriptClass>("TSCB");
-        wrapper->method("foo", foo);
+        auto& wrapper  = *create_wrapper<TestScriptClass>("TSCB");
+        wrapper["foo"] = foo;
 
         {
             TestScriptClass t;
@@ -660,8 +659,8 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.ChainFunctions")
 
         l = make_shared_closure(std::function(text_adder));
 
-        auto wrapper = create_wrapper<TestScriptClass>("TSCB");
-        wrapper->method("foo", text_setter);
+        auto& wrapper  = *create_wrapper<TestScriptClass>("TSCB");
+        wrapper["foo"] = text_setter;
         {
             TestScriptClass t;
             global["wrap"] = &t;
