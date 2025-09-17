@@ -57,9 +57,12 @@ target_include_directories(tcob_tests PRIVATE . PRIVATE ../../tcob/include)
 
 target_compile_options(tcob_tests PRIVATE
   $<$<CXX_COMPILER_ID:MSVC>: /W4>
-  $<$<CXX_COMPILER_ID:Clang>: -Wall -Wextra -Wno-switch-default -Wno-unsafe-buffer-usage -Wno-c++20-compat -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-float-equal -Wno-old-style-cast -Wno-header-hygiene -Wno-ctad-maybe-unsupported -Wno-exit-time-destructors -Wno-global-constructors -Wno-double-promotion>
+  $<$<CXX_COMPILER_ID:Clang>: -Wall -Wextra -Wconversion -Wpedantic
+  -Wno-sign-conversion
+  >
   $<$<CXX_COMPILER_ID:GNU>: -Wall -Wextra -pedantic>
 )
+
 target_link_options(tcob_tests PRIVATE
   $<$<CXX_COMPILER_ID:MSVC>: /ignore:4217,4286>
 )
