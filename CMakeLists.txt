@@ -1,6 +1,9 @@
 add_executable(tcob_tests)
 
 set(TEST_SRCFILES
+  LuaDSLTests.cpp
+  LuaScriptTests.cpp
+  LuaWrapperTests.cpp
   AngleUnitTests.cpp
   AssetTests.cpp
   CameraTests.cpp
@@ -33,14 +36,6 @@ set(TEST_SRCFILES
   UTFTests.cpp
   main.cpp
 )
-
-if(TCOB_ENABLE_ADDON_SCRIPTING_LUA)
-  list(APPEND TEST_SRCFILES
-    LuaDSLTests.cpp
-    LuaScriptTests.cpp
-    LuaWrapperTests.cpp
-  )
-endif()
 
 if(TCOB_ENABLE_ADDON_DATA_SQLITE)
   list(APPEND TEST_SRCFILES
