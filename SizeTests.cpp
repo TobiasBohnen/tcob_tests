@@ -16,9 +16,9 @@ TEST_CASE("Core.POD.Size")
         REQUIRE(size_i {2560, 1080}.aspect_ratio() == Approx(2560.0f / 1080.0f));
         REQUIRE(size_i {800, 600}.aspect_ratio() == Approx(4.0f / 3.0f));
 
-        REQUIRE(size_i {0, 0}.aspect_ratio() == 0);
-        REQUIRE(size_i {0, 600}.aspect_ratio() == 0);
-        REQUIRE(size_i {600, 0}.aspect_ratio() == 0);
+        REQUIRE(size_i {0, 0}.aspect_ratio() == 0.0f);
+        REQUIRE(size_i {0, 600}.aspect_ratio() == 0.0f);
+        REQUIRE(size_i {600, 0}.aspect_ratio() == 0.0f);
     }
 
     SUBCASE("IntegerRatio")
