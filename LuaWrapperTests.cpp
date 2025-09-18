@@ -126,23 +126,13 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
     wrapper["field"] = property([](TestScriptClass* t) { return t->FieldValue; }, [](TestScriptClass* t, i32 val) { t->FieldValue = val; });
     wrapper["prop"]  = property([](TestScriptClass* t) { return *t->PropertyValue; }, [](TestScriptClass* t, i32 val) { t->PropertyValue = val; });
 
-    wrapper["value"]       = property(&TestScriptClass::get_value, &TestScriptClass::set_value);
-    wrapper["lambda_prop"] = property(
-        [&lambdaValue] { return lambdaValue; },
-        [&lambdaValue](TestScriptClass*, i32 val) { lambdaValue = val; });
+    wrapper["value"]           = property(&TestScriptClass::get_value, &TestScriptClass::set_value);
+    wrapper["lambda_prop"]     = property([&lambdaValue] { return lambdaValue; }, [&lambdaValue](TestScriptClass*, i32 val) { lambdaValue = val; });
     wrapper["readonly_value"]  = getter(&TestScriptClass::get_value);
     wrapper["writeonly_value"] = setter(&TestScriptClass::set_value);
     wrapper["map"]             = getter(&TestScriptClass::get_map);
 
     wrapper.constructors<TestScriptClass(i32), TestScriptClass(i32, f32), TestScriptClass()>();
-
-    auto f1             = resolve_overload<f32(i32, f32)>(&TestScriptClass::overload);
-    auto f2             = resolve_overload<f32(f32, i32)>(&TestScriptClass::overload);
-    auto f3             = resolve_overload<f32(std::vector<f32> const&)>(&TestScriptClass::overload);
-    auto f4             = resolve_overload<f32(i32, f32, f32)>(&TestScriptClass::overload);
-    auto f5             = resolve_overload<f32(f32, i32, f32)>(&TestScriptClass::overload);
-    auto f6             = [](f32 x) -> f32 { return x + 40.0f; };
-    wrapper["overload"] = overload(f1, f2, f3, f4, f5, f6);
 
     SUBCASE("early wrap")
     {
@@ -272,6 +262,14 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
     }
     SUBCASE("overloads")
     {
+        auto f1             = resolve_overload<f32(i32, f32)>(&TestScriptClass::overload);
+        auto f2             = resolve_overload<f32(f32, i32)>(&TestScriptClass::overload);
+        auto f3             = resolve_overload<f32(std::vector<f32> const&)>(&TestScriptClass::overload);
+        auto f4             = resolve_overload<f32(i32, f32, f32)>(&TestScriptClass::overload);
+        auto f5             = resolve_overload<f32(f32, i32, f32)>(&TestScriptClass::overload);
+        auto f6             = [](f32 x) -> f32 { return x + 40.0f; };
+        wrapper["overload"] = overload(f1, f2, f3, f4, f5, f6);
+
         TestScriptClass t;
         global["wrap"] = &t;
         f32 x          = *run<f32>("return wrap:overload({0.2,0.4})");
@@ -291,6 +289,9 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
 
         x = *run<f32>("return wrap.overload(20)");
         REQUIRE(x == 60.f);
+
+        auto fail0 = run<f32>("return wrap.overload(false, false, false)", "overload error");
+        REQUIRE_FALSE(fail0);
     }
     SUBCASE("functions")
     {
