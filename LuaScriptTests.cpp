@@ -103,7 +103,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Closures")
             REQUIRE(voidTest == 2);
         }
         {
-            global["testFunc"] = testfuncstr;
+            global["testFunc"] = &testfuncstr;
             std::string x      = *run<std::string>("return testFunc()");
             REQUIRE(x == testfuncstr());
         }
@@ -146,7 +146,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Closures")
     {
         i32  x {102};
         auto l             = std::function([&](i32 i) {
-            auto lt {table::Create(get_view())};
+            auto lt {table::Create(view())};
             lt["value"] = x * i;
             return lt;
         });
@@ -646,7 +646,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Environment")
         REQUIRE(res1);
         REQUIRE(res1.value() == 100);
 
-        auto newEnv {table::Create(get_view())};
+        auto newEnv {table::Create(view())};
         newEnv["x"] = 200;
         set_environment(newEnv);
 
@@ -667,7 +667,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Environment")
         REQUIRE(res0);
         REQUIRE(res0.value() == 5.0f);
 
-        auto newEnv {table::Create(get_view())};
+        auto newEnv {table::Create(view())};
         set_environment(newEnv);
 
         res0 = run<f32>("return tonumber('5')", "error");
@@ -683,7 +683,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Environment")
     }
     SUBCASE("get from _ENV")
     {
-        auto newEnv {table::Create(get_view())};
+        auto newEnv {table::Create(view())};
         set_environment(newEnv);
 
         auto res0 = run("function foo() return tonumber('5') end", "error");
@@ -1278,19 +1278,19 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Hook")
 
         auto func = [&](debug const& debug) {
             if (debug.Source == "TEST" && debug.Event == debug_event::Return) {
-                auto const view {get_view()};
-                auto const guard {view.create_stack_guard()};
+                auto const vw {view()};
+                auto const guard {vw.create_stack_guard()};
 
                 for (i32 i {1};; ++i) {
                     auto val {debug.get_local(i)};
                     if (val.empty() || val[0] == '(') { break; }
 
                     if (val == "x") {
-                        view.pull_convert_idx(-1, x);
+                        vw.pull_convert_idx(-1, x);
                     } else if (val == "y") {
-                        view.pull_convert_idx(-1, y);
+                        vw.pull_convert_idx(-1, y);
                     } else if (val == "z") {
-                        view.pull_convert_idx(-1, z);
+                        vw.pull_convert_idx(-1, z);
                     }
                 }
             }
@@ -1907,7 +1907,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
             REQUIRE(res0.has_value());
 
             auto metatab          = tab.create_or_get_metatable();
-            auto func             = std::function {[&] { get_view().error("readonly"); }};
+            auto func             = std::function {[&] { view().error("readonly"); }};
             metatab["__newindex"] = &func;
 
             auto res1 = run("table.b = 100", "error");
@@ -1951,7 +1951,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
     {
         SUBCASE("i32")
         {
-            auto tab = table::Create(get_view());
+            auto tab = table::Create(view());
             tab["x"] = 100;
             tab["y"] = tab["x"];
             REQUIRE(tab["x"].as<i32>() == 100);
@@ -1959,7 +1959,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
         }
         SUBCASE("bool")
         {
-            auto tab = table::Create(get_view());
+            auto tab = table::Create(view());
             tab["x"] = true;
             tab["y"] = tab["x"];
             REQUIRE(tab["x"].as<bool>() == true);
@@ -1967,7 +1967,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
         }
         SUBCASE("string")
         {
-            auto tab = table::Create(get_view());
+            auto tab = table::Create(view());
             tab["x"] = "ok";
             tab["y"] = tab["x"];
             REQUIRE(tab["x"].as<string>() == "ok");
@@ -1975,8 +1975,8 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
         }
         SUBCASE("table")
         {
-            auto tab  = table::Create(get_view());
-            auto tab2 = table::Create(get_view());
+            auto tab  = table::Create(view());
+            auto tab2 = table::Create(view());
             tab2["a"] = 100;
             tab["x"]  = tab2;
             tab["y"]  = tab["x"];
@@ -1986,7 +1986,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
         SUBCASE("const table")
         {
             auto const tab  = *run<table>(" return {x=100}");
-            auto       tab2 = table::Create(get_view());
+            auto       tab2 = table::Create(view());
             tab2["a"]       = 100;
             tab["x"]        = tab2;
             tab["y"]        = tab["x"];
@@ -1995,7 +1995,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
         }
         SUBCASE("undefined")
         {
-            auto tab = table::Create(get_view());
+            auto tab = table::Create(view());
             tab["y"] = tab["x"];
             REQUIRE_FALSE(tab.has("y"));
         }
