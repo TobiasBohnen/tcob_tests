@@ -4,6 +4,7 @@ set(TEST_SRCFILES
   LuaDSLTests.cpp
   LuaScriptTests.cpp
   LuaWrapperTests.cpp
+  AudioCodecTests.cpp
   AngleUnitTests.cpp
   AssetTests.cpp
   CameraTests.cpp
