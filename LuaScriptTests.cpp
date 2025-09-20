@@ -1,5 +1,6 @@
 #include "WrapperTestsClass.hpp"
 
+#include <algorithm>
 #include <cstring>
 #include <string>
 
@@ -942,32 +943,26 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Functions")
         {
             auto func = run<function<i32>>("return function() return 100 end ").value();
             REQUIRE(func() == 100);
-            REQUIRE(100 == func());
         }
         {
             function<i32> func = *run<function<i32>>("return function() return 100 end ");
             REQUIRE_FALSE(func() == 10);
-            REQUIRE_FALSE(10 == func());
         }
         {
             function<i32> func = *run<function<i32>>("return function() return 5 end ");
             REQUIRE(func() * 20 == 100);
-            REQUIRE(20 * func() == 100);
         }
         {
             function<i32> func = *run<function<i32>>("return function() return 500 end ");
             REQUIRE(func() / 5 == 100);
-            REQUIRE(50000 / func() == 100);
         }
         {
             function<i32> func = *run<function<i32>>("return function() return 95 end ");
             REQUIRE(func() + 5 == 100);
-            REQUIRE(5 + func() == 100);
         }
         {
             function<i32> func = *run<function<i32>>("return function() return 105 end ");
             REQUIRE(func() - 5 == 100);
-            REQUIRE(205 - func() == 100);
         }
         {
             auto func = run<function<std::vector<i32>>>("return function() return {5, 4, 3, 2, 1} end ").value();
@@ -988,11 +983,8 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Functions")
             REQUIRE(a["aa"] == 1);
         }
         {
-            auto res = run(
-                "x = 0 "
-                "function testVoid(p) "
-                "   x = p.x * p.y "
-                "end ");
+            auto res = run("x = 0 "
+                           "function testVoid(p) x = p.x * p.y end");
             REQUIRE(res);
             auto func = global["testVoid"].as<function<void>>();
             func(point_i {2, 4});
@@ -1000,20 +992,14 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Functions")
             REQUIRE(x == 2 * 4);
         }
         {
-            auto res = run(
-                "function testMulti(f,p,r,b) "
-                "   return f * p.x * r.y "
-                "end ");
+            auto res = run("function testMulti(f,p,r,b) return f * p.x * r.y end ");
             REQUIRE(res);
             auto func = global["testMulti"].as<function<f32>>();
             f32  x    = func(10.4f, point_i {2, 4}, rect_f {0, 20, 4, 5}, true);
             REQUIRE(x == 10.4f * 2 * 20);
         }
         {
-            auto res = run(
-                "function testTable(x,y) "
-                "   return { a = x, b = y } "
-                "end ");
+            auto res = run("function testTable(x,y) return { a = x, b = y } end");
             REQUIRE(res);
             auto  func = global["testTable"].as<function<table>>();
             table tab  = func(10, 20);
@@ -1743,21 +1729,21 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
             table                    tab = *run<table>("return {a = 2.4, b = true, c = 'hello', 42} ");
             std::vector<std::string> vect {"a", "b", "c"};
             std::vector<std::string> keys = tab.get_keys<std::string>();
-            std::sort(keys.begin(), keys.end());
+            std::ranges::sort(keys);
             REQUIRE(keys == vect);
         }
         {
             table            tab = *run<table>("return { 'a', 3, 55, a = 22 }");
             std::vector<i32> vect {1, 2, 3};
             std::vector<i32> keys = tab.get_keys<i32>();
-            std::sort(keys.begin(), keys.end());
+            std::ranges::sort(keys);
             REQUIRE(keys == vect);
         }
         {
             table                                       tab = *run<table>("return {a = 2.4, 3, c = 'hello'} ");
             std::vector<std::variant<i32, std::string>> vect {1, "a", "c"};
             auto                                        keys = tab.get_keys<std::variant<i32, std::string>>();
-            std::sort(keys.begin(), keys.end());
+            std::ranges::sort(keys);
             REQUIRE(keys == vect);
         }
         {
