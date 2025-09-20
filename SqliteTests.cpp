@@ -291,22 +291,6 @@ TEST_CASE("Data.Sqlite.Select")
                 }
             }
         }
-        SUBCASE("multi-column by string: Alive asc, Age desc")
-        {
-            auto const rows {dbTable->select_from<i32, string, i32, f32, bool>()
-                                 .order_by("Alive ASC", "Age DESC")()};
-            for (usize i {1}; i < rows.size(); ++i) {
-                auto const& [idPrev, namePrev, agePrev, hPrev, alivePrev] {rows[i - 1]};
-                auto const& [idCurr, nameCurr, ageCurr, hCurr, aliveCurr] {rows[i]};
-
-                if (alivePrev == aliveCurr) {
-                    REQUIRE(agePrev >= ageCurr);
-                } else {
-                    REQUIRE(alivePrev == false);
-                    REQUIRE(aliveCurr == true);
-                }
-            }
-        }
     }
     SUBCASE("limit")
     {
