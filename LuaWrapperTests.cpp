@@ -15,43 +15,53 @@ public:
 TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.MapWrapper")
 {
     create_wrapper<std::map<std::string, i32>>("map");
+    create_wrapper<std::unordered_map<std::string, i32>>("unmap");
+
+    SUBCASE("get")
     {
-        std::map<std::string, i32> map = {{"a", 0}, {"b", 1}};
-        global["wrap"]                 = &map;
-        i32 x                          = *run<i32>("return wrap.b");
-        REQUIRE(x == 1);
-    }
-    {
-        std::map<std::string, i32> map = {{"a", 0}, {"b", 1}};
-        global["wrap"]                 = &map;
-        auto res                       = run("wrap.b = 100");
-        REQUIRE(map["b"] == 100);
-        res = run("wrap.c = 42");
-        REQUIRE(map["c"] == 42);
-    }
-    {
-        std::map<std::string, i32> map = {{"a", 0}, {"b", 1}};
-        global["wrap"]                 = &map;
-        auto res                       = run("b = wrap.b");
-        REQUIRE(res);
-        REQUIRE(global["b"].as<i32>() == map["b"]);
+        {
+            std::map<std::string, i32> map = {{"a", 0}, {"b", 1}};
+            global["wrap"]                 = &map;
+            i32 x                          = *run<i32>("return wrap.b");
+            REQUIRE(x == 1);
+        }
+        {
+            std::map<std::string, i32> map = {{"a", 0}, {"b", 1}};
+            global["wrap"]                 = &map;
+            auto res                       = run("b = wrap.b");
+            REQUIRE(res);
+            REQUIRE(global["b"].as<i32>() == map["b"]);
+        }
+
+        {
+            std::unordered_map<std::string, i32> map = {{"a", 0}, {"b", 1}};
+            global["wrap"]                           = &map;
+            i32 x                                    = *run<i32>("return wrap.b");
+            REQUIRE(x == 1);
+        }
     }
 
-    create_wrapper<std::unordered_map<std::string, i32>>("unmap");
+    SUBCASE("set")
     {
-        std::unordered_map<std::string, i32> map = {{"a", 0}, {"b", 1}};
-        global["wrap"]                           = &map;
-        i32 x                                    = *run<i32>("return wrap.b");
-        REQUIRE(x == 1);
+        {
+            std::map<std::string, i32> map = {{"a", 0}, {"b", 1}};
+            global["wrap"]                 = &map;
+            auto res                       = run("wrap.b = 100");
+            REQUIRE(map["b"] == 100);
+            res = run("wrap.c = 42");
+            REQUIRE(map["c"] == 42);
+        }
+        {
+            std::unordered_map<std::string, i32> map = {{"a", 0}, {"b", 1}};
+            global["wrap"]                           = &map;
+            auto res                                 = run("wrap.b = 100");
+            REQUIRE(map["b"] == 100);
+            res = run("wrap.c = 42");
+            REQUIRE(map["c"] == 42);
+        }
     }
-    {
-        std::unordered_map<std::string, i32> map = {{"a", 0}, {"b", 1}};
-        global["wrap"]                           = &map;
-        auto res                                 = run("wrap.b = 100");
-        REQUIRE(map["b"] == 100);
-        res = run("wrap.c = 42");
-        REQUIRE(map["c"] == 42);
-    }
+
+    SUBCASE("equality")
     {
         std::unordered_map<std::string, i32> map1 = {{"a", 0}, {"b", 1}};
         global["wrap1"]                           = &map1;
@@ -63,6 +73,35 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.MapWrapper")
         REQUIRE(res);
         res = *run<bool>("return wrap3 == wrap2");
         REQUIRE_FALSE(res);
+    }
+
+    SUBCASE("iterate")
+    {
+        {
+            std::map<std::string, i32> map {{{"a", 1}, {"b", 2}, {"c", 3}}};
+            global["wrap"] = &map;
+
+            i32 sum = *run<i32>(
+                "result = 0\n"
+                "for k, v in pairs(wrap) do\n"
+                "    result = result + v\n"
+                "end\n"
+                "return result");
+            REQUIRE(sum == 6); // 1 + 2 + 3
+        }
+
+        {
+            std::unordered_map<std::string, i32> map {{{"x", 10}, {"y", 20}}};
+            global["wrap"] = &map;
+
+            i32 sum = *run<i32>(
+                "result = 0\n"
+                "for k, v in pairs(wrap) do\n"
+                "    result = result + v\n"
+                "end\n"
+                "return result");
+            REQUIRE(sum == 30); // 10 + 20
+        }
     }
 }
 
