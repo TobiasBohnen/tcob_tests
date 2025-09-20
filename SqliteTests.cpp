@@ -888,7 +888,7 @@ TEST_CASE("Data.Sqlite.Views")
 
     REQUIRE(dbTable->insert_into("A", "B", "C", "D")(values));
     {
-        auto       select {std::move(dbTable->select_from<i32, i32, i32, i32>("A", "B", "C", "D").where("A > 50"))};
+        auto       select {std::move(dbTable->select_from<i32, i32, i32, i32>("A", "B", "C", "D").where(raw {"A > 50"}))};
         auto const rows {select()};
 
         auto dbView {db.create_view("testView", select)};
