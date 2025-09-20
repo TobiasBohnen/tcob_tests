@@ -1132,6 +1132,38 @@ TEST_CASE("Data.Sqlite.TableInfo")
     REQUIRE_FALSE(info[4].IsPrimaryKey);
 }
 
+TEST_CASE("Data.Sqlite.RenameColumn")
+{
+    string   tableName {"people"};
+    database db {database::OpenMemory()};
+
+    // Create initial table
+    auto dbTable {db.create_table(tableName,
+                                  int_column<primary_key> {.Name = "ID"},
+                                  text_column {.Name = "Name"})};
+    REQUIRE(dbTable);
+    REQUIRE(dbTable->name() == tableName);
+
+    // Insert sample data
+    REQUIRE(dbTable->insert_into("ID", "Name")(1, "Alice"));
+    auto rows {dbTable->select_from<i32, string>("ID", "Name")()};
+    REQUIRE(rows.size() == 1);
+    REQUIRE(rows[0] == std::tuple {1, "Alice"});
+
+    // Rename column "Name" -> "FullName"
+    REQUIRE(dbTable->rename_column("Name", "FullName"));
+
+    // Verify new schema
+    auto cols {dbTable->column_names()};
+    REQUIRE(std::ranges::any_of(cols, [](auto const& col) { return col == "FullName"; }));
+    REQUIRE_FALSE(std::ranges::any_of(cols, [](auto const& col) { return col == "Name"; }));
+
+    // Verify data still exists under new column name
+    auto renamedRows {dbTable->select_from<i32, string>("ID", "FullName")()};
+    REQUIRE(renamedRows.size() == 1);
+    REQUIRE(renamedRows[0] == std::tuple {1, "Alice"});
+}
+
 TEST_CASE("Data.Sqlite.RenameTable")
 {
     string tableName {"originalTable"};
@@ -1250,9 +1282,9 @@ TEST_CASE("Data.Sqlite.SetOperations")
         }
     }
 
-    SUBCASE("intersect_with returns only common rows")
+    SUBCASE("intersect returns only common rows")
     {
-        auto rows {s1.intersect_with(s2)()};
+        auto rows {s1.intersect(s2)()};
         REQUIRE(rows.size() == 2);
 
         std::set<std::tuple<i32, string>> expected {
@@ -1262,9 +1294,9 @@ TEST_CASE("Data.Sqlite.SetOperations")
         }
     }
 
-    SUBCASE("except_with subtracts rows from second set")
+    SUBCASE("except subtracts rows from second set")
     {
-        auto rows {s1.except_with(s2)()};
+        auto rows {s1.except(s2)()};
         REQUIRE(rows.size() == 1);
 
         REQUIRE(rows[0] == std::tuple {1, string {"A"}});
@@ -1272,7 +1304,7 @@ TEST_CASE("Data.Sqlite.SetOperations")
 
     SUBCASE("chaining works (intersect then except)")
     {
-        auto rows {s1.intersect_with(s2).except_with(s3)()};
+        auto rows {s1.intersect(s2).except(s3)()};
         REQUIRE(rows.size() == 1);
 
         REQUIRE(rows[0] == std::tuple {2, string {"B"}});
