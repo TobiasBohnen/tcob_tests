@@ -123,8 +123,8 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
     wrapper["base"]        = &TestScriptClass::baseMethod;
     wrapper["ptr"]         = &TestScriptClass::ptr;
 
-    wrapper["field"] = property([](TestScriptClass* t) { return t->FieldValue; }, [](TestScriptClass* t, i32 val) { t->FieldValue = val; });
-    wrapper["prop"]  = property([](TestScriptClass* t) { return *t->PropertyValue; }, [](TestScriptClass* t, i32 val) { t->PropertyValue = val; });
+    wrapper["field"] = &TestScriptClass::FieldValue;
+    wrapper["prop"]  = &TestScriptClass::PropertyValue;
 
     wrapper["value"]           = property(&TestScriptClass::get_value, &TestScriptClass::set_value);
     wrapper["lambda_prop"]     = property([&lambdaValue] { return lambdaValue; }, [&lambdaValue](TestScriptClass*, i32 val) { lambdaValue = val; });
@@ -231,21 +231,17 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
             global["wrap"] = &t1;
 
             t1.set_value(100);
-            i32 x = *run<i32>("return wrap.value");
-            REQUIRE(x == 100);
-            x = *run<i32>("return wrap:add(20)");
-            REQUIRE(x == 120);
+            REQUIRE(*run<i32>("return wrap.value") == 100);
+            REQUIRE(*run<i32>("return wrap:add(20)") == 120);
 
             TestScriptClass t2;
             t2.set_value(250);
 
             global["wrap"] = &t2;
-            x              = *run<i32>("return wrap.value");
-            REQUIRE(x == 250);
+            REQUIRE(*run<i32>("return wrap.value") == 250);
 
             global["wrap"] = &t1;
-            x              = *run<i32>("return wrap:add(20)");
-            REQUIRE(x == 120);
+            REQUIRE(*run<i32>("return wrap:add(20)") == 120);
         }
     }
     SUBCASE("field")
@@ -253,8 +249,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
         TestScriptClass t;
         global["wrap"] = &t;
         t.FieldValue   = 42;
-        i32 value      = *run<i32>("return wrap.field");
-        REQUIRE(value == 42);
+        REQUIRE(*run<i32>("return wrap.field") == 42);
 
         auto res = run("wrap.field = 21");
         REQUIRE(res.has_value());
@@ -262,36 +257,24 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
     }
     SUBCASE("overloads")
     {
-        auto f1             = resolve_overload<f32(i32, f32)>(&TestScriptClass::overload);
-        auto f2             = resolve_overload<f32(f32, i32)>(&TestScriptClass::overload);
-        auto f3             = resolve_overload<f32(std::vector<f32> const&)>(&TestScriptClass::overload);
-        auto f4             = resolve_overload<f32(i32, f32, f32)>(&TestScriptClass::overload);
-        auto f5             = resolve_overload<f32(f32, i32, f32)>(&TestScriptClass::overload);
+        auto f1             = static_cast<f32 (TestScriptClass::*)(i32, f32)>(&TestScriptClass::overload);
+        auto f2             = static_cast<f32 (TestScriptClass::*)(f32, i32)>(&TestScriptClass::overload);
+        auto f3             = static_cast<f32 (TestScriptClass::*)(std::vector<f32> const&)>(&TestScriptClass::overload);
+        auto f4             = static_cast<f32 (TestScriptClass::*)(i32, f32, f32)>(&TestScriptClass::overload);
+        auto f5             = static_cast<f32 (TestScriptClass::*)(f32, i32, f32)>(&TestScriptClass::overload);
         auto f6             = [](f32 x) -> f32 { return x + 40.0f; };
         wrapper["overload"] = overload(f1, f2, f3, f4, f5, f6);
 
         TestScriptClass t;
         global["wrap"] = &t;
-        f32 x          = *run<f32>("return wrap:overload({0.2,0.4})");
-        REQUIRE(x == t.overload(std::vector<f32> {0.2f, 0.4f}));
+        REQUIRE(*run<f32>("return wrap:overload({0.2,0.4})") == t.overload(std::vector<f32> {0.2f, 0.4f}));
+        REQUIRE(*run<f32>("return wrap:overload(4, 2.1)") == t.overload(4, 2.1f));
+        REQUIRE(*run<f32>("return wrap:overload(2.1, 12)") == t.overload(2.1f, 12));
+        REQUIRE(*run<f32>("return wrap:overload(15, 2.1, 99.9)") == t.overload(15, 2.1f, 99.9f));
+        REQUIRE(*run<f32>("return wrap:overload(2.1, 15, 1.5)") == t.overload(2.1f, 15, 1.5f));
+        REQUIRE(*run<f32>("return wrap.overload(20)") == 60.f);
 
-        x = *run<f32>("return wrap:overload(4, 2.1)");
-        REQUIRE(x == t.overload(4, 2.1f));
-
-        x = *run<f32>("return wrap:overload(2.1, 12)");
-        REQUIRE(x == t.overload(2.1f, 12));
-
-        x = *run<f32>("return wrap:overload(15, 2.1, 99.9)");
-        REQUIRE(x == t.overload(15, 2.1f, 99.9f));
-
-        x = *run<f32>("return wrap:overload(2.1, 15, 1.5)");
-        REQUIRE(x == t.overload(2.1f, 15, 1.5f));
-
-        x = *run<f32>("return wrap.overload(20)");
-        REQUIRE(x == 60.f);
-
-        auto fail0 = run<f32>("return wrap.overload(false, false, false)", "overload error");
-        REQUIRE_FALSE(fail0);
+        REQUIRE_FALSE(run<f32>("return wrap.overload(false, false, false)", "overload error"));
     }
     SUBCASE("functions")
     {
@@ -328,7 +311,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper")
     }
 }
 
-TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper2")
+TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.PlayerWrapper")
 {
     std::string name {"Dave"};
 
@@ -346,8 +329,8 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper2")
     wrapper["health"]          = property {&Player::get_health, &Player::set_health};
     wrapper["name"]            = getter {[&name] { return name; }};
 
-    auto f1                     = resolve_overload<void(std::string const&)>(&Player::add_to_inventory);
-    auto f2                     = resolve_overload<void(int)>(&Player::add_to_inventory);
+    auto f1                     = static_cast<void (Player::*)(std::string const&)>(&Player::add_to_inventory);
+    auto f2                     = static_cast<void (Player::*)(int)>(&Player::add_to_inventory);
     wrapper["add_to_inventory"] = overload {f1, f2};
 
     SUBCASE("constructor")
@@ -409,28 +392,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.TypeWrapper2")
 
 TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
 {
-    auto& wrapper                             = *create_wrapper<TestScriptClass>("TSCB");
-    wrapper[metamethod_type::Add]             = [](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() + x)); };
-    wrapper[metamethod_type::Subtract]        = ([](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() - x)); });
-    wrapper[metamethod_type::Divide]          = ([](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() / x)); });
-    wrapper[metamethod_type::Multiply]        = ([](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() * x)); });
-    wrapper[metamethod_type::LessThan]        = ([](std::variant<TestScriptClass*, i32> left, std::variant<TestScriptClass*, i32> right) {
-        i32 const leftValue {std::holds_alternative<i32>(left) ? std::get<i32>(left) : std::get<TestScriptClass*>(left)->get_value()};
-        i32 const rightValue {std::holds_alternative<i32>(right) ? std::get<i32>(right) : std::get<TestScriptClass*>(right)->get_value()};
-        return leftValue < rightValue;
-    });
-    wrapper[metamethod_type::LessOrEqualThan] = ([](std::variant<TestScriptClass*, i32> left, std::variant<TestScriptClass*, i32> right) {
-        i32 const leftValue {std::holds_alternative<i32>(left) ? std::get<i32>(left) : std::get<TestScriptClass*>(left)->get_value()};
-        i32 const rightValue {std::holds_alternative<i32>(right) ? std::get<i32>(right) : std::get<TestScriptClass*>(right)->get_value()};
-
-        return leftValue <= rightValue;
-    });
-    wrapper[metamethod_type::UnaryMinus]      = ([](TestScriptClass* instance1) { return -instance1->get_value(); });
-    wrapper[metamethod_type::Length]          = ([](TestScriptClass* instance1) { return instance1->get_value(); });
-    wrapper[metamethod_type::ToString]        = ([](TestScriptClass* instance1) { return std::to_string(instance1->get_value()); });
-    wrapper[metamethod_type::Concat]          = ([](TestScriptClass* instance1, i32 x) { return std::stoi(std::to_string(instance1->get_value()) + std::to_string(x)); });
-    wrapper[metamethod_type::Call]            = ([](TestScriptClass* instance1, i32 x) { return x * instance1->get_value(); });
-    wrapper[metamethod_type::Close]           = ([](TestScriptClass* instance1) { return instance1->Closed = true; });
+    auto& wrapper = *create_wrapper<TestScriptClass>("TSCB");
 
     SUBCASE("Metatable")
     {
@@ -454,6 +416,8 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
     }
     SUBCASE("Call")
     {
+        wrapper[metamethod_type::Call] = ([](TestScriptClass* instance1, i32 x) { return x * instance1->get_value(); });
+
         i32             value1 = 4000;
         TestScriptClass t1;
         global["wrap1"] = &t1;
@@ -464,6 +428,8 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
     }
     SUBCASE("Length")
     {
+        wrapper[metamethod_type::Length] = ([](TestScriptClass* instance1) { return instance1->get_value(); });
+
         i32             value1 = 4000;
         TestScriptClass t1;
         global["wrap1"] = &t1;
@@ -474,6 +440,8 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
     }
     SUBCASE("ToString")
     {
+        wrapper[metamethod_type::ToString] = ([](TestScriptClass* instance1) { return std::to_string(instance1->get_value()); });
+
         i32             value1 = 4000;
         TestScriptClass t1;
         global["wrap1"] = &t1;
@@ -484,6 +452,8 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
     }
     SUBCASE("Concat")
     {
+        wrapper[metamethod_type::Concat] = ([](TestScriptClass* instance1, i32 x) { return std::stoi(std::to_string(instance1->get_value()) + std::to_string(x)); });
+
         i32             value1 = 4000;
         TestScriptClass t1;
         global["wrap1"] = &t1;
@@ -494,6 +464,13 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
     }
     SUBCASE("LessOrEqualThan")
     {
+        wrapper[metamethod_type::LessOrEqualThan] = ([](std::variant<TestScriptClass*, i32> left, std::variant<TestScriptClass*, i32> right) {
+            i32 const leftValue {std::holds_alternative<i32>(left) ? std::get<i32>(left) : std::get<TestScriptClass*>(left)->get_value()};
+            i32 const rightValue {std::holds_alternative<i32>(right) ? std::get<i32>(right) : std::get<TestScriptClass*>(right)->get_value()};
+
+            return leftValue <= rightValue;
+        });
+
         i32             value1 = 4000;
         TestScriptClass t1;
         global["wrap1"] = &t1;
@@ -510,6 +487,12 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
     }
     SUBCASE("LessThan")
     {
+        wrapper[metamethod_type::LessThan] = ([](std::variant<TestScriptClass*, i32> left, std::variant<TestScriptClass*, i32> right) {
+            i32 const leftValue {std::holds_alternative<i32>(left) ? std::get<i32>(left) : std::get<TestScriptClass*>(left)->get_value()};
+            i32 const rightValue {std::holds_alternative<i32>(right) ? std::get<i32>(right) : std::get<TestScriptClass*>(right)->get_value()};
+            return leftValue < rightValue;
+        });
+
         i32             value1 = 4000;
         TestScriptClass t1;
         global["wrap1"] = &t1;
@@ -544,6 +527,11 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
     }
     SUBCASE("Add,Subtract,Divide,Multiply")
     {
+        wrapper[metamethod_type::Add]      = [](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() + x)); };
+        wrapper[metamethod_type::Subtract] = ([](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() - x)); });
+        wrapper[metamethod_type::Divide]   = ([](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() / x)); });
+        wrapper[metamethod_type::Multiply] = ([](TestScriptClass* instance1, i32 x) { return scripting::managed_ptr(new TestScriptClass(instance1->get_value() * x)); });
+
         i32             value1 = 4000;
         TestScriptClass t1;
         global["wrap1"] = &t1;
@@ -566,6 +554,8 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
     }
     SUBCASE("UnaryMinus")
     {
+        wrapper[metamethod_type::UnaryMinus] = ([](TestScriptClass* instance1) { return -instance1->get_value(); });
+
         TestScriptClass t1;
         global["wrap1"] = &t1;
         t1.set_value(100);
@@ -575,6 +565,8 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
     }
     SUBCASE("Close")
     {
+        wrapper[metamethod_type::Close] = ([](TestScriptClass* instance1) { return instance1->Closed = true; });
+
         TestScriptClass t1;
         global["wrap1"] = &t1;
 

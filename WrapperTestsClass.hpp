@@ -108,12 +108,6 @@ public:
     i32                        _value = 0;
 };
 
-template <typename Signature, typename T>
-auto consteval resolve_overload(Signature T::* ptr)
-{
-    return ptr;
-}
-
 class TestScriptClassSub final : public TestScriptClass {
 };
 

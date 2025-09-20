@@ -1527,9 +1527,9 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Overloads")
     SUBCASE("Member functions")
     {
         TestScriptClass t;
-        auto            f1 = resolve_overload<f32(i32, f32)>(&TestScriptClass::overload);
-        auto            f2 = resolve_overload<f32(f32, i32)>(&TestScriptClass::overload);
-        auto            f3 = resolve_overload<f32()>(&TestScriptClass::overload);
+        auto            f1 = static_cast<f32 (TestScriptClass::*)(i32, f32)>(&TestScriptClass::overload);
+        auto            f2 = static_cast<f32 (TestScriptClass::*)(f32, i32)>(&TestScriptClass::overload);
+        auto            f3 = static_cast<f32 (TestScriptClass::*)()>(&TestScriptClass::overload);
 
         auto overload      = make_unique_overload(f1, f2, f3);
         global["obj"]      = &t;
