@@ -6,15 +6,16 @@ using namespace tcob::data;
 TEST_CASE("Data.Config.Get")
 {
     object t;
-    t["section1"]["valueBool"]          = true;
-    t["section1"]["valueStr"]           = "test123";
-    t["section1"]["valueSec"]["a"]      = 100;
-    t["section1"]["valueSec"]["b"]      = false;
-    t["section1"]["valueSec"]["c"]["l"] = 1;
-    t["section1"]["valueSec"]["c"]["m"] = 32;
-    t["section1"]["valueArr"]           = std::vector<i32> {3, 5, 9, 13};
-    t["section1"]["valueFloat"]         = 123.45;
-    t["section1"]["max"]                = std::numeric_limits<u64>::max();
+    string sec {"section1"};
+    t[sec]["valueBool"]          = true;
+    t[sec]["valueStr"]           = "test123";
+    t[sec]["valueSec"]["a"]      = 100;
+    t[sec]["valueSec"]["b"]      = false;
+    t[sec]["valueSec"]["c"]["l"] = 1;
+    t[sec]["valueSec"]["c"]["m"] = 32;
+    t[sec]["valueArr"]           = std::vector<i32> {3, 5, 9, 13};
+    t[sec]["valueFloat"]         = 123.45;
+    t[sec]["max"]                = std::numeric_limits<u64>::max();
 
     t["section2"]["valueBool"]  = false;
     t["section2"]["valueStr"]   = "test456";
@@ -26,7 +27,7 @@ TEST_CASE("Data.Config.Get")
     SUBCASE("try_get function")
     {
         object obj {};
-        REQUIRE(t.try_get(obj, "section1"));
+        REQUIRE(t.try_get(obj, sec));
 
         bool b = false;
         REQUIRE(obj.try_get<bool>(b, "valueBool"));
