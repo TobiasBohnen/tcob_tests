@@ -62,7 +62,7 @@ TEST_CASE("Core.Random.MinMax")
     }
     SUBCASE("split_mix_32")
     {
-        random::rng_split_mix_32 rnd;
+        random::prng_split_mix_32 rnd;
         SUBCASE("i32")
         {
             {
