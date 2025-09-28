@@ -240,7 +240,8 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Container")
             REQUIRE(res);
             auto tup  = std::make_tuple(4, 2, true);
             auto func = global["foo"].as<function<i32>>();
-            i32  a    = func(1, tup, 2);
+            REQUIRE(func == func);
+            i32 a = func(1, tup, 2);
             REQUIRE(a == 4 * 2);
         }
     }
@@ -1612,7 +1613,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Results")
 
 TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
 {
-    SUBCASE("basic operations")
+    SUBCASE("nested table chaining")
     {
         {
             auto res                             = run("tableX = { }");
@@ -1622,11 +1623,57 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
             REQUIRE(x == 100);
         }
         {
-            auto res = run("tableX = {left=2.7, top={x=10,y=2} }");
-            i32  x   = *global.get<i32>("tableX", "top", "x");
+            auto res = run("tableX = { a={ b={ c={ d=2 } } } }");
             REQUIRE(res);
-            REQUIRE(x == 10);
+            auto tab = global["tableX"].as<table>();
+            REQUIRE(tab["a"]["b"]["c"]["d"].as<i32>() == 2);
+            res = run("tableX.a.b.c.d = 4");
+            REQUIRE(tab["a"]["b"]["c"]["d"].as<i32>() == 4);
         }
+        {
+            auto res = run("tableX = { a={ b={ bb = 'ok', c={ d=2 } } } }");
+            REQUIRE(res);
+            auto tab                             = global["tableX"].as<table>();
+            global["tableX"]["a"]["b"]["c"]["d"] = 100;
+            REQUIRE(global["tableX"]["a"]["b"]["c"]["d"].as<i32>() == 100);
+            REQUIRE(tab["a"]["b"]["c"]["d"].as<i32>() == 100);
+            auto x = tab["a"]["b"]["bb"].as<std::string>();
+            REQUIRE(x == "ok");
+        }
+    }
+
+    SUBCASE("integer indexing")
+    {
+        {
+            auto res = run("tableX = {1,{x=1,y=2} }");
+            i32  y   = global["tableX"][2]["y"].as<i32>();
+            REQUIRE(res);
+            REQUIRE(y == 2);
+        }
+        {
+            auto res                 = run("tableX = {1,{x=1,y=2} }");
+            global["tableX"][2]["y"] = 200;
+            i32 y                    = *global.get<i32>("tableX", 2, "y");
+            REQUIRE(res);
+            REQUIRE(y == 200);
+        }
+        {
+            auto res = run("tableX = {1,{x=1,y=2} }");
+            i32  y   = *global.get<i32>("tableX", 2, "y");
+            REQUIRE(res);
+            REQUIRE(y == 2);
+        }
+        {
+            auto res = run("tableX = {1,{x=1,y=2} }");
+            global.set("tableX", 2, "y", 200);
+            i32 y = *global.get<i32>("tableX", 2, "y");
+            REQUIRE(res);
+            REQUIRE(y == 200);
+        }
+    }
+
+    SUBCASE("try_get and get with default")
+    {
         {
             auto res = run("tableX = {left=2.7, top={x=10,y=2} }");
             REQUIRE(res);
@@ -1643,55 +1690,17 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
             REQUIRE_FALSE(global["tableX"].as<table>().try_get(y, "x"));
         }
         {
-            auto res = run("tableX = {1,{x=1,y=2} }");
-            i32  y   = *global.get<i32>("tableX", 2, "y");
-            REQUIRE(res);
-            REQUIRE(y == 2);
+            table tab = *run<table>("return { a = 2.4, b = 'ok' } ");
+            REQUIRE(tab["a"].get<bool>().value_or(false) == false);
+            REQUIRE(tab["b"].get<std::string>().value_or("default") == "ok");
         }
-        {
-            auto res = run("tableX = {1,{x=1,y=2} }");
-            global.set("tableX", 2, "y", 200);
-            i32 y = *global.get<i32>("tableX", 2, "y");
-            REQUIRE(res);
-            REQUIRE(y == 200);
-        }
-        {
-            auto res = run("tableX = {1,{x=1,y=2} }");
-            i32  y   = global["tableX"][2]["y"].as<i32>();
-            REQUIRE(res);
-            REQUIRE(y == 2);
-        }
-        {
-            auto res                 = run("tableX = {1,{x=1,y=2} }");
-            global["tableX"][2]["y"] = 200;
-            i32 y                    = *global.get<i32>("tableX", 2, "y");
-            REQUIRE(res);
-            REQUIRE(y == 200);
-        }
+    }
+
+    SUBCASE("table equality")
+    {
         {
             table tab = *run<table>("return {4,5,2,1} ");
-            i32   x   = tab[1].as<i32>();
-            REQUIRE(x == 4);
-            x = tab[2].as<i32>();
-            REQUIRE(x == 5);
-            x = tab[3].as<i32>();
-            REQUIRE(x == 2);
-            x = tab[4].as<i32>();
-            REQUIRE(x == 1);
-        }
-        {
-            auto res = run("tab = {4,5,2,1} ");
-            REQUIRE(res);
-            {
-                table tab1 {global["tab"]};
-                tab1[1] = 100;
-                REQUIRE(tab1[1].as<i32>() == 100);
-            }
-            {
-                table tab1 {global["tab"]};
-                tab1[1] = 100;
-                REQUIRE(tab1[1].as<i32>() == 100);
-            }
+            REQUIRE(tab == tab);
         }
         {
             auto res = run("tab1 = {4,5,2,1} tab2 = {1,2,3,4} ");
@@ -1703,69 +1712,141 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
             REQUIRE(tab1a != tab2);
         }
         {
-            table tab = *run<table>("return {left=2.7, top=3.1, width=2.3, height=55.2} ");
-            f32   f   = tab["top"].as<f32>();
-            REQUIRE(f == 3.1f);
+            table tab0 = *run<table>("tableX = { } tableY = { } return tableX");
+            auto  tab1 = global["tableX"].as<table>();
+            auto  tab2 = global["tableY"].as<table>();
+            REQUIRE(tab0 == tab1);
+            REQUIRE(tab0 != tab2);
         }
+    }
+
+    SUBCASE("keys and iteration")
+    {
         {
-            table tab = *run<table>("return {left=2.7, top=3.1, width=2.3, height=55.2} ");
-            REQUIRE(tab.has("left"));
-            REQUIRE(tab.has("top"));
-            REQUIRE(tab.has("width"));
-            REQUIRE(tab.has("height"));
-        }
-        {
-            table tab = *run<table>("return {a = 2.4, b = true, c = 'hello'} ");
-            REQUIRE(tab.is<f32>("a"));
-            REQUIRE(tab["b"].is<bool>());
-            REQUIRE(tab.is<std::string>("c"));
-        }
-        {
-            table tab = *run<table>("return { a = 2.4, b = 'ok' } ");
-            REQUIRE(tab["a"].get<bool>().value_or(false) == false);
-            REQUIRE(tab["b"].get<std::string>().value_or("default") == "ok");
-        }
-        {
-            table                    tab = *run<table>("return {a = 2.4, b = true, c = 'hello', 42} ");
-            std::vector<std::string> vect {"a", "b", "c"};
+            table                    tab  = *run<table>("return {a = 2.4, b = true, c = 'hello', 42} ");
             std::vector<std::string> keys = tab.get_keys<std::string>();
             std::ranges::sort(keys);
-            REQUIRE(keys == vect);
+            REQUIRE(keys == std::vector<std::string> {"a", "b", "c"});
         }
         {
-            table            tab = *run<table>("return { 'a', 3, 55, a = 22 }");
-            std::vector<i32> vect {1, 2, 3};
+            table            tab  = *run<table>("return { 'a', 3, 55, a = 22 }");
             std::vector<i32> keys = tab.get_keys<i32>();
             std::ranges::sort(keys);
-            REQUIRE(keys == vect);
+            REQUIRE(keys == std::vector<i32> {1, 2, 3});
         }
         {
-            table                                       tab = *run<table>("return {a = 2.4, 3, c = 'hello'} ");
-            std::vector<std::variant<i32, std::string>> vect {1, "a", "c"};
-            auto                                        keys = tab.get_keys<std::variant<i32, std::string>>();
+            table tab  = *run<table>("return {a = 2.4, 3, c = 'hello'} ");
+            auto  keys = tab.get_keys<std::variant<i32, std::string>>();
             std::ranges::sort(keys);
-            REQUIRE(keys == vect);
+            REQUIRE(keys == std::vector<std::variant<i32, std::string>> {1, "a", "c"});
+        }
+    }
+
+    SUBCASE("conversion to user types")
+    {
+        {
+            auto res = run("tableX = {left=2.7, top={x=10,y=2} }");
+            REQUIRE(res);
+            auto top = global["tableX"]["top"].as<point_i>();
+            REQUIRE(top.X == 10);
         }
         {
             auto res = run("rectF = {x=2.7, y=3.1, width=2.3, height=55.2} ");
             REQUIRE(res);
             auto tab = global["rectF"].as<table>();
-            f32  f   = tab["x"].as<f32>();
-            REQUIRE(f == 2.7f);
+            f32  x   = tab["x"].as<f32>();
+            REQUIRE(x == 2.7f);
+        }
+    }
+
+    SUBCASE("functions with tables")
+    {
+        auto res = run(
+            "rectF = {x=2.7, y=3.1, width=2.3, height=55.2} "
+            "function tabletest(x) return x.y end");
+        REQUIRE(res);
+        auto tab  = global["rectF"].as<table>();
+        tab["y"]  = 100.5f;
+        auto func = global["tabletest"].as<function<f32>>();
+        f32  x    = func(tab);
+        REQUIRE(x == 100.5f);
+        REQUIRE(tab["y"].as<f32>() == 100.5f);
+    }
+
+    SUBCASE("has()")
+    {
+        table tab = *run<table>("return {left=2.7, top=3.1, width=2.3, height=55.2} ");
+        REQUIRE(tab.has("left"));
+        REQUIRE(tab.has("top"));
+        REQUIRE(tab.has("width"));
+        REQUIRE(tab.has("height"));
+    }
+
+    SUBCASE("is<T>()")
+    {
+        table tab = *run<table>("return {a = 2.4, b = true, c = 'hello'} ");
+        REQUIRE(tab.is<f32>("a"));
+        REQUIRE(tab["b"].is<bool>());
+        REQUIRE(tab.is<std::string>("c"));
+    }
+
+    SUBCASE("empty / invalid table")
+    {
+        {
+            auto res = run("tableX = { }");
+            REQUIRE(res);
+            auto  tab = global["tableX"].as<table>();
+            table subt {};
+            REQUIRE_FALSE(subt.is_valid());
+            tab["sub"] = subt;
+            REQUIRE(subt.is_valid());
+            subt["x"] = 42;
+            REQUIRE(global["tableX"]["sub"]["x"].as<i32>() == 42);
         }
         {
-            auto res = run(
-                "rectF = {x=2.7, y=3.1, width=2.3, height=55.2} "
-                "function tabletest(x) "
-                "   return x.y "
-                "end");
+            auto res = run("tableX = { }");
             REQUIRE(res);
-            auto tab  = global["rectF"].as<table>();
-            tab["y"]  = 100.5f;
-            auto func = global["tabletest"].as<function<f32>>();
-            f32  x    = func(tab);
-            REQUIRE(x == 100.5f);
-            REQUIRE(tab["y"].as<f32>() == 100.5f);
+            auto tab        = global["tableX"].as<table>();
+            tab["sub"]      = table {};
+            tab["sub"]["x"] = 42;
+            REQUIRE(global["tableX"]["sub"]["x"].as<i32>() == 42);
+        }
+        {
+            auto res = run("tableX = { }");
+            REQUIRE(res);
+            auto  tab = global["tableX"].as<table>();
+            table subt;
+            tab["sub"] = subt;
+            subt["x"]  = 42;
+            REQUIRE(global["tableX"]["sub"]["x"].as<i32>() == 42);
+        }
+    }
+
+    SUBCASE("table copy / reference behavior")
+    {
+        {
+            auto res = run("tab = {4,5,2,1} ");
+            REQUIRE(res);
+            {
+                table tab1 {global["tab"]};
+                tab1[1] = 100;
+                REQUIRE(tab1[1].as<i32>() == 100);
+            }
+            {
+                table tab1 {global["tab"]};
+                REQUIRE(tab1[1].as<i32>() == 100);
+            }
+        }
+    }
+
+    SUBCASE("return value assignment")
+    {
+        {
+            table tab = *run<table>("return {4,5,2,1} ");
+            REQUIRE(tab[1].as<i32>() == 4);
+            REQUIRE(tab[2].as<i32>() == 5);
+            REQUIRE(tab[3].as<i32>() == 2);
+            REQUIRE(tab[4].as<i32>() == 1);
         }
         {
             auto res = run("tableX = {left=2.7, top={x=10,y=2} }");
@@ -1773,13 +1854,6 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
             auto top = global["tableX"]["top"].as<table>();
             i32  x   = top["x"].as<i32>();
             REQUIRE(x == 10);
-        }
-        {
-            auto res = run("tableX = {left=2.7, top={x=10,y=2} }");
-            REQUIRE(res);
-            auto tab = global["tableX"].as<table>();
-            auto top = tab["top"].as<point_i>();
-            REQUIRE(top.X == 10);
         }
         {
             auto res = run("tableX = {left=2.7, top={x=10,y=2} }");
@@ -1795,80 +1869,6 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
             tab["top"]["x"] = 400;
             i32 top         = global["tableX"]["top"]["x"].as<i32>();
             REQUIRE(top == 400);
-        }
-        {
-            auto res = run("tableX = { a={ b={ c={ d=2 } } } }");
-            REQUIRE(res);
-            auto tab                = global["tableX"].as<table>();
-            tab["a"]["b"]["c"]["d"] = 42;
-            i32 top                 = global["tableX"]["a"]["b"]["c"]["d"].as<i32>();
-            REQUIRE(top == 42);
-        }
-        {
-            auto res = run("tableX = { a={ b={ c={ d=2 } } } }");
-            REQUIRE(res);
-            auto tab = global["tableX"].as<table>();
-            REQUIRE(tab["a"]["b"]["c"]["d"].as<i32>() == 2);
-            res = run("tableX.a.b.c.d = 4");
-            REQUIRE(tab["a"]["b"]["c"]["d"].as<i32>() == 4);
-        }
-        {
-            auto res = run("tableX = { a={ b={ c={ d=2 } } } }");
-            REQUIRE(res);
-            auto tab = global["tableX"]["a"]["b"]["c"].as<table>();
-            REQUIRE(tab["d"].as<i32>() == 2);
-            res = run("tableX.a.b.c.d = 4");
-            REQUIRE(tab["d"].as<i32>() == 4);
-            tab = global["tableX"].as<table>();
-            REQUIRE(tab["a"]["b"]["c"]["d"].get<i32>().value() == 4);
-        }
-        {
-            auto res = run("tableX = { a={ b={ bb = 'ok', c={ d=2 } } } }");
-            REQUIRE(res);
-            auto tab                             = global["tableX"].as<table>();
-            global["tableX"]["a"]["b"]["c"]["d"] = 100;
-            REQUIRE(global["tableX"]["a"]["b"]["c"]["d"].as<i32>() == 100);
-            REQUIRE(tab["a"]["b"]["c"]["d"].as<i32>() == 100);
-            auto x = tab["a"]["b"]["bb"].as<std::string>();
-            REQUIRE(x == "ok");
-        }
-        {
-            auto res = run("tableX = {  }");
-            REQUIRE(res);
-            auto  tab = global["tableX"].as<table>();
-            table subt {};
-            REQUIRE_FALSE(subt.is_valid());
-            tab["sub"] = subt;
-            REQUIRE(subt.is_valid());
-            subt["x"] = 42;
-
-            REQUIRE(global["tableX"]["sub"]["x"].as<i32>() == 42);
-        }
-        {
-            auto res = run("tableX = {  }");
-            REQUIRE(res);
-            auto tab        = global["tableX"].as<table>();
-            tab["sub"]      = table {};
-            tab["sub"]["x"] = 42;
-
-            REQUIRE(global["tableX"]["sub"]["x"].as<i32>() == 42);
-        }
-        {
-            auto res = run("tableX = {  }");
-            REQUIRE(res);
-            auto  tab = global["tableX"].as<table>();
-            table subt;
-            tab["sub"] = subt;
-            subt["x"]  = 42;
-
-            REQUIRE(global["tableX"]["sub"]["x"].as<i32>() == 42);
-        }
-        {
-            table tab0 = *run<table>("tableX = {  } tableY = { } return tableX");
-            auto  tab1 = global["tableX"].as<table>();
-            REQUIRE(tab0 == tab1);
-            auto tab2 = global["tableY"].as<table>();
-            REQUIRE(tab0 != tab2);
         }
     }
     SUBCASE("metatable")
