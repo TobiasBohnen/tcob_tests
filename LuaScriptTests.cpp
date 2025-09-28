@@ -1265,7 +1265,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Hook")
         auto func = [&](debug const& debug) {
             if (debug.Source == "TEST" && debug.Event == debug_event::Return) {
                 auto const vw {view()};
-                auto const guard {vw.create_stack_guard()};
+                auto const guard {vw.create_scoped_stack()};
 
                 for (i32 i {1};; ++i) {
                     auto val {debug.get_local(i)};
