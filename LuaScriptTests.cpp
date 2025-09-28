@@ -649,7 +649,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Environment")
 
         auto newEnv {table::Create(view())};
         newEnv["x"] = 200;
-        set_environment(newEnv);
+        Environment = newEnv;
 
         res1 = run<i32>("return x");
         REQUIRE(res1);
@@ -669,7 +669,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Environment")
         REQUIRE(res0.value() == 5.0f);
 
         auto newEnv {table::Create(view())};
-        set_environment(newEnv);
+        Environment = newEnv;
 
         res0 = run<f32>("return tonumber('5')", "error");
         REQUIRE_FALSE(res0);
@@ -685,7 +685,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Environment")
     SUBCASE("get from _ENV")
     {
         auto newEnv {table::Create(view())};
-        set_environment(newEnv);
+        Environment = newEnv;
 
         auto res0 = run("function foo() return tonumber('5') end", "error");
         REQUIRE(res0);
