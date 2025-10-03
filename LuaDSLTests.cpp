@@ -130,6 +130,8 @@ TEST_CASE_FIXTURE(LuaDSLTests, "Script.LuaDSL.Form")
     REQUIRE(layout1["widgets"][3]["name"].as<string>() == "checkbox1");
     REQUIRE(formContent[2]["type"].as<string>() == "panel");
     REQUIRE(formContent[2]["name"].as<string>() == "panel2");
+
+    io::delete_file("forms.txt");
 }
 
 TEST_CASE_FIXTURE(LuaDSLTests, "Script.LuaDSL.Style")
@@ -194,4 +196,5 @@ TEST_CASE_FIXTURE(LuaDSLTests, "Script.LuaDSL.Style")
     REQUIRE(buttonHoverStyle["type"].as<string>() == "button");
     REQUIRE(buttonHoverStyle["background"].as<string>() == "darkkhaki");
     // TODO: REQUIRE(buttonHoverStyle["border"]["type"].as<string>() == "solid");
+    io::delete_file("styles.lua");
 }

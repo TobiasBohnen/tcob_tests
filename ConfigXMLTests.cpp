@@ -65,6 +65,8 @@ TEST_CASE("Data.XML.Save")
 
                 REQUIRE(load["section3"]["valueSection"]["subsection"]["a"].as<i64>() == 100);
             }
+
+            io::delete_file(file);
         }
 
         {
@@ -85,6 +87,8 @@ TEST_CASE("Data.XML.Save")
                 REQUIRE(t["section1"]["key1"].as<f64>() == 456);
                 REQUIRE(t["section2"]["key1"].as<f64>() == 789);
             }
+
+            io::delete_file(file);
         }
     }
 
@@ -122,6 +126,8 @@ TEST_CASE("Data.XML.Save")
             REQUIRE(load[3].as<object>()["ay"].as<i64>() == 123);
             REQUIRE(load[3].as<object>()["xy"].as<i64>() == 436);
         }
+
+        io::delete_file(file);
     }
 }
 

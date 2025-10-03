@@ -14,6 +14,7 @@ set(tests)
 
 function(add_command NAME)
   set(_args "")
+
   foreach(_arg ${ARGN})
     if(_arg MATCHES "[^-./:a-zA-Z0-9_]")
       set(_args "${_args} [==[${_arg}]==]") # form a bracket_argument
@@ -21,6 +22,7 @@ function(add_command NAME)
       set(_args "${_args} ${_arg}")
     endif()
   endforeach()
+
   set(script "${script}${NAME}(${_args})\n" PARENT_SCOPE)
 endfunction()
 
@@ -41,8 +43,9 @@ execute_process(
   RESULT_VARIABLE result
   WORKING_DIRECTORY "${TEST_WORKING_DIR}"
 )
+
 if(NOT ${result} EQUAL 0)
-  message(FATAL_ERROR
+  message(WARNING
     "Error running test executable '${TEST_EXECUTABLE}':\n"
     "  Result: ${result}\n"
     "  Output: ${output}\n"
@@ -56,8 +59,10 @@ foreach(line ${output})
   if("${line}" STREQUAL "===============================================================================" OR "${line}" MATCHES [==[^\[doctest\] ]==])
     continue()
   endif()
+
   set(test ${line})
   set(labels "")
+
   if(${add_labels})
     # get test suite that test belongs to
     execute_process(
@@ -66,6 +71,7 @@ foreach(line ${output})
       RESULT_VARIABLE labelresult
       WORKING_DIRECTORY "${TEST_WORKING_DIR}"
     )
+
     if(NOT ${labelresult} EQUAL 0)
       message(FATAL_ERROR
         "Error running test executable '${TEST_EXECUTABLE}':\n"
@@ -75,10 +81,12 @@ foreach(line ${output})
     endif()
 
     string(REPLACE "\n" ";" labeloutput "${labeloutput}")
+
     foreach(labelline ${labeloutput})
       if("${labelline}" STREQUAL "===============================================================================" OR "${labelline}" MATCHES [==[^\[doctest\] ]==])
         continue()
       endif()
+
       list(APPEND labels ${labelline})
     endforeach()
   endif()
@@ -90,8 +98,10 @@ foreach(line ${output})
   else()
     unset(TEST_JUNIT_OUTPUT_PARAM)
   endif()
+
   # use escape commas to handle properly test cases with commas inside the name
   string(REPLACE "," "\\," test_name ${test})
+
   # ...and add to script
   add_command(add_test
     "${prefix}${test}${suffix}"

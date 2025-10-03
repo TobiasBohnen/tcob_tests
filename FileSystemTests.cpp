@@ -65,26 +65,32 @@ TEST_CASE("IO.FileSystem.Zip")
         io::delete_folder(folder0);
         REQUIRE_FALSE(io::exists(folder0));
 
-        io::ifstream in {file};
-        REQUIRE(io::unzip(in, ""));
-        REQUIRE(io::is_file(folder0 + "/test1"));
-        REQUIRE(io::read_as_string(folder0 + "/test1") == "1234");
-        REQUIRE(io::is_file(folder0 + "/test2"));
-        REQUIRE(io::read_as_string(folder0 + "/test2") == "4567");
-        REQUIRE(io::is_file(folder0 + "/test3"));
-        REQUIRE(io::read_as_string(folder0 + "/test3") == "7890");
-        REQUIRE(io::is_file(folder0 + "/test4"));
-        REQUIRE(io::read_as_string(folder0 + "/test4") == "0112");
+        {
+            io::ifstream in {file};
+            REQUIRE(io::unzip(in, ""));
+            REQUIRE(io::is_file(folder0 + "/test1"));
+            REQUIRE(io::read_as_string(folder0 + "/test1") == "1234");
+            REQUIRE(io::is_file(folder0 + "/test2"));
+            REQUIRE(io::read_as_string(folder0 + "/test2") == "4567");
+            REQUIRE(io::is_file(folder0 + "/test3"));
+            REQUIRE(io::read_as_string(folder0 + "/test3") == "7890");
+            REQUIRE(io::is_file(folder0 + "/test4"));
+            REQUIRE(io::read_as_string(folder0 + "/test4") == "0112");
 
-        REQUIRE(io::unzip(in, folder1));
-        REQUIRE(io::is_file(folder1 + "/" + folder0 + "/test1"));
-        REQUIRE(io::read_as_string(folder1 + "/" + folder0 + "/test1") == "1234");
-        REQUIRE(io::is_file(folder1 + "/" + folder0 + "/test2"));
-        REQUIRE(io::read_as_string(folder1 + "/" + folder0 + "/test2") == "4567");
-        REQUIRE(io::is_file(folder1 + "/" + folder0 + "/test3"));
-        REQUIRE(io::read_as_string(folder1 + "/" + folder0 + "/test3") == "7890");
-        REQUIRE(io::is_file(folder1 + "/" + folder0 + "/test4"));
-        REQUIRE(io::read_as_string(folder1 + "/" + folder0 + "/test4") == "0112");
+            REQUIRE(io::unzip(in, folder1));
+            REQUIRE(io::is_file(folder1 + "/" + folder0 + "/test1"));
+            REQUIRE(io::read_as_string(folder1 + "/" + folder0 + "/test1") == "1234");
+            REQUIRE(io::is_file(folder1 + "/" + folder0 + "/test2"));
+            REQUIRE(io::read_as_string(folder1 + "/" + folder0 + "/test2") == "4567");
+            REQUIRE(io::is_file(folder1 + "/" + folder0 + "/test3"));
+            REQUIRE(io::read_as_string(folder1 + "/" + folder0 + "/test3") == "7890");
+            REQUIRE(io::is_file(folder1 + "/" + folder0 + "/test4"));
+            REQUIRE(io::read_as_string(folder1 + "/" + folder0 + "/test4") == "0112");
+        }
+
+        io::delete_folder(folder0);
+        io::delete_folder(folder1);
+        io::delete_file(file);
     }
     SUBCASE("relative folder")
     {
@@ -111,16 +117,22 @@ TEST_CASE("IO.FileSystem.Zip")
             io::ofstream out {file};
             REQUIRE(io::zip(folder0, out, true));
         }
-        io::ifstream in {file};
-        REQUIRE(io::unzip(in, folder1));
-        REQUIRE(io::is_file(folder1 + "/test01"));
-        REQUIRE(io::read_as_string(folder1 + "/test01") == "1234");
-        REQUIRE(io::is_file(folder1 + "/test02"));
-        REQUIRE(io::read_as_string(folder1 + "/test02") == "4567");
-        REQUIRE(io::is_file(folder1 + "/test03"));
-        REQUIRE(io::read_as_string(folder1 + "/test03") == "7890");
-        REQUIRE(io::is_file(folder1 + "/test04"));
-        REQUIRE(io::read_as_string(folder1 + "/test04") == "0112");
+        {
+            io::ifstream in {file};
+            REQUIRE(io::unzip(in, folder1));
+            REQUIRE(io::is_file(folder1 + "/test01"));
+            REQUIRE(io::read_as_string(folder1 + "/test01") == "1234");
+            REQUIRE(io::is_file(folder1 + "/test02"));
+            REQUIRE(io::read_as_string(folder1 + "/test02") == "4567");
+            REQUIRE(io::is_file(folder1 + "/test03"));
+            REQUIRE(io::read_as_string(folder1 + "/test03") == "7890");
+            REQUIRE(io::is_file(folder1 + "/test04"));
+            REQUIRE(io::read_as_string(folder1 + "/test04") == "0112");
+
+            io::delete_folder("zipFolder2");
+            io::delete_folder(folder1);
+        }
+        io::delete_file(file);
     }
 
     SUBCASE("file")
@@ -144,10 +156,15 @@ TEST_CASE("IO.FileSystem.Zip")
         io::delete_file(srcFile);
         REQUIRE_FALSE(io::exists(srcFile));
 
-        io::ifstream in {dstFile};
-        REQUIRE(io::unzip(in, ""));
-        REQUIRE(io::is_file(srcFile));
-        REQUIRE(io::read_as_string(srcFile) == "1234");
+        {
+            io::ifstream in {dstFile};
+            REQUIRE(io::unzip(in, ""));
+            REQUIRE(io::is_file(srcFile));
+            REQUIRE(io::read_as_string(srcFile) == "1234");
+        }
+
+        io::delete_file(srcFile);
+        io::delete_file(dstFile);
     }
     SUBCASE("relative file")
     {
@@ -172,10 +189,16 @@ TEST_CASE("IO.FileSystem.Zip")
         io::delete_folder(srcFolder);
         REQUIRE_FALSE(io::exists(srcFolder));
 
-        io::ifstream in {dstFile};
-        REQUIRE(io::unzip(in, ""));
-        REQUIRE(io::is_file(srcFile));
-        REQUIRE(io::read_as_string(srcFile) == "1234");
+        {
+            io::ifstream in {dstFile};
+            REQUIRE(io::unzip(in, ""));
+            REQUIRE(io::is_file(srcFile));
+            REQUIRE(io::read_as_string(srcFile) == "1234");
+        }
+
+        io::delete_folder("zipFile");
+        io::delete_file(srcFile);
+        io::delete_file(dstFile);
     }
 }
 
@@ -199,6 +222,8 @@ TEST_CASE("IO.FileSystem.Enumerate")
         auto files {io::enumerate(folder, {.String = file})};
         REQUIRE(files.size() == 1);
         REQUIRE(files.contains(file));
+
+        io::delete_folder(folder);
     }
 
     SUBCASE("pattern 1")
@@ -230,6 +255,8 @@ TEST_CASE("IO.FileSystem.Enumerate")
         REQUIRE(files.contains(file1));
         REQUIRE(files.contains(file2));
         REQUIRE(files.contains(file3));
+
+        io::delete_folder(folder);
     }
 
     SUBCASE("pattern 2")
@@ -261,6 +288,8 @@ TEST_CASE("IO.FileSystem.Enumerate")
         REQUIRE(files.contains(file1));
         REQUIRE(files.contains(file2));
         REQUIRE(files.contains(file3));
+
+        io::delete_folder(folder);
     }
 
     SUBCASE("pattern 3")
@@ -292,5 +321,7 @@ TEST_CASE("IO.FileSystem.Enumerate")
         REQUIRE(files.contains(file1));
         REQUIRE(files.contains(file2));
         REQUIRE(files.contains(file3));
+
+        io::delete_folder("testfolder4");
     }
 }

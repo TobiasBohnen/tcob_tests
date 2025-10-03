@@ -818,6 +818,8 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Functions")
         function<i32> func2 = load_binary<i32>("test.luac");
         REQUIRE(func2(10, 20) == 10 * 20);
         REQUIRE(func2(20, 40) == 20 * 40);
+
+        io::delete_file("test.luac");
     }
     SUBCASE("load_binary from stream")
     {

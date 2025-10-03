@@ -730,6 +730,8 @@ TEST_CASE("Data.Sqlite.VacuumInto")
         REQUIRE(db);
         REQUIRE(db->table_exists(tableName));
     }
+
+    io::delete_file(fileName);
 }
 
 TEST_CASE("Data.Sqlite.Attach")
@@ -777,6 +779,8 @@ TEST_CASE("Data.Sqlite.Attach")
             REQUIRE(attached->detach());
             REQUIRE_FALSE(db.schema_exists(aliasSchema));
         }
+
+        io::delete_file(attachedFile);
     }
     SUBCASE("memory")
     {

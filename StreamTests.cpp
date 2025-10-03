@@ -57,6 +57,8 @@ TEST_CASE("IO.Stream.ReadAll")
                 REQUIRE(c == 4.0f);
             }
         }
+
+        io::delete_file(file);
     }
     SUBCASE("span_sink")
     {
@@ -135,6 +137,8 @@ TEST_CASE("IO.Stream.ReadString")
             REQUIRE(fs.read_string(static_cast<std::streamsize>(line1.size() + 1)) == line1 + "\n");
             REQUIRE(fs.read_string(static_cast<std::streamsize>(line2.size())) == line2);
         }
+
+        io::delete_file(file);
     }
     SUBCASE("span_sink")
     {
@@ -210,17 +214,23 @@ TEST_CASE("IO.Stream.Open")
         io::delete_file(file);
         REQUIRE_FALSE(io::exists(file));
 
-        auto stream0 {io::ifstream::Open(file)};
-        REQUIRE_FALSE(stream0);
-        REQUIRE(stream0.error() == io::error_code::FileNotFound);
+        {
+            auto stream0 {io::ifstream::Open(file)};
+            REQUIRE_FALSE(stream0);
+            REQUIRE(stream0.error() == io::error_code::FileNotFound);
+        }
 
         PrepareFile(file);
 
-        auto stream1 {io::ifstream::Open(file)};
-        REQUIRE(stream1);
-        REQUIRE(stream1->is_valid());
+        {
+            auto stream1 {io::ifstream::Open(file)};
+            REQUIRE(stream1);
+            REQUIRE(stream1->is_valid());
+        }
+
+        io::delete_file(file);
     }
-    SUBCASE("ctor")
+    SUBCASE("non existing")
     {
         std::string const file {"test.OpenBlob"};
 
@@ -258,6 +268,8 @@ TEST_CASE("IO.Stream.Appending")
             std::vector<char> data = fs.read_all<char>();
             REQUIRE(data == (std::vector<char> {'1', '2', '3', '4', '5', '5', '4', '3', '2', '1'}));
         }
+
+        io::delete_file(file);
     }
 }
 
@@ -318,6 +330,8 @@ TEST_CASE("IO.Stream.Seeking")
             io::ifstream fs {file};
             seekEnd(fs);
         }
+
+        io::delete_file(file);
     }
     SUBCASE("span_sink")
     {

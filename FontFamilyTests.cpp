@@ -14,6 +14,8 @@ TEST_CASE("GFX.FontFamily.Fallback")
         auto style {ff.get_fallback_style({.IsItalic = false, .Weight = font::weight::Normal})};
         REQUIRE(style);
         REQUIRE(style->Weight == font::weight::Medium);
+
+        io::delete_folder("fonts");
     }
 
     SUBCASE("medium -> normal")
@@ -28,6 +30,8 @@ TEST_CASE("GFX.FontFamily.Fallback")
         auto style {ff.get_fallback_style({.IsItalic = false, .Weight = font::weight::Medium})};
         REQUIRE(style);
         REQUIRE(style->Weight == font::weight::Normal);
+
+        io::delete_folder("fonts");
     }
 
     SUBCASE("extra light -> light")
@@ -42,6 +46,8 @@ TEST_CASE("GFX.FontFamily.Fallback")
         auto style {ff.get_fallback_style({.IsItalic = false, .Weight = font::weight::ExtraLight})};
         REQUIRE(style);
         REQUIRE(style->Weight == font::weight::Light);
+
+        io::delete_folder("fonts");
     }
 
     SUBCASE("extra bold -> semi bold")
@@ -57,5 +63,7 @@ TEST_CASE("GFX.FontFamily.Fallback")
         auto style {ff.get_fallback_style({.IsItalic = false, .Weight = font::weight::ExtraBold})};
         REQUIRE(style);
         REQUIRE(style->Weight == font::weight::SemiBold);
+
+        io::delete_folder("fonts");
     }
 }

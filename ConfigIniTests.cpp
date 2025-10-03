@@ -396,6 +396,8 @@ TEST_CASE("Data.Ini.Save")
 
             REQUIRE(load["max"].as<u64>() == std::numeric_limits<u64>::max());
         }
+
+        io::delete_file(file);
     }
 
     SUBCASE("Text array")
@@ -421,6 +423,8 @@ TEST_CASE("Data.Ini.Save")
             REQUIRE(load[4].as<array>()[0].as<std::string>() == "O");
             REQUIRE(load[4].as<array>()[1].as<std::string>() == "K");
         }
+
+        io::delete_file(file);
     }
 
     SUBCASE("Binary object")
@@ -493,6 +497,8 @@ TEST_CASE("Data.Ini.Save")
 
             REQUIRE(load["max"].as<u64>() == std::numeric_limits<u64>::max());
         }
+
+        io::delete_file(file);
     }
 
     SUBCASE("Binary array")
@@ -518,6 +524,8 @@ TEST_CASE("Data.Ini.Save")
             REQUIRE(load[4].as<array>()[0].as<std::string>() == "O");
             REQUIRE(load[4].as<array>()[1].as<std::string>() == "K");
         }
+
+        io::delete_file(file);
     }
 }
 

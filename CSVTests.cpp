@@ -91,6 +91,8 @@ TEST_CASE("Data.CSV.Save")
         REQUIRE(tab1.Rows.width() == 6);
         REQUIRE(tab1.Header == std::vector<std::string> {"A", "B", "C", "D", "E", "F"});
         REQUIRE(std::vector<std::string>(tab1.Rows.row(0).begin(), tab1.Rows.row(0).end()) == std::vector<std::string> {"1", "2", "3", "4", "5", "6"});
+
+        io::delete_file("test0.csv");
     }
     SUBCASE("memory")
     {

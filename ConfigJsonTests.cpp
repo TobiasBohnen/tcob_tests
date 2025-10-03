@@ -65,6 +65,8 @@ TEST_CASE("Data.Json.Save")
 
                 REQUIRE(load["section3"]["valueSection"]["subsection"]["a"].as<i64>() == 100);
             }
+
+            io::delete_file(file);
         }
 
         {
@@ -85,6 +87,8 @@ TEST_CASE("Data.Json.Save")
                 REQUIRE(t["section1"]["key1"].as<f64>() == 456);
                 REQUIRE(t["section2"]["key1"].as<f64>() == 789);
             }
+
+            io::delete_file(file);
         }
     }
 
@@ -125,6 +129,8 @@ TEST_CASE("Data.Json.Save")
             REQUIRE(load[4].as<array>()[0].as<std::string>() == "O");
             REQUIRE(load[4].as<array>()[1].as<std::string>() == "K");
         }
+
+        io::delete_file(file);
     }
 }
 
