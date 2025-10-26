@@ -82,6 +82,8 @@ add_custom_target(tcob_tests_copyFiles ALL
 
 add_dependencies(tcob_tests_copyFiles tcob_tests)
 
-# target_compile_definitions(tcob_tests PUBLIC _DISABLE_STRING_ANNOTATION _DISABLE_VECTOR_ANNOTATION)
-# target_compile_options(tcob_tests PRIVATE -fsanitize=address,undefined)
-# target_link_options(tcob_tests PRIVATE -fsanitize=address,undefined)
+if(TCOB_ASAN)
+  target_compile_definitions(tcob_tests PUBLIC _DISABLE_STRING_ANNOTATION _DISABLE_VECTOR_ANNOTATION)
+  target_compile_options(tcob_tests PRIVATE -fsanitize=address,undefined)
+  target_link_options(tcob_tests PRIVATE -fsanitize=address,undefined)
+endif()
