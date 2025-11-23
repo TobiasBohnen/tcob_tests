@@ -35,7 +35,7 @@ TEST_CASE("Data.CSV.Parse")
             REQUIRE(tab.parse(csvString, {}));
             REQUIRE(tab.Rows.height() == 34);
             REQUIRE(tab.Rows.width() == 7);
-            for (isize i {0}; i < tab.Rows.count(); ++i) {
+            for (i32 i {0}; i < tab.Rows.count(); ++i) {
                 REQUIRE(tab.Rows[i] == std::to_string(i + 1));
             }
         }
@@ -55,7 +55,7 @@ TEST_CASE("Data.CSV.Parse")
             REQUIRE(tab.Rows.height() == 3);
             REQUIRE(tab.Rows.width() == 7);
             REQUIRE(tab.Header.empty());
-            for (isize i {0}; i < tab.Rows.count(); ++i) {
+            for (i32 i {0}; i < tab.Rows.count(); ++i) {
                 REQUIRE(tab.Rows[i] == std::to_string(i + 1));
             }
         }

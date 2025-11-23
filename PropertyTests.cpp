@@ -250,12 +250,12 @@ TEST_CASE("Core.Property.Subscript")
         prop<grid<i32>> prop {grid<i32> {}};
         prop.mutate([](auto& vec) {
             vec.resize({10, 20});
-            vec[0, 10] = 100;
-            vec[10, 2] = 25;
+            vec[0, 19] = 100;
+            vec[9, 2]  = 25;
         });
 
-        REQUIRE(prop[0, 10] == 100);
-        REQUIRE(prop[10, 2] == 25);
+        REQUIRE(prop[0, 19] == 100);
+        REQUIRE(prop[9, 2] == 25);
     }
     {
         prop<std::vector<i32>> prop {{1, 2, 3, 5}};
