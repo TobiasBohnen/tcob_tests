@@ -2201,6 +2201,13 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.TcobTypes")
         REQUIRE(res.Level == 5);
         REQUIRE(res.UVRect == rect_f {1, 2, 3, 4});
     }
+    SUBCASE("api: sound_wave")
+    {
+        audio::sound_generator gen {random::prng_split_mix_64 {1234}};
+        auto const             wave0 {gen.generate_random()};
+        global["wave"] = wave0;
+        REQUIRE(global["wave"].as<audio::sound_wave>() == wave0);
+    }
 }
 
 TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.TypeCoercion")
