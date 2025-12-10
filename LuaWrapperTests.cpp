@@ -854,12 +854,14 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.DataObject")
 
 TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Null")
 {
-    std::function is_null = [](void* ptr) { return ptr == nullptr; };
-    global["is_null"]     = &is_null;
+    std::function is_null_void = [](void* ptr) { return ptr == nullptr; };
+    global["is_null_void"]     = &is_null_void;
+    std::function is_null      = [](Player* ptr) { return ptr == nullptr; };
+    global["is_null"]          = &is_null;
 
     Player* p {nullptr};
     global["dave"] = p;
-    auto res {run<bool>("return is_null(dave)")};
+    auto res {run<bool>("return is_null(dave) and is_null_void(dave) and dave == nil")};
     REQUIRE(res.has_value());
     REQUIRE(res.value());
 }
