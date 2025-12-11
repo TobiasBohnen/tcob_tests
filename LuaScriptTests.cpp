@@ -1235,7 +1235,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Hook")
                 case debug_event::Line:
                     linecount++;
                     if (linecount == 3) {
-                        raise_error("oh no 3!");
+                        view().error("oh no 3!");
                     }
                     break;
                 case debug_event::Count:
