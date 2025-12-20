@@ -29,6 +29,7 @@ set(TEST_SRCFILES
   RectTests.cpp
   SignalTests.cpp
   SizeTests.cpp
+  SqliteTests.cpp
   StreamTests.cpp
   StyleTests.cpp
   TransformTests.cpp
@@ -37,12 +38,6 @@ set(TEST_SRCFILES
   UTFTests.cpp
   main.cpp
 )
-
-if(TCOB_ENABLE_ADDON_DATA_SQLITE)
-  list(APPEND TEST_SRCFILES
-    SqliteTests.cpp
-  )
-endif()
 
 if(NOT TCOB_IS_CI)
   list(APPEND TEST_SRCFILES
