@@ -41,25 +41,6 @@ TEST_CASE("Data.Config.Get")
         REQUIRE(obj.try_get(vec, "valueArr"));
         REQUIRE(vec == std::vector<i32> {3, 5, 9, 13});
     }
-    SUBCASE("'as' function")
-    {
-        REQUIRE(t.as<bool>("section1", "valueBool") == true);
-        REQUIRE(t.as<std::string>("section1", "valueStr") == "test123");
-        REQUIRE(t.as<std::string>("section2", "value.Str") == "123");
-        REQUIRE(t.as<std::string>("section2", "value=Str") == "123");
-        REQUIRE(t.as<f64>("section1", "valueFloat") == 123.45);
-        REQUIRE(t.as<f64>("section1", "valueSec", "a") == 100);
-        REQUIRE(t.as<bool>("section1", "valueSec", "b") == false);
-        REQUIRE(t.as<f64>("section1", "valueSec", "c", "l") == 1);
-        REQUIRE(t.as<f64>("section1", "valueArr", 2) == 9);
-
-        object obj {t.as<object>("section1")};
-        REQUIRE(obj.as<bool>("valueBool") == true);
-        REQUIRE(obj.as<std::string>("valueStr") == "test123");
-        REQUIRE(obj.as<f64>("valueFloat") == 123.45);
-
-        REQUIRE(obj.as<u64>("max") == std::numeric_limits<u64>::max());
-    }
     SUBCASE("subscript")
     {
         REQUIRE(t["section1"]["valueBool"].as<bool>() == true);
@@ -100,11 +81,11 @@ TEST_CASE("Data.Config.Set")
         t.set("section1", "valueSec", "a", 95);
         t.set("section1", "valueArr", 0, 42);
 
-        REQUIRE(t.as<bool>("section1", "valueBool") == true);
-        REQUIRE(t.as<std::string>("section1", "valueStr") == "test123");
-        REQUIRE(t.as<f64>("section1", "valueFloat") == 123.45);
-        REQUIRE(t.as<f64>("section1", "valueSec", "a") == 95);
-        REQUIRE(t.as<f64>("section1", "valueArr", 0) == 42);
+        REQUIRE(t["section1"]["valueBool"].as<bool>() == true);
+        REQUIRE(t["section1"]["valueStr"].as<std::string>() == "test123");
+        REQUIRE(t["section1"]["valueFloat"].as<f64>() == 123.45);
+        REQUIRE(t["section1"]["valueSec"]["a"].as<f64>() == 95);
+        REQUIRE(t["section1"]["valueArr"][0].as<f64>() == 42);
     }
     SUBCASE("subscript")
     {
@@ -631,15 +612,15 @@ TEST_CASE("Data.Config.TcobTypes")
 
         obj["point"] = object {{"x", 100}, {"y", 350}};
         REQUIRE(obj.is<point_i>("point"));
-        REQUIRE(obj.as<point_i>("point") == point_i {100, 350});
+        REQUIRE(obj["point"].as<point_i>() == point_i {100, 350});
 
         obj["size"] = object {{"width", 100}, {"height", 350}};
         REQUIRE(obj.is<size_i>("size"));
-        REQUIRE(obj.as<size_i>("size") == size_i {100, 350});
+        REQUIRE(obj["size"].as<size_i>() == size_i {100, 350});
 
         obj["rect"] = object {{"x", 100}, {"y", 350}, {"width", 200}, {"height", 450}};
         REQUIRE(obj.is<rect_i>("rect"));
-        REQUIRE(obj.as<rect_i>("rect") == rect_i {100, 350, 200, 450});
+        REQUIRE(obj["rect"].as<rect_i>() == rect_i {100, 350, 200, 450});
     }
 
     SUBCASE("from array")
@@ -648,15 +629,15 @@ TEST_CASE("Data.Config.TcobTypes")
 
         obj["point"] = array {100, 350};
         REQUIRE(obj.is<point_i>("point"));
-        REQUIRE(obj.as<point_i>("point") == point_i {100, 350});
+        REQUIRE(obj["point"].as<point_i>() == point_i {100, 350});
 
         obj["size"] = array {100, 350};
         REQUIRE(obj.is<size_i>("size"));
-        REQUIRE(obj.as<size_i>("size") == size_i {100, 350});
+        REQUIRE(obj["size"].as<size_i>() == size_i {100, 350});
 
         obj["rect"] = array {100, 350, 200, 450};
         REQUIRE(obj.is<rect_i>("rect"));
-        REQUIRE(obj.as<rect_i>("rect") == rect_i {100, 350, 200, 450});
+        REQUIRE(obj["rect"].as<rect_i>() == rect_i {100, 350, 200, 450});
     }
 }
 

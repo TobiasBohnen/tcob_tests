@@ -587,9 +587,9 @@ TEST_CASE("Data.Ini.Comments")
         object t;
         REQUIRE(t.parse(iniString, EXT));
 
-        REQUIRE(t.as<object>("section1").get_entry("a")->get_comment().Text == "comment1\n");
-        REQUIRE(t.as<object>("section1").get_entry("c")->get_comment().Text == "comment2\n");
-        REQUIRE(t.as<object>("section2").get_entry("e")->get_comment().Text == "comment3\n");
+        REQUIRE(t["section1"].as<object>().get_entry("a")->get_comment().Text == "comment1\n");
+        REQUIRE(t["section1"].as<object>().get_entry("c")->get_comment().Text == "comment2\n");
+        REQUIRE(t["section2"].as<object>().get_entry("e")->get_comment().Text == "comment3\n");
     }
     SUBCASE("multi-line comment")
     {
@@ -605,7 +605,7 @@ TEST_CASE("Data.Ini.Comments")
         REQUIRE(t.parse(iniString, EXT));
 
         REQUIRE(t["section1"]["a"].as<i32>() == 1);
-        REQUIRE(t.as<object>("section1").get_entry("a")->get_comment().Text == "comment1\ncomment2\n");
+        REQUIRE(t["section1"].as<object>().get_entry("a")->get_comment().Text == "comment1\ncomment2\n");
     }
     SUBCASE("trailing comment")
     {
@@ -620,9 +620,9 @@ TEST_CASE("Data.Ini.Comments")
         REQUIRE(t.parse(iniString, EXT));
 
         REQUIRE(t["section1"]["a"].as<i32>() == 1);
-        REQUIRE(t.as<object>("section1").get_entry("a")->get_comment().Text == "comment1\n");
+        REQUIRE(t["section1"].as<object>().get_entry("a")->get_comment().Text == "comment1\n");
         REQUIRE(t["section1"]["b"].as<i32>() == 2);
-        REQUIRE(t.as<object>("section1").get_entry("b")->get_comment().Text == "comment2\n");
+        REQUIRE(t["section1"].as<object>().get_entry("b")->get_comment().Text == "comment2\n");
     }
 }
 
@@ -646,13 +646,13 @@ TEST_CASE("Data.Ini.Literals")
             valueFloat = 456.78
         )"_ini;
 
-    REQUIRE(t.as<bool>("section1", "valueBool") == true);
-    REQUIRE(t.as<std::string>("section1", "valueStr") == "test123");
-    REQUIRE(t.as<f64>("section1", "valueFloat") == 123.45);
-    REQUIRE(t.as<f64>("section1", "valueSec", "a") == 100);
-    REQUIRE(t.as<bool>("section1", "valueSec", "b") == false);
-    REQUIRE(t.as<f64>("section1", "valueSec", "c", "l") == 1);
-    REQUIRE(t.as<f64>("section1", "valueArr", 2) == 9);
+    REQUIRE(t["section1"]["valueBool"].as<bool>() == true);
+    REQUIRE(t["section1"]["valueStr"].as<std::string>() == "test123");
+    REQUIRE(t["section1"]["valueFloat"].as<f64>() == 123.45);
+    REQUIRE(t["section1"]["valueSec"]["a"].as<f64>() == 100);
+    REQUIRE(t["section1"]["valueSec"]["b"].as<bool>() == false);
+    REQUIRE(t["section1"]["valueSec"]["c"]["l"].as<f64>() == 1);
+    REQUIRE(t["section1"]["valueArr"][2].as<f64>() == 9);
 }
 
 TEST_CASE("Data.Ini.Reference")
