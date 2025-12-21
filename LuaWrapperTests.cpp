@@ -431,6 +431,8 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.PlayerWrapper")
 
 TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
 {
+    using comp = std::variant<TestScriptClass*, i32>;
+
     auto& wrapper = *create_wrapper<TestScriptClass>("TSCB");
 
     SUBCASE("Metatable")
@@ -442,10 +444,10 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
         REQUIRE(r0.has_value());
 
         wrapper.hide_metatable("nope");
-        auto r1 = run<std::optional<table>>("return getmetatable(wrap1)").value();
+        auto r1 = run<table>("return getmetatable(wrap1)");
         REQUIRE_FALSE(r1.has_value());
 
-        auto r2 = run<std::optional<std::string>>("return getmetatable(wrap1)").value();
+        auto r2 = run<std::string>("return getmetatable(wrap1)");
         REQUIRE(r2.has_value());
         REQUIRE(r2 == "nope");
 
@@ -503,10 +505,9 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
     }
     SUBCASE("LessOrEqualThan")
     {
-        wrapper[metamethod_type::LessOrEqualThan] = ([](std::variant<TestScriptClass*, i32> left, std::variant<TestScriptClass*, i32> right) {
+        wrapper[metamethod_type::LessOrEqualThan] = ([](comp left, comp right) {
             i32 const leftValue {std::holds_alternative<i32>(left) ? std::get<i32>(left) : std::get<TestScriptClass*>(left)->get_value()};
             i32 const rightValue {std::holds_alternative<i32>(right) ? std::get<i32>(right) : std::get<TestScriptClass*>(right)->get_value()};
-
             return leftValue <= rightValue;
         });
 
@@ -526,7 +527,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Metamethods")
     }
     SUBCASE("LessThan")
     {
-        wrapper[metamethod_type::LessThan] = ([](std::variant<TestScriptClass*, i32> left, std::variant<TestScriptClass*, i32> right) {
+        wrapper[metamethod_type::LessThan] = ([](comp left, comp right) {
             i32 const leftValue {std::holds_alternative<i32>(left) ? std::get<i32>(left) : std::get<TestScriptClass*>(left)->get_value()};
             i32 const rightValue {std::holds_alternative<i32>(right) ? std::get<i32>(right) : std::get<TestScriptClass*>(right)->get_value()};
             return leftValue < rightValue;

@@ -2502,10 +2502,22 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Variant")
 TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Warnings")
 {
     std::string warning;
-    Warning.connect([&](auto&& ev) { warning += ev.Message; });
+    Warning.connect([&warning, shouldAppend = false](auto&& ev) mutable {
+        if (shouldAppend) {
+            warning += ev.Message;
+        } else {
+            warning = ev.Message;
+        }
+
+        shouldAppend = ev.ToCont;
+    });
+
     auto res {run("warn('test')")};
     REQUIRE(warning == "test");
-    warning = "";
-    res     = run("warn('test','1','2','3')");
+
+    res = run("warn('test','1','2','3')");
     REQUIRE(warning == "test123");
+
+    view().warning("c++", false);
+    REQUIRE(warning == "c++");
 }

@@ -149,7 +149,7 @@ TEST_CASE("Data.Json.Parse")
 {
     SUBCASE("object")
     {
-        static std::string jsonString {
+        std::string jsonString {
             R"({
             "string": "Test",
             "number": 12,
@@ -195,7 +195,7 @@ TEST_CASE("Data.Json.Parse")
 
     SUBCASE("array")
     {
-        std::string const arrString =
+        std::string arrString =
             R"([1,2,3,"a","b","c"])";
 
         array arr;
@@ -210,15 +210,15 @@ TEST_CASE("Data.Json.Parse")
     }
     SUBCASE("empty object")
     {
-        static std::string emptyObj {R"({ "object": { } })"};
-        object             obj;
+        std::string emptyObj {R"({ "object": { } })"};
+        object      obj;
         REQUIRE(obj.parse(emptyObj, EXT));
         REQUIRE(obj["object"].is<object>());
     }
     SUBCASE("empty array")
     {
-        static std::string emptyObj {R"({ "array": [] })"};
-        object             obj;
+        std::string emptyObj {R"({ "array": [] })"};
+        object      obj;
         REQUIRE(obj.parse(emptyObj, EXT));
         REQUIRE(obj["array"].is<array>());
     }
