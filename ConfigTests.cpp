@@ -16,6 +16,8 @@ TEST_CASE("Data.Config.Get")
     t[sec]["valueArr"]           = std::vector<i32> {3, 5, 9, 13};
     t[sec]["valueFloat"]         = 123.45;
     t[sec]["max"]                = std::numeric_limits<u64>::max();
+    t[sec]["point"]["x"]         = 10;
+    t[sec]["point"]["y"]         = 40;
 
     t["section2"]["valueBool"]  = false;
     t["section2"]["valueStr"]   = "test456";
@@ -67,6 +69,12 @@ TEST_CASE("Data.Config.Get")
         REQUIRE(t["section2"]["valueFloat"].as<std::string>() == std::to_string(456.78));
         REQUIRE(t["section1"]["valueArr"].as<std::string>() == "[ 3, 5, 9, 13 ]");
         REQUIRE(t["section1"]["valueSec"].as<std::string>() == "{ a = 100, b = false, c = { l = 1, m = 32 } }");
+    }
+    SUBCASE("conversion to user types")
+    {
+        object obj {t["section1"]["point"].as<object>()};
+        REQUIRE(obj.is<point_i>());
+        REQUIRE(obj.get<point_i>() == point_i {10, 40});
     }
 }
 

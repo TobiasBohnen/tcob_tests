@@ -1747,17 +1747,26 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
     SUBCASE("conversion to user types")
     {
         {
-            auto res = run("tableX = {left=2.7, top={x=10,y=2} }");
+            auto res {run("tableX = {left=2.7, top={x=10,y=2} }")};
             REQUIRE(res);
-            auto top = global["tableX"]["top"].as<point_i>();
+            auto top {global["tableX"]["top"].as<point_i>()};
             REQUIRE(top.X == 10);
         }
         {
-            auto res = run("rectF = {x=2.7, y=3.1, width=2.3, height=55.2} ");
+            auto res {run("rectF = {x=2.7, y=3.1, width=2.3, height=55.2} ")};
             REQUIRE(res);
-            auto tab = global["rectF"].as<table>();
-            f32  x   = tab["x"].as<f32>();
+            auto tab {global["rectF"].as<table>()};
+            f32  x {tab["x"].as<f32>()};
             REQUIRE(x == 2.7f);
+        }
+        {
+            auto tab {create_table()};
+            tab["x"] = 10;
+            tab["y"] = 45;
+
+            REQUIRE(tab.is<point_i>());
+            auto point {tab.get<point_i>()};
+            REQUIRE(point == point_i {10, 45});
         }
     }
 
@@ -1787,6 +1796,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
     SUBCASE("is<T>()")
     {
         table tab = *run<table>("return {a = 2.4, b = true, c = 'hello'} ");
+
         REQUIRE(tab.is<f32>("a"));
         REQUIRE(tab["b"].is<bool>());
         REQUIRE(tab.is<std::string>("c"));
