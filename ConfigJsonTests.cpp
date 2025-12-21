@@ -222,6 +222,69 @@ TEST_CASE("Data.Json.Parse")
         REQUIRE(obj.parse(emptyObj, EXT));
         REQUIRE(obj["array"].is<array>());
     }
+    SUBCASE("object array")
+    {
+        std::string jsonString {R"({"a": [ { "x": 1, "y": 2 }, { "x": 3 } ], "b": 4 })"};
+        object      obj;
+        REQUIRE(obj.parse(jsonString, EXT));
+        REQUIRE(obj["a"].is<array>());
+    }
+    SUBCASE("escaped quotes 1")
+    {
+        std::string jsonString {R"({ "a": "\"" })"};
+        object      obj;
+        REQUIRE(obj.parse(jsonString, EXT));
+        REQUIRE(obj["a"].as<string>() == "\"");
+    }
+    SUBCASE("escaped quotes 2")
+    {
+        std::string jsonString {R"( { "a": "x\",y", "b": 2 })"};
+        object      obj;
+        REQUIRE(obj.parse(jsonString, EXT));
+        REQUIRE(obj["a"].as<string>() == "x\",y");
+    }
+    SUBCASE("escaped backslash")
+    {
+        std::string jsonString {R"({ "a": "foo\\bar" })"};
+        object      obj;
+        REQUIRE(obj.parse(jsonString, EXT));
+        REQUIRE(obj["a"].as<std::string>() == R"(foo\bar)");
+    }
+    SUBCASE("mixed escapes")
+    {
+        std::string jsonString {R"({ "a": "Line1\nLine2\t\"Quote\"" })"};
+        object      obj;
+        REQUIRE(obj.parse(jsonString, EXT));
+        REQUIRE(obj["a"].as<std::string>() == "Line1\nLine2\t\"Quote\"");
+    }
+    SUBCASE("nested arrays")
+    {
+        std::string jsonString {R"({ "a": [[1,2],[3,4]] })"};
+        object      obj;
+        REQUIRE(obj.parse(jsonString, EXT));
+        REQUIRE(obj["a"][0].as<array>()[1].as<i32>() == 2);
+        REQUIRE(obj["a"][1].as<array>()[0].as<i32>() == 3);
+    }
+    SUBCASE("deep nesting")
+    {
+        std::string jsonString {R"({ "a": { "b": [ { "c": "d" } ] } })"};
+        object      obj;
+        REQUIRE(obj.parse(jsonString, EXT));
+        REQUIRE(obj["a"]["b"][0]["c"].as<std::string>() == "d");
+    }
+
+    SUBCASE("missing colon")
+    {
+        std::string jsonString {R"({ "a" 1 })"};
+        object      obj;
+        REQUIRE_FALSE(obj.parse(jsonString, EXT));
+    }
+    SUBCASE("unclosed string")
+    {
+        std::string jsonString {R"({ "a": "oops })"};
+        object      obj;
+        REQUIRE_FALSE(obj.parse(jsonString, EXT));
+    }
 }
 
 TEST_CASE("Data.Json.TcobTypes")
