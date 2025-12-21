@@ -2213,8 +2213,8 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.TcobTypes")
     }
     SUBCASE("api: sound_wave")
     {
-        audio::sound_generator gen {random::prng_split_mix_64 {1234}};
-        auto const             wave0 {gen.generate_random()};
+        audio::sound_generator gen {};
+        auto const             wave0 {gen.generate_random(1234)};
         global["wave"] = wave0;
         REQUIRE(global["wave"].as<audio::sound_wave>() == wave0);
     }
