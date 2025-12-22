@@ -137,6 +137,19 @@ TEST_CASE("Data.Config.Set")
         REQUIRE_FALSE(t["value"].is<f32>());
         REQUIRE(t.is<std::monostate>("value"));
     }
+    SUBCASE("nested array")
+    {
+        object t;
+        t["section1"]["value"]         = 123.45f;
+        t["section1"]["array"][0]      = 10;
+        t["section1"]["array"][1]["x"] = 40;
+
+        REQUIRE(t["section1"]["value"].as<f32>() == 123.45f);
+        REQUIRE(t.is<array>("section1", "array"));
+        REQUIRE(t.is<object>("section1", "array", 1));
+        REQUIRE(t["section1"]["array"][0].as<i32>() == 10);
+        REQUIRE(t["section1"]["array"][1]["x"].as<i32>() == 40);
+    }
 }
 
 TEST_CASE("Data.Config.Has")

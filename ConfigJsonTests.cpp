@@ -262,8 +262,8 @@ TEST_CASE("Data.Json.Parse")
         std::string jsonString {R"({ "a": [[1,2],[3,4]] })"};
         object      obj;
         REQUIRE(obj.parse(jsonString, EXT));
-        REQUIRE(obj["a"][0].as<array>()[1].as<i32>() == 2);
-        REQUIRE(obj["a"][1].as<array>()[0].as<i32>() == 3);
+        REQUIRE(obj["a"][0][1].as<i32>() == 2);
+        REQUIRE(obj["a"][1][0].as<i32>() == 3);
     }
     SUBCASE("deep nesting")
     {
