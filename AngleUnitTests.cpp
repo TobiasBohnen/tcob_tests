@@ -188,16 +188,18 @@ TEST_CASE("Core.POD.AngleUnits")
         REQUIRE(rad.sin() == std::sin(0.5f));
         REQUIRE(rad.cos() == std::cos(0.5f));
         REQUIRE(rad.tan() == std::tan(0.5f));
-        REQUIRE(rad.asin() == std::asin(0.5f));
-        REQUIRE(rad.acos() == std::acos(0.5f));
-        REQUIRE(rad.atan() == std::atan(0.5f));
+        REQUIRE(radian_f::asin(0.5f) == radian_f {std::asin(0.5f)});
+        REQUIRE(radian_f::acos(0.5f) == radian_f {std::acos(0.5f)});
+        REQUIRE(radian_f::atan(0.5f) == radian_f {std::atan(0.5f)});
+        REQUIRE(radian_f::atan2(0.5f, 0.1f) == radian_f {std::atan2(0.5f, 0.1f)});
 
         degree_f const deg {degree_f {radian_f {0.5f}}};
         REQUIRE(deg.sin() == std::sin(0.5f));
         REQUIRE(deg.cos() == std::cos(0.5f));
         REQUIRE(deg.tan() == std::tan(0.5f));
-        REQUIRE(deg.asin() == std::asin(0.5f));
-        REQUIRE(deg.acos() == std::acos(0.5f));
-        REQUIRE(deg.atan() == std::atan(0.5f));
+        REQUIRE(degree_f::asin(0.5f) == degree_f {radian_f {std::asin(0.5f)}});
+        REQUIRE(degree_f::acos(0.5f) == degree_f {radian_f {std::acos(0.5f)}});
+        REQUIRE(degree_f::atan(0.5f) == degree_f {radian_f {std::atan(0.5f)}});
+        REQUIRE(degree_f::atan2(0.5f, 0.1f) == degree_f {radian_f {std::atan2(0.5f, 0.1f)}});
     }
 }
