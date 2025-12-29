@@ -178,6 +178,7 @@ TEST_CASE("Core.POD.Rect")
             REQUIRE_FALSE(r.contains(point_f {0.25f, 3.9f}));
             REQUIRE_FALSE(r.contains(point_f {0.75f, 7.9f}));
         }
+
         {
             i32    x {2};
             i32    y {4};
@@ -188,6 +189,7 @@ TEST_CASE("Core.POD.Rect")
             REQUIRE_FALSE(r.contains(point_f {1, 17}));
             REQUIRE_FALSE(r.contains(point_f {15, 5}));
         }
+
         {
             i32    x {0};
             i32    y {0};
@@ -199,6 +201,7 @@ TEST_CASE("Core.POD.Rect")
             REQUIRE_FALSE(r.contains(point_i {10, 0}));
             REQUIRE_FALSE(r.contains(point_i {10, 10}));
         }
+
         {
             i32    x {2};
             i32    y {4};
@@ -207,6 +210,176 @@ TEST_CASE("Core.POD.Rect")
             rect_i r {x, y, w, h};
             REQUIRE(r.contains(rect_i {3, 5, 1, 1}));
             REQUIRE_FALSE(r.contains(rect_i {3, 5, 20, 20}));
+        }
+
+        {
+            rect_f r {0.0f, 0.0f, 10.0f, 10.0f};
+            REQUIRE(r.contains(point_f {9.99f, 9.99f}));
+            REQUIRE_FALSE(r.contains(point_f {10.0f, 5.0f}));
+            REQUIRE_FALSE(r.contains(point_f {5.0f, 10.0f}));
+        }
+
+        {
+            rect_i r {5, 10, 20, 30};
+            REQUIRE(r.contains(r));
+        }
+
+        {
+            rect_i outer {0, 0, 100, 100};
+            REQUIRE(outer.contains(rect_i {0, 0, 100, 100}));       // Same rect
+            REQUIRE(outer.contains(rect_i {0, 0, 50, 50}));         // Top-left quarter
+            REQUIRE_FALSE(outer.contains(rect_i {50, 50, 50, 50})); // Bottom-right quarter
+            REQUIRE_FALSE(outer.contains(rect_i {50, 50, 51, 50})); // Exceeds right
+            REQUIRE_FALSE(outer.contains(rect_i {50, 50, 50, 51})); // Exceeds bottom
+        }
+
+        {
+            rect_i r {10, 10, 20, 20};
+            REQUIRE_FALSE(r.contains(rect_i {5, 5, 10, 10}));   // Overlaps top-left
+            REQUIRE_FALSE(r.contains(rect_i {25, 25, 10, 10})); // Overlaps bottom-right
+            REQUIRE_FALSE(r.contains(rect_i {0, 15, 15, 5}));   // Overlaps left edge
+            REQUIRE_FALSE(r.contains(rect_i {25, 15, 10, 5}));  // Overlaps right edge
+        }
+
+        {
+            rect_i r {10, 10, 20, 20};
+            REQUIRE_FALSE(r.contains(rect_i {50, 50, 10, 10})); // Completely outside
+            REQUIRE_FALSE(r.contains(rect_i {-10, -10, 5, 5})); // Completely outside (negative)
+        }
+
+        {
+            rect_i r {10, 10, 20, 20};
+            REQUIRE(r.contains(rect_i {15, 15, 0, 0}));       // Zero-sized rect at valid point
+            REQUIRE(r.contains(rect_i {10, 10, 0, 0}));       // Zero-sized at top-left (edge case)
+            REQUIRE_FALSE(r.contains(rect_i {30, 30, 0, 0})); // Zero-sized at bottom-right (exclusive)
+        }
+
+        {
+            rect_i r {10, 10, 20, 20};
+            REQUIRE(r.contains(rect_i {10, 10, 1, 1}));       // Top-left pixel
+            REQUIRE_FALSE(r.contains(rect_i {29, 29, 1, 1})); // Bottom-right pixel (inclusive)
+            REQUIRE_FALSE(r.contains(rect_i {30, 30, 1, 1})); // Just outside
+        }
+
+        {
+            rect_i r {-10, -10, 20, 20};
+            REQUIRE(r.contains(point_i {0, 0}));
+            REQUIRE(r.contains(point_i {-10, -10}));
+            REQUIRE_FALSE(r.contains(point_i {10, 10}));
+            REQUIRE_FALSE(r.contains(point_i {-11, 0}));
+        }
+
+        {
+            rect_i r {0, 0, 100, 100};
+            REQUIRE(r.contains(point_f {50.5f, 50.5f}));        // Float point in int rect
+            REQUIRE_FALSE(r.contains(point_f {100.1f, 50.0f})); // Just outside
+        }
+
+        {
+            rect_f r {0.0f, 0.0f, 1.0f, 1.0f};
+            REQUIRE(r.contains(point_f {0.0f, 0.0f}));
+            REQUIRE(r.contains(point_f {0.9999f, 0.9999f}));
+            REQUIRE_FALSE(r.contains(point_f {1.0f, 0.5f}));
+            REQUIRE_FALSE(r.contains(point_f {0.5f, 1.0f}));
+            REQUIRE_FALSE(r.contains(point_f {1.0001f, 0.5f}));
+        }
+
+        {
+            rect_i r {1000000, 2000000, 500000, 300000};
+            REQUIRE(r.contains(point_i {1250000, 2150000}));
+            REQUIRE_FALSE(r.contains(point_i {1500001, 2150000}));
+        }
+
+        {
+            rect_i r1 {0, 0, 10, 10};
+            rect_i r2 {10, 0, 10, 10}; // Adjacent on right
+            rect_i r3 {0, 10, 10, 10}; // Adjacent on bottom
+            REQUIRE_FALSE(r1.contains(r2));
+            REQUIRE_FALSE(r1.contains(r3));
+        }
+
+        {
+            rect_i r {10, 10, 20, 20};
+            REQUIRE_FALSE(r.contains(rect_i {10, 10, 20, 25})); // Height exceeds
+            REQUIRE_FALSE(r.contains(rect_i {10, 10, 25, 20})); // Width exceeds
+        }
+
+        {
+            rect_i r {0, 0, 10, 10};
+
+            // Corners
+            REQUIRE(r.contains(point_i {0, 0}, false));         // Top-left: always included
+            REQUIRE(r.contains(point_i {0, 0}, true));
+
+            REQUIRE_FALSE(r.contains(point_i {10, 10}, false)); // Bottom-right: excluded by default
+            REQUIRE(r.contains(point_i {10, 10}, true));        // Bottom-right: included with flag
+
+            REQUIRE_FALSE(r.contains(point_i {10, 0}, false));  // Top-right: excluded
+            REQUIRE(r.contains(point_i {10, 0}, true));         // Top-right: included
+
+            REQUIRE_FALSE(r.contains(point_i {0, 10}, false));  // Bottom-left: excluded
+            REQUIRE(r.contains(point_i {0, 10}, true));         // Bottom-left: included
+
+            // Edge points
+            REQUIRE_FALSE(r.contains(point_i {10, 5}, false)); // Right edge
+            REQUIRE(r.contains(point_i {10, 5}, true));
+
+            REQUIRE_FALSE(r.contains(point_i {5, 10}, false)); // Bottom edge
+            REQUIRE(r.contains(point_i {5, 10}, true));
+
+            REQUIRE(r.contains(point_i {0, 5}, false));        // Left edge: always included
+            REQUIRE(r.contains(point_i {5, 0}, false));        // Top edge: always included
+        }
+
+        {
+            rect_i outer {0, 0, 100, 100};
+
+            REQUIRE(outer.contains(rect_i {0, 0, 100, 100}, false));
+            REQUIRE(outer.contains(rect_i {0, 0, 100, 100}, true));
+
+            rect_i touchRight {50, 25, 50, 50};               // Right edge at x=100
+            REQUIRE_FALSE(outer.contains(touchRight, false)); // Excluded by default
+            REQUIRE(outer.contains(touchRight, true));        // Included with flag
+
+            rect_i touchBottom {25, 50, 50, 50};              // Bottom edge at y=100
+            REQUIRE_FALSE(outer.contains(touchBottom, false));
+            REQUIRE(outer.contains(touchBottom, true));
+
+            rect_i touchBoth {50, 50, 50, 50}; // Corners at (100, 100)
+            REQUIRE_FALSE(outer.contains(touchBoth, false));
+            REQUIRE(outer.contains(touchBoth, true));
+
+            rect_i inside {25, 25, 50, 50};
+            REQUIRE(outer.contains(inside, false)); // Always fits
+            REQUIRE(outer.contains(inside, true));
+        }
+
+        {
+            rect_f r {0.0f, 0.0f, 10.0f, 10.0f};
+
+            REQUIRE_FALSE(r.contains(point_f {10.0f, 5.0f}, false));
+            REQUIRE(r.contains(point_f {10.0f, 5.0f}, true));
+
+            REQUIRE(r.contains(point_f {9.9999f, 9.9999f}, false)); // Just inside
+            REQUIRE(r.contains(point_f {9.9999f, 9.9999f}, true));
+        }
+
+        {
+            rect_i r {10, 10, -20, -20};                        // Represents (−10, −10) to (10, 10)
+
+            REQUIRE_FALSE(r.contains(point_i {10, 10}, false)); // Max corner excluded
+            REQUIRE(r.contains(point_i {10, 10}, true));        // Max corner included
+
+            REQUIRE(r.contains(point_i {-10, -10}, false));     // Min corner always included
+            REQUIRE(r.contains(point_i {-10, -10}, true));
+        }
+
+        {
+            rect_i r {10, 10, 20, 20};
+            rect_i zeroAtEdge {30, 30, 0, 0}; // Zero-sized at bottom-right corner
+
+            REQUIRE_FALSE(r.contains(zeroAtEdge, false));
+            REQUIRE(r.contains(zeroAtEdge, true));
         }
     }
 
