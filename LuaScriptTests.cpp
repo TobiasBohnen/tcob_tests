@@ -726,7 +726,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Functions")
         REQUIRE(res);
         REQUIRE(res.value() == 600);
     }
-    SUBCASE("point_f parameter")
+    SUBCASE("point_i parameter")
     {
         auto res = run("function testPoint(p) return p.x * p.y end");
         REQUIRE(res);
@@ -2222,7 +2222,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.TcobTypes")
 
 TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.TypeCoercion")
 {
-    SUBCASE("string from i32")
+    SUBCASE("string from integer")
     {
         auto res = run("a = 100 ");
         REQUIRE(res);
@@ -2248,6 +2248,23 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.TypeCoercion")
         REQUIRE_FALSE(global.is<f32>("a"));
         f32 val = global["a"].as<f32>();
         REQUIRE(val == 100.5);
+    }
+    SUBCASE("integer from string")
+    {
+        auto res = run("a = '100' ");
+        REQUIRE(res);
+        REQUIRE(global.is<std::string>("a"));
+        REQUIRE_FALSE(global.is<i32>("a"));
+        i32 val = global["a"].as<i32>();
+        REQUIRE(val == 100);
+    }
+    SUBCASE("integer from number")
+    {
+        auto res = run("a = 100.0 ");
+        REQUIRE(res);
+        REQUIRE(global.is<i32>("a"));
+        i32 val = global["a"].as<i32>();
+        REQUIRE(val == 100);
     }
 }
 
