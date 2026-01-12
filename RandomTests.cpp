@@ -4,12 +4,14 @@ TEST_CASE("Core.Random.MinMax")
 {
     SUBCASE("default")
     {
+        i32 const it = 5'000;
+
         rng rnd;
         SUBCASE("i32")
         {
             {
                 i32 min = 8, max = 15;
-                for (i32 i = 0; i < 5000; i++) {
+                for (i32 i = 0; i < it; i++) {
                     auto x = rnd(min, max);
                     REQUIRE(x >= min);
                     REQUIRE(x <= max);
@@ -17,7 +19,7 @@ TEST_CASE("Core.Random.MinMax")
             }
             {
                 i32 min = -10, max = 15;
-                for (i32 i = 0; i < 5000; i++) {
+                for (i32 i = 0; i < it; i++) {
                     auto x = rnd(min, max);
                     REQUIRE(x >= min);
                     REQUIRE(x <= max);
@@ -25,17 +27,211 @@ TEST_CASE("Core.Random.MinMax")
             }
             {
                 i32 min = -5, max = -4;
-                for (i32 i = 0; i < 5000; i++) {
+                for (i32 i = 0; i < it; i++) {
+                    auto x = rnd(min, max);
+                    REQUIRE(x >= min);
+                    REQUIRE(x <= max);
+                }
+            }
+            {
+                i32 min = std::numeric_limits<i32>::min();
+                i32 max = std::numeric_limits<i32>::max();
+                for (i32 i = 0; i < it; i++) {
+                    auto x = rnd(min, max);
+                    REQUIRE(x >= min);
+                    REQUIRE(x <= max);
+                }
+            }
+            {
+                i32 min = std::numeric_limits<i32>::min();
+                i32 max = std::numeric_limits<i32>::max() - 1;
+                for (i32 i = 0; i < it; i++) {
+                    auto x = rnd(min, max);
+                    REQUIRE(x >= min);
+                    REQUIRE(x <= max);
+                }
+            }
+            {
+                i32 min = 1'000'000'000;
+                i32 max = 2'000'000'000;
+                for (i32 i = 0; i < it; i++) {
+                    auto x = rnd(min, max);
+                    REQUIRE(x >= min);
+                    REQUIRE(x <= max);
+                }
+            }
+            {
+                i32 min = -2'000'000'000;
+                i32 max = -1'000'000'000;
+                for (i32 i = 0; i < it; i++) {
+                    auto x = rnd(min, max);
+                    REQUIRE(x >= min);
+                    REQUIRE(x <= max);
+                }
+            }
+            {
+                i32 min = -2'000'000'000;
+                i32 max = 2'000'000'000;
+                for (i32 i = 0; i < it; i++) {
+                    auto x = rnd(min, max);
+                    REQUIRE(x >= min);
+                    REQUIRE(x <= max);
+                }
+            }
+            {
+                i32 min = 42, max = 42;
+                for (i32 i = 0; i < 100; i++) {
+                    auto x = rnd(min, max);
+                    REQUIRE(x == 42);
+                }
+            }
+        }
+
+        SUBCASE("u32")
+        {
+            {
+                u32 min = 8, max = 15;
+                for (i32 i = 0; i < it; i++) {
+                    auto x = rnd(min, max);
+                    REQUIRE(x >= min);
+                    REQUIRE(x <= max);
+                }
+            }
+            {
+                u32 min = std::numeric_limits<u32>::min();
+                u32 max = std::numeric_limits<u32>::max();
+                for (i32 i = 0; i < it; i++) {
+                    auto x = rnd(min, max);
+                    REQUIRE(x >= min);
+                    REQUIRE(x <= max);
+                }
+            }
+            {
+                u32 min = 0;
+                u32 max = std::numeric_limits<u32>::max() - 1;
+                for (i32 i = 0; i < it; i++) {
+                    auto x = rnd(min, max);
+                    REQUIRE(x >= min);
+                    REQUIRE(x <= max);
+                }
+            }
+            {
+                u32 min = 1'000'000'000;
+                u32 max = 4'000'000'000;
+                for (i32 i = 0; i < it; i++) {
                     auto x = rnd(min, max);
                     REQUIRE(x >= min);
                     REQUIRE(x <= max);
                 }
             }
         }
-        SUBCASE("float")
+
+        SUBCASE("i64")
         {
             {
-                float min = 8.f, max = 15.f;
+                i64 min = 8, max = 15;
+                for (i32 i = 0; i < it; i++) {
+                    auto x = rnd(min, max);
+                    REQUIRE(x >= min);
+                    REQUIRE(x <= max);
+                }
+            }
+            {
+                i64 min = std::numeric_limits<i64>::min();
+                i64 max = std::numeric_limits<i64>::max();
+                for (i32 i = 0; i < it; i++) {
+                    auto x = rnd(min, max);
+                    REQUIRE(x >= min);
+                    REQUIRE(x <= max);
+                }
+            }
+            {
+                i64 min = -5'000'000'000'000'000'000LL;
+                i64 max = 5'000'000'000'000'000'000LL;
+                for (i32 i = 0; i < it; i++) {
+                    auto x = rnd(min, max);
+                    REQUIRE(x >= min);
+                    REQUIRE(x <= max);
+                }
+            }
+        }
+
+        SUBCASE("i8")
+        {
+            {
+                i8 min = -10, max = 10;
+                for (i32 i = 0; i < it; i++) {
+                    auto x = rnd(min, max);
+                    REQUIRE(x >= min);
+                    REQUIRE(x <= max);
+                }
+            }
+            {
+                i8 min = std::numeric_limits<i8>::min();
+                i8 max = std::numeric_limits<i8>::max();
+                for (i32 i = 0; i < it; i++) {
+                    auto x = rnd(min, max);
+                    REQUIRE(x >= min);
+                    REQUIRE(x <= max);
+                }
+            }
+        }
+
+        SUBCASE("f32")
+        {
+            {
+                f32 min = 8.f, max = 15.f;
+                for (i32 i = 0; i < it; i++) {
+                    auto x = rnd(min, max);
+                    REQUIRE(x >= min);
+                    REQUIRE(x <= max);
+                }
+            }
+            {
+                f32 min = -10.f, max = 15.f;
+                for (i32 i = 0; i < it; i++) {
+                    auto x = rnd(min, max);
+                    REQUIRE(x >= min);
+                    REQUIRE(x <= max);
+                }
+            }
+            {
+                f32 min = -5.f, max = -4.f;
+                for (i32 i = 0; i < it; i++) {
+                    auto x = rnd(min, max);
+                    REQUIRE(x >= min);
+                    REQUIRE(x <= max);
+                }
+            }
+            {
+                f32 min = -1e30f, max = 1e30f;
+                for (i32 i = 0; i < it; i++) {
+                    auto x = rnd(min, max);
+                    REQUIRE(x >= min);
+                    REQUIRE(x <= max);
+                }
+            }
+            {
+                f32 min = 0.0f, max = 0.001f;
+                for (i32 i = 0; i < it; i++) {
+                    auto x = rnd(min, max);
+                    REQUIRE(x >= min);
+                    REQUIRE(x <= max);
+                }
+            }
+            {
+                f32 min = 3.14f, max = 3.14f;
+                for (i32 i = 0; i < 100; i++) {
+                    auto x = rnd(min, max);
+                    REQUIRE(x == min);
+                }
+            }
+        }
+
+        SUBCASE("f64")
+        {
+            {
+                f64 min = 8.0, max = 15.0;
                 for (i32 i = 0; i < 5000; i++) {
                     auto x = rnd(min, max);
                     REQUIRE(x >= min);
@@ -43,7 +239,7 @@ TEST_CASE("Core.Random.MinMax")
                 }
             }
             {
-                float min = -10.f, max = 15.f;
+                f64 min = -1e100, max = 1e100;
                 for (i32 i = 0; i < 5000; i++) {
                     auto x = rnd(min, max);
                     REQUIRE(x >= min);
@@ -51,7 +247,7 @@ TEST_CASE("Core.Random.MinMax")
                 }
             }
             {
-                float min = -5.f, max = -4.f;
+                f64 min = 1e-10, max = 1e-9;
                 for (i32 i = 0; i < 5000; i++) {
                     auto x = rnd(min, max);
                     REQUIRE(x >= min);
@@ -90,10 +286,10 @@ TEST_CASE("Core.Random.MinMax")
                 }
             }
         }
-        SUBCASE("float")
+        SUBCASE("f32")
         {
             {
-                float min = 8.f, max = 15.f;
+                f32 min = 8.f, max = 15.f;
                 for (i32 i = 0; i < 5000; i++) {
                     auto x = rnd(min, max);
                     REQUIRE(x >= min);
@@ -101,7 +297,7 @@ TEST_CASE("Core.Random.MinMax")
                 }
             }
             {
-                float min = -10.f, max = 15.f;
+                f32 min = -10.f, max = 15.f;
                 for (i32 i = 0; i < 5000; i++) {
                     auto x = rnd(min, max);
                     REQUIRE(x >= min);
@@ -109,7 +305,7 @@ TEST_CASE("Core.Random.MinMax")
                 }
             }
             {
-                float min = -5.f, max = -4.f;
+                f32 min = -5.f, max = -4.f;
                 for (i32 i = 0; i < 5000; i++) {
                     auto x = rnd(min, max);
                     REQUIRE(x >= min);
