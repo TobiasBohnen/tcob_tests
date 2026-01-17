@@ -8,23 +8,6 @@
 
 using namespace tcob::scripting;
 
-static auto testfuncstr() -> std::string
-{
-    return "huhu";
-}
-static auto testfuncfloat() -> float
-{
-    return 4.2f;
-}
-static auto testfuncpair(std::pair<i32, f32> const& p) -> f32
-{
-    return static_cast<f32>(p.first) * p.second;
-}
-static auto testfuncfloat2(std::expected<f32, error_code> f, std::expected<f32, error_code> x, i32 i) -> f32
-{
-    return f.value() * x.value() * static_cast<f32>(i);
-}
-
 struct foo {
     i32 x = 0;
     i32 y = 0;
@@ -75,6 +58,11 @@ public:
     table global;
 };
 
+static auto func_string_return() -> std::string { return "huhu"; }
+static auto func_float_return() -> float { return 4.2f; }
+static auto func_float_return_2(std::expected<f32, error_code> f, std::expected<f32, error_code> x, i32 i) -> f32 { return f.value() * x.value() * static_cast<f32>(i); }
+static auto func_pair_return(std::pair<i32, f32> const& p) -> f32 { return static_cast<f32>(p.first) * p.second; }
+
 TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Closures")
 {
     SUBCASE("misc")
@@ -104,24 +92,29 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Closures")
             REQUIRE(voidTest == 2);
         }
         {
-            global["testFunc"] = &testfuncstr;
+            global["testFunc"] = &func_string_return;
             std::string x      = *run<std::string>("return testFunc()");
-            REQUIRE(x == testfuncstr());
+            REQUIRE(x == func_string_return());
         }
         {
-            global["testFunc"] = testfuncfloat;
+            global["testFunc"] = &func_float_return;
             f32 x              = *run<f32>("return testFunc()");
-            REQUIRE(x == testfuncfloat());
+            REQUIRE(x == func_float_return());
         }
         {
-            global["testFunc"] = testfuncfloat2;
+            global["testFunc"] = &func_float_return_2;
             f32 x              = *run<f32>("return testFunc(4,4.5,3)");
-            REQUIRE(x == testfuncfloat2(std::expected<f32, error_code> {4.f}, std::expected<f32, error_code> {4.5f}, 3));
+            REQUIRE(x == func_float_return_2(std::expected<f32, error_code> {4.f}, std::expected<f32, error_code> {4.5f}, 3));
         }
         {
-            global["testFunc"] = testfuncpair;
+            global["testFunc"] = &func_pair_return;
             f32 x              = *run<f32>("return testFunc(4, 6.5)");
-            REQUIRE(x == testfuncpair({4, 6.5f}));
+            REQUIRE(x == func_pair_return({4, 6.5f}));
+        }
+        {
+            global["testFunc"] = +[](i32 i) { return std::pair {i * 2, i * 5}; };
+            auto x             = *run<std::pair<i32, i32>>("return testFunc(2)");
+            REQUIRE(x == std::pair {4, 10});
         }
         {
             global["testFunc"] = +[](i32 i) { return (f32)i * 2.5f; };
