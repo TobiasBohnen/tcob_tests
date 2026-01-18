@@ -303,3 +303,140 @@ TEST_CASE("GFX.Image.RemoveAlpha")
     std::vector<u8> data1 {newImage.data().begin(), newImage.data().end()};
     REQUIRE(data1 == target);
 }
+
+auto create_solid_color_image(i32 width, i32 height, color c) -> image
+{
+    auto img = image::CreateEmpty(size_i {width, height}, image::format::RGB);
+    img.fill(rect_i {{0, 0}, {width, height}}, c);
+    return img;
+}
+
+auto create_gradient_image(i32 width, i32 height) -> image
+{
+    auto img = image::CreateEmpty(size_i {width, height}, image::format::RGB);
+    for (i32 y {0}; y < height; y++) {
+        for (i32 x {0}; x < width; x++) {
+            u8 const value {static_cast<u8>((x * 255) / width)};
+            img.set_pixel(point_i {x, y}, color {value, value, value});
+        }
+    }
+    return img;
+}
+TEST_CASE("GFX.Image.OctTreeQuant")
+{
+    SUBCASE("single color")
+    {
+        octree_quantizer quantizer {256};
+        auto             img = quantizer(create_solid_color_image(10, 10, color {255, 0, 0}));
+
+        REQUIRE(img.count_colors() == 1);
+    }
+
+    SUBCASE("two colors")
+    {
+        octree_quantizer quantizer {256};
+        auto             img = image::CreateEmpty(size_i {10, 10}, image::format::RGB);
+
+        for (i32 y {0}; y < 10; y++) {
+            for (i32 x {0}; x < 10; x++) {
+                img.set_pixel(point_i {x, y}, (x < 5) ? color {255, 0, 0} : color {0, 0, 255});
+            }
+        }
+
+        auto newImg = quantizer(img);
+        REQUIRE(newImg.count_colors() == 2);
+    }
+
+    SUBCASE("16 color limit")
+    {
+        octree_quantizer quantizer {16};
+        auto             img = create_gradient_image(256, 10);
+
+        auto newImg = quantizer(img);
+
+        REQUIRE(newImg.count_colors() <= 16);
+    }
+
+    SUBCASE("8 color limit")
+    {
+        octree_quantizer quantizer {8};
+        auto             img = create_gradient_image(256, 10);
+
+        auto newImg = quantizer(img);
+
+        REQUIRE(newImg.count_colors() <= 8);
+    }
+
+    SUBCASE("256 color limit")
+    {
+        octree_quantizer quantizer {256};
+        auto             img = create_gradient_image(256, 10);
+
+        auto newImg = quantizer(img);
+
+        REQUIRE(newImg.count_colors() <= 256);
+    }
+
+    SUBCASE("colors preserved")
+    {
+        octree_quantizer quantizer {256};
+        auto             img = image::CreateEmpty(size_i {4, 2}, image::format::RGB);
+
+        std::array<color, 8> p {{color {255, 0, 0},
+                                 color {0, 255, 0},
+                                 color {0, 0, 255},
+                                 color {255, 255, 0},
+                                 color {255, 0, 255},
+                                 color {0, 255, 255},
+                                 color {255, 255, 255},
+                                 color {0, 0, 0}}};
+
+        img.set_pixel(point_i {0, 0}, p[0]);
+        img.set_pixel(point_i {1, 0}, p[1]);
+        img.set_pixel(point_i {2, 0}, p[2]);
+        img.set_pixel(point_i {3, 0}, p[3]);
+        img.set_pixel(point_i {0, 1}, p[4]);
+        img.set_pixel(point_i {1, 1}, p[5]);
+        img.set_pixel(point_i {2, 1}, p[6]);
+        img.set_pixel(point_i {3, 1}, p[7]);
+
+        auto newImg = quantizer(img);
+
+        REQUIRE(newImg.count_colors() == 8);
+        auto const& info {newImg.info()};
+
+        std::unordered_set<color> colors;
+        auto const [width, height] {info.Size};
+        for (i32 y {0}; y < height; ++y) {
+            for (i32 x {0}; x < width; ++x) {
+                colors.insert(newImg.get_pixel({x, y}));
+            }
+        }
+
+        REQUIRE(colors.size() == 8);
+        for (auto c : p) {
+            REQUIRE(colors.contains(c));
+        }
+    }
+
+    SUBCASE("single pixel image")
+    {
+        octree_quantizer quantizer {256};
+        auto             img = image::CreateEmpty(size_i {1, 1}, image::format::RGB);
+        img.set_pixel(point_i {0, 0}, color {0, 0, 0});
+
+        auto newImg = quantizer(img);
+
+        REQUIRE(newImg.count_colors() == 1);
+    }
+
+    SUBCASE("100x100 image")
+    {
+        octree_quantizer quantizer {256};
+        auto             img = create_gradient_image(100, 100);
+
+        auto newImg = quantizer(img);
+
+        REQUIRE(newImg.count_colors() <= 256);
+    }
+}
