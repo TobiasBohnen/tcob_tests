@@ -403,15 +403,9 @@ TEST_CASE("GFX.Image.OctTreeQuant")
         auto newImg = quantizer(img);
 
         REQUIRE(newImg.count_colors() == 8);
-        auto const& info {newImg.info()};
 
-        std::unordered_set<color> colors;
-        auto const [width, height] {info.Size};
-        for (i32 y {0}; y < height; ++y) {
-            for (i32 x {0}; x < width; ++x) {
-                colors.insert(newImg.get_pixel({x, y}));
-            }
-        }
+        auto                      pal {quantizer.get_palette()};
+        std::unordered_set<color> colors {pal.begin(), pal.end()};
 
         REQUIRE(colors.size() == 8);
         for (auto c : p) {
