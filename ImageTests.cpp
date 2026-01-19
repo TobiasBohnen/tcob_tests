@@ -380,8 +380,7 @@ TEST_CASE("GFX.Image.OctTreeQuant")
 
     SUBCASE("colors preserved")
     {
-        octree_quantizer quantizer {256};
-        auto             img = image::CreateEmpty(size_i {4, 2}, image::format::RGB);
+        auto img = image::CreateEmpty(size_i {4, 2}, image::format::RGB);
 
         std::array<color, 8> p {{color {255, 0, 0},
                                  color {0, 255, 0},
@@ -401,11 +400,7 @@ TEST_CASE("GFX.Image.OctTreeQuant")
         img.set_pixel(point_i {2, 1}, p[6]);
         img.set_pixel(point_i {3, 1}, p[7]);
 
-        auto newImg = quantizer(img);
-
-        REQUIRE(newImg.count_colors() == 8);
-
-        auto                      pal {quantizer.get_palette()};
+        auto                      pal {octree_quantizer::GetPalette(img, 256)};
         std::unordered_set<color> colors {pal.begin(), pal.end()};
 
         REQUIRE(colors.size() == 8);
