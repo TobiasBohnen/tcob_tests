@@ -11,7 +11,7 @@ TEST_CASE("GFX.FontFamily.Fallback")
 
         font_family ff {fontName};
         font_family::FindSources(ff, "/fonts/" + fontName);
-        auto style {ff.get_fallback_style({.IsItalic = false, .Weight = font::weight::Normal})};
+        auto style {ff.get_style({.IsItalic = false, .Weight = font::weight::Normal})};
         REQUIRE(style);
         REQUIRE(style->Weight == font::weight::Medium);
 
@@ -27,7 +27,7 @@ TEST_CASE("GFX.FontFamily.Fallback")
 
         font_family ff {fontName};
         font_family::FindSources(ff, "/fonts/" + fontName);
-        auto style {ff.get_fallback_style({.IsItalic = false, .Weight = font::weight::Medium})};
+        auto style {ff.get_style({.IsItalic = false, .Weight = font::weight::Medium})};
         REQUIRE(style);
         REQUIRE(style->Weight == font::weight::Normal);
 
@@ -43,7 +43,7 @@ TEST_CASE("GFX.FontFamily.Fallback")
 
         font_family ff {fontName};
         font_family::FindSources(ff, "/fonts/" + fontName);
-        auto style {ff.get_fallback_style({.IsItalic = false, .Weight = font::weight::ExtraLight})};
+        auto style {ff.get_style({.IsItalic = false, .Weight = font::weight::ExtraLight})};
         REQUIRE(style);
         REQUIRE(style->Weight == font::weight::Light);
 
@@ -60,7 +60,7 @@ TEST_CASE("GFX.FontFamily.Fallback")
 
         font_family ff {fontName};
         font_family::FindSources(ff, "/fonts/" + fontName);
-        auto style {ff.get_fallback_style({.IsItalic = false, .Weight = font::weight::ExtraBold})};
+        auto style {ff.get_style({.IsItalic = false, .Weight = font::weight::ExtraBold})};
         REQUIRE(style);
         REQUIRE(style->Weight == font::weight::SemiBold);
 
