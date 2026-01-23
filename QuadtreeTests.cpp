@@ -58,7 +58,7 @@ static auto CheckQuery(auto&& vec, auto&& exp)
     }
 }
 
-TEST_CASE("GFX.Quadtree.Query")
+TEST_CASE("Core.Quadtree.Query")
 {
     SUBCASE("foo_point")
     {

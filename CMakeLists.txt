@@ -20,6 +20,7 @@ set(TEST_SRCFILES
   HelperTests.cpp
   ImageCodecTests.cpp
   ImageTests.cpp
+  KDTreeTests.cpp
   LSystemTests.cpp
   PointTests.cpp
   PropertyTests.cpp
