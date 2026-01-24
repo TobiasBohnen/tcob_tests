@@ -88,10 +88,12 @@ TEST_CASE("Core.KDTree.2D")
         tree.add({.Position = {55, 10}, .ID = 4});
 
         auto nearest = tree.find_nearest({45.0f, 45.0f});
-        REQUIRE(nearest.ID == 3);
+        REQUIRE(nearest);
+        REQUIRE(nearest->ID == 3);
 
         auto boundary = tree.find_nearest({60.0f, 12.0f});
-        REQUIRE(boundary.ID == 4);
+        REQUIRE(boundary);
+        REQUIRE(boundary->ID == 4);
     }
 }
 
@@ -108,7 +110,8 @@ TEST_CASE("Core.KDTree.3D")
         tree.add({.Position = {0, 0, 255}, .ID = 0x0000FF}); // Blue
 
         auto nearest = tree.find_nearest({200.0f, 20.0f, 10.0f});
-        REQUIRE(nearest.ID == 0xFF0000);
+        REQUIRE(nearest);
+        REQUIRE(nearest->ID == 0xFF0000);
     }
 
     SUBCASE("nearest color")
@@ -158,7 +161,7 @@ TEST_CASE("Core.KDTree.3D")
                 {255.0f, 255.0f, 255.0f}};
 
             for (auto const& color : testColors) {
-                REQUIRE(find_nearest(color) == tree.find_nearest(color).ID);
+                REQUIRE(find_nearest(color) == tree.find_nearest(color)->ID);
             }
         }
 
@@ -171,7 +174,7 @@ TEST_CASE("Core.KDTree.3D")
                 f32                b     = static_cast<f32>(rand() % 256);
                 std::array<f32, 3> color = {r, g, b};
 
-                REQUIRE(tree.find_nearest(color).ID == find_nearest(color));
+                REQUIRE(tree.find_nearest(color)->ID == find_nearest(color));
             }
         }
     }
@@ -184,15 +187,18 @@ TEST_CASE("Core.KDTree.3D")
 
         {
             auto nearest = tree.find_nearest({128.0f, 128.0f, 128.0f});
-            REQUIRE(nearest.ID == 1);
+            REQUIRE(nearest);
+            REQUIRE(nearest->ID == 1);
         }
         {
             auto nearest = tree.find_nearest({140.0f, 120.0f, 128.0f});
-            REQUIRE(nearest.ID == 2);
+            REQUIRE(nearest);
+            REQUIRE(nearest->ID == 2);
         }
         {
             auto nearest = tree.find_nearest({200.0f, 220.0f, 328.0f});
-            REQUIRE(nearest.ID == 3);
+            REQUIRE(nearest);
+            REQUIRE(nearest->ID == 3);
         }
     }
 }
@@ -239,9 +245,11 @@ TEST_CASE("Core.KDTree.4D")
         tree.add({.Position = {5, 5, 5, 5}, .ID = 300});
 
         auto n1 = tree.find_nearest({2.0f, 2.0f, 2.0f, 2.0f});
-        REQUIRE(n1.ID == 100);
+        REQUIRE(n1);
+        REQUIRE(n1->ID == 100);
 
         auto n2 = tree.find_nearest({0.0f, 0.0f, 0.0f, 48.0f});
-        REQUIRE(n2.ID == 200);
+        REQUIRE(n2);
+        REQUIRE(n2->ID == 200);
     }
 }
