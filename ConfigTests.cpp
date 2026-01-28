@@ -639,9 +639,17 @@ TEST_CASE("Data.Config.TcobTypes")
         REQUIRE(obj.is<size_i>("size"));
         REQUIRE(obj["size"].as<size_i>() == size_i {100, 350});
 
+        obj["size2"] = object {{"w", 140}, {"h", 250}};
+        REQUIRE(obj.is<size_i>("size2"));
+        REQUIRE(obj["size2"].as<size_i>() == size_i {140, 250});
+
         obj["rect"] = object {{"x", 100}, {"y", 350}, {"width", 200}, {"height", 450}};
         REQUIRE(obj.is<rect_i>("rect"));
         REQUIRE(obj["rect"].as<rect_i>() == rect_i {100, 350, 200, 450});
+
+        obj["rect2"] = object {{"left", 220}, {"top", 75}, {"w", 522}, {"h", 457}};
+        REQUIRE(obj.is<rect_i>("rect2"));
+        REQUIRE(obj["rect2"].as<rect_i>() == rect_i {220, 75, 522, 457});
     }
 
     SUBCASE("from array")

@@ -2103,6 +2103,8 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.TcobTypes")
 
             "sizeI = { width = 20, height = 400 } "
             "sizeI = test.SizeI(sizeI) "
+            "sizeI2 = { w = 40, h = 20 } "
+            "sizeI2 = test.SizeI(sizeI2) "
 
             "rectIS = {x=3, y=6, width=10, height=20} "
             "rectFS = {x=2.7, y=3.1, width=2.3, height=55.2} "
@@ -2135,6 +2137,10 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.TcobTypes")
         auto s1 = global["sizeI"].as<size_i>();
         REQUIRE(global.is<size_i>("sizeI"));
         REQUIRE(s1 == size_i(20 * 5, 400 * 8));
+
+        auto s2 = global["sizeI2"].as<size_i>();
+        REQUIRE(global.is<size_i>("sizeI2"));
+        REQUIRE(s2 == size_i(40 * 5, 20 * 8));
 
         auto r1 = global["rectI"].as<rect_i>();
         REQUIRE(global.is<rect_i>("rectI"));
