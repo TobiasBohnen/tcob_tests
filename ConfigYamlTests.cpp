@@ -190,6 +190,7 @@ mapArray:
 - *anc
 - *anc
 flowseq: [1,2,3]
+flowseq2: [[1,2],[3,4]]
 flowmap: {"a": 1, "b": 2})"};
 
         object obj;
@@ -230,6 +231,8 @@ flowmap: {"a": 1, "b": 2})"};
         REQUIRE(obj["flowseq"][0].as<i32>() == 1);
         REQUIRE(obj["flowseq"][1].as<i32>() == 2);
         REQUIRE(obj["flowseq"][2].as<i32>() == 3);
+        REQUIRE(obj["flowseq2"][0][0].as<i32>() == 1);
+        REQUIRE(obj["flowseq2"][1][1].as<i32>() == 4);
         REQUIRE(obj["flowmap"]["a"].as<i32>() == 1);
         REQUIRE(obj["flowmap"]["b"].as<i32>() == 2);
     }
