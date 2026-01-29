@@ -371,3 +371,60 @@ TEST_CASE("Core.Helper.RoundUpToMultiple")
         REQUIRE(helper::round_up_to_multiple(11, 4) == 12);
     }
 }
+
+TEST_CASE("Core.Helper.RoundDownToMultiple")
+{
+    SUBCASE("5")
+    {
+        REQUIRE(helper::round_down_to_multiple(-11, 5) == -15);
+        REQUIRE(helper::round_down_to_multiple(-10, 5) == -10);
+        REQUIRE(helper::round_down_to_multiple(-9, 5) == -10);
+        REQUIRE(helper::round_down_to_multiple(-8, 5) == -10);
+        REQUIRE(helper::round_down_to_multiple(-7, 5) == -10);
+        REQUIRE(helper::round_down_to_multiple(-6, 5) == -10);
+        REQUIRE(helper::round_down_to_multiple(-5, 5) == -5);
+        REQUIRE(helper::round_down_to_multiple(-4, 5) == -5);
+        REQUIRE(helper::round_down_to_multiple(-3, 5) == -5);
+        REQUIRE(helper::round_down_to_multiple(-2, 5) == -5);
+        REQUIRE(helper::round_down_to_multiple(-1, 5) == -5);
+        REQUIRE(helper::round_down_to_multiple(0, 5) == 0);
+        REQUIRE(helper::round_down_to_multiple(1, 5) == 0);
+        REQUIRE(helper::round_down_to_multiple(2, 5) == 0);
+        REQUIRE(helper::round_down_to_multiple(3, 5) == 0);
+        REQUIRE(helper::round_down_to_multiple(4, 5) == 0);
+        REQUIRE(helper::round_down_to_multiple(5, 5) == 5);
+        REQUIRE(helper::round_down_to_multiple(6, 5) == 5);
+        REQUIRE(helper::round_down_to_multiple(7, 5) == 5);
+        REQUIRE(helper::round_down_to_multiple(8, 5) == 5);
+        REQUIRE(helper::round_down_to_multiple(9, 5) == 5);
+        REQUIRE(helper::round_down_to_multiple(10, 5) == 10);
+        REQUIRE(helper::round_down_to_multiple(11, 5) == 10);
+    }
+
+    SUBCASE("4")
+    {
+        REQUIRE(helper::round_down_to_multiple(-11, 4) == -12);
+        REQUIRE(helper::round_down_to_multiple(-10, 4) == -12);
+        REQUIRE(helper::round_down_to_multiple(-9, 4) == -12);
+        REQUIRE(helper::round_down_to_multiple(-8, 4) == -8);
+        REQUIRE(helper::round_down_to_multiple(-7, 4) == -8);
+        REQUIRE(helper::round_down_to_multiple(-6, 4) == -8);
+        REQUIRE(helper::round_down_to_multiple(-5, 4) == -8);
+        REQUIRE(helper::round_down_to_multiple(-4, 4) == -4);
+        REQUIRE(helper::round_down_to_multiple(-3, 4) == -4);
+        REQUIRE(helper::round_down_to_multiple(-2, 4) == -4);
+        REQUIRE(helper::round_down_to_multiple(-1, 4) == -4);
+        REQUIRE(helper::round_down_to_multiple(0, 4) == 0);
+        REQUIRE(helper::round_down_to_multiple(1, 4) == 0);
+        REQUIRE(helper::round_down_to_multiple(2, 4) == 0);
+        REQUIRE(helper::round_down_to_multiple(3, 4) == 0);
+        REQUIRE(helper::round_down_to_multiple(4, 4) == 4);
+        REQUIRE(helper::round_down_to_multiple(5, 4) == 4);
+        REQUIRE(helper::round_down_to_multiple(6, 4) == 4);
+        REQUIRE(helper::round_down_to_multiple(7, 4) == 4);
+        REQUIRE(helper::round_down_to_multiple(8, 4) == 8);
+        REQUIRE(helper::round_down_to_multiple(9, 4) == 8);
+        REQUIRE(helper::round_down_to_multiple(10, 4) == 8);
+        REQUIRE(helper::round_down_to_multiple(11, 4) == 8);
+    }
+}
