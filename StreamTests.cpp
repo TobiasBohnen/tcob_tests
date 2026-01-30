@@ -64,21 +64,21 @@ TEST_CASE("IO.Stream.ReadAll")
     {
         SUBCASE("char")
         {
-            std::vector<byte> out;
+            std::vector<u8> out;
             out.resize(5);
 
             {
-                io::osstream        fs {out};
-                std::array<byte, 3> data0 {'1', '2', '3'};
-                fs.write<byte>(data0);
-                std::vector<byte> data1 {'4', '5'};
-                fs.write<byte>(data1);
+                io::osstream      fs {out};
+                std::array<u8, 3> data0 {'1', '2', '3'};
+                fs.write<u8>(data0);
+                std::vector<u8> data1 {'4', '5'};
+                fs.write<u8>(data1);
             }
 
             {
-                io::isstream      fs {out};
-                std::vector<byte> in = fs.read_all<byte>();
-                REQUIRE(in == (std::vector<byte> {'1', '2', '3', '4', '5'}));
+                io::isstream    fs {out};
+                std::vector<u8> in = fs.read_all<u8>();
+                REQUIRE(in == (std::vector<u8> {'1', '2', '3', '4', '5'}));
                 REQUIRE(out == in);
             }
         }
@@ -146,7 +146,7 @@ TEST_CASE("IO.Stream.ReadString")
         std::string line1 {"123"};
         std::string line2 {"abc"};
 
-        std::vector<byte> out;
+        std::vector<u8> out;
         out.resize(50);
 
         {
@@ -335,7 +335,7 @@ TEST_CASE("IO.Stream.Seeking")
     }
     SUBCASE("span_sink")
     {
-        std::vector<byte> out;
+        std::vector<u8> out;
         out.resize(5);
         {
             io::osstream fs {out};
@@ -369,9 +369,9 @@ TEST_CASE("IO.Stream.Seeking")
 }
 
 struct doubler {
-    auto to(std::span<byte const> bytes) const -> std::vector<byte>
+    auto to(std::span<u8 const> bytes) const -> std::vector<u8>
     {
-        std::vector<byte> retValue;
+        std::vector<u8> retValue;
         retValue.reserve(bytes.size() * 2);
         for (auto b : bytes) {
             retValue.push_back(b);
@@ -382,9 +382,9 @@ struct doubler {
     }
 };
 struct halfer {
-    auto from(std::span<byte const> bytes) const -> std::vector<byte>
+    auto from(std::span<u8 const> bytes) const -> std::vector<u8>
     {
-        std::vector<byte> retValue;
+        std::vector<u8> retValue;
         retValue.reserve(bytes.size() * 2);
         for (usize i {0}; i < bytes.size(); i += 2) {
             retValue.push_back(bytes[i]);
@@ -400,16 +400,16 @@ TEST_CASE("IO.Stream.Filter")
     {
         io::iomstream stream {};
 
-        std::vector<byte> compress;
+        std::vector<u8> compress;
         compress.reserve(100000);
 
         for (int x = 0; x < 100000; x++) {
             compress.push_back('a');
         }
-        REQUIRE(stream.write_filtered<byte>(compress, io::zlib_filter {}) != -1);
+        REQUIRE(stream.write_filtered<u8>(compress, io::zlib_filter {}) != -1);
 
         stream.seek(0, io::seek_dir::Begin);
-        auto data {stream.read_filtered<byte>(stream.size_in_bytes(), io::zlib_filter {})};
+        auto data {stream.read_filtered<u8>(stream.size_in_bytes(), io::zlib_filter {})};
         REQUIRE(data == compress);
     }
 
@@ -417,18 +417,18 @@ TEST_CASE("IO.Stream.Filter")
     {
         io::iomstream stream {};
 
-        std::string       s {"hello world"};
-        std::vector<byte> input(s.begin(), s.end());
+        std::string     s {"hello world"};
+        std::vector<u8> input(s.begin(), s.end());
 
-        stream.write_filtered<byte>(input, io::base64_filter {});
+        stream.write_filtered<u8>(input, io::base64_filter {});
 
-        std::vector<byte> expected {'a', 'G', 'V', 's', 'b', 'G', '8', 'g', 'd', '2', '9', 'y', 'b', 'G', 'Q', '='};
+        std::vector<u8> expected {'a', 'G', 'V', 's', 'b', 'G', '8', 'g', 'd', '2', '9', 'y', 'b', 'G', 'Q', '='};
         REQUIRE(stream.size_in_bytes() == expected.size());
         stream.seek(0, io::seek_dir::Begin);
-        REQUIRE(stream.read_all<byte>() == expected);
+        REQUIRE(stream.read_all<u8>() == expected);
 
         stream.seek(0, io::seek_dir::Begin);
-        auto data {stream.read_filtered<byte>(stream.size_in_bytes(), io::base64_filter {})};
+        auto data {stream.read_filtered<u8>(stream.size_in_bytes(), io::base64_filter {})};
         REQUIRE(data == input);
     }
 
@@ -436,18 +436,18 @@ TEST_CASE("IO.Stream.Filter")
     {
         io::iomstream stream {};
 
-        std::string       s {"hello world1"};
-        std::vector<byte> input(s.begin(), s.end());
+        std::string     s {"hello world1"};
+        std::vector<u8> input(s.begin(), s.end());
 
-        stream.write_filtered<byte>(input, io::z85_filter {});
+        stream.write_filtered<u8>(input, io::z85_filter {});
 
-        std::vector<byte> expected {'x', 'K', '#', '0', '@', 'z', 'Y', '<', 'm', 'x', 'A', '+', ']', 'n', 'v'};
+        std::vector<u8> expected {'x', 'K', '#', '0', '@', 'z', 'Y', '<', 'm', 'x', 'A', '+', ']', 'n', 'v'};
         REQUIRE(stream.size_in_bytes() == expected.size());
         stream.seek(0, io::seek_dir::Begin);
-        REQUIRE(stream.read_all<byte>() == expected);
+        REQUIRE(stream.read_all<u8>() == expected);
 
         stream.seek(0, io::seek_dir::Begin);
-        auto data {stream.read_filtered<byte>(stream.size_in_bytes(), io::z85_filter {})};
+        auto data {stream.read_filtered<u8>(stream.size_in_bytes(), io::z85_filter {})};
         REQUIRE(data == input);
     }
 
@@ -455,18 +455,18 @@ TEST_CASE("IO.Stream.Filter")
     {
         io::iomstream stream {};
 
-        std::string       s {"hello world"};
-        std::vector<byte> input(s.begin(), s.end());
+        std::string     s {"hello world"};
+        std::vector<u8> input(s.begin(), s.end());
 
-        stream.write_filtered<byte>(input, io::reverser_filter {});
+        stream.write_filtered<u8>(input, io::reverser_filter {});
 
-        std::vector<byte> expected {'d', 'l', 'r', 'o', 'w', ' ', 'o', 'l', 'l', 'e', 'h'};
+        std::vector<u8> expected {'d', 'l', 'r', 'o', 'w', ' ', 'o', 'l', 'l', 'e', 'h'};
         REQUIRE(stream.size_in_bytes() == expected.size());
         stream.seek(0, io::seek_dir::Begin);
-        REQUIRE(stream.read_all<byte>() == expected);
+        REQUIRE(stream.read_all<u8>() == expected);
 
         stream.seek(0, io::seek_dir::Begin);
-        auto data {stream.read_filtered<byte>(stream.size_in_bytes(), io::reverser_filter {})};
+        auto data {stream.read_filtered<u8>(stream.size_in_bytes(), io::reverser_filter {})};
         REQUIRE(data == input);
     }
 
@@ -474,18 +474,18 @@ TEST_CASE("IO.Stream.Filter")
     {
         io::iomstream stream {};
 
-        std::string       s {"hello"};
-        std::vector<byte> input(s.begin(), s.end());
+        std::string     s {"hello"};
+        std::vector<u8> input(s.begin(), s.end());
 
-        stream.write_filtered<byte>(input, io::reverser_filter {}, doubler {});
+        stream.write_filtered<u8>(input, io::reverser_filter {}, doubler {});
 
-        std::vector<byte> expected {'o', 'o', 'l', 'l', 'l', 'l', 'e', 'e', 'h', 'h'};
+        std::vector<u8> expected {'o', 'o', 'l', 'l', 'l', 'l', 'e', 'e', 'h', 'h'};
         REQUIRE(stream.size_in_bytes() == expected.size());
         stream.seek(0, io::seek_dir::Begin);
-        REQUIRE(stream.read_all<byte>() == expected);
+        REQUIRE(stream.read_all<u8>() == expected);
 
         stream.seek(0, io::seek_dir::Begin);
-        auto data {stream.read_filtered<byte>(stream.size_in_bytes(), io::reverser_filter {}, halfer {})};
+        auto data {stream.read_filtered<u8>(stream.size_in_bytes(), io::reverser_filter {}, halfer {})};
         REQUIRE(data == input);
     }
 }
