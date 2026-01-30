@@ -64,7 +64,7 @@ TEST_CASE("IO.Stream.ReadAll")
     {
         SUBCASE("char")
         {
-            std::vector<u8> out;
+            std::vector<std::byte> out;
             out.resize(5);
 
             {
@@ -79,7 +79,7 @@ TEST_CASE("IO.Stream.ReadAll")
                 io::isstream    fs {out};
                 std::vector<u8> in = fs.read_all<u8>();
                 REQUIRE(in == (std::vector<u8> {'1', '2', '3', '4', '5'}));
-                REQUIRE(out == in);
+                REQUIRE(std::equal(out.begin(), out.end(), in.begin(), [](auto a, auto b) { return static_cast<u8>(a) == static_cast<u8>(b); }));
             }
         }
     }
@@ -146,7 +146,7 @@ TEST_CASE("IO.Stream.ReadString")
         std::string line1 {"123"};
         std::string line2 {"abc"};
 
-        std::vector<u8> out;
+        std::vector<std::byte> out;
         out.resize(50);
 
         {
@@ -335,7 +335,7 @@ TEST_CASE("IO.Stream.Seeking")
     }
     SUBCASE("span_sink")
     {
-        std::vector<u8> out;
+        std::vector<std::byte> out;
         out.resize(5);
         {
             io::osstream fs {out};
