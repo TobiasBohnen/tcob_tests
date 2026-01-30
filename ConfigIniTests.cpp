@@ -733,6 +733,17 @@ TEST_CASE("Data.Ini.Reference")
         object t;
         REQUIRE_FALSE(t.parse(iniString, EXT));
     }
+    SUBCASE("recursive ref")
+    {
+        std::string const iniString =
+            R"([a]
+               x = @b.y
+               [b]  
+               y = @a.x)";
+
+        object t;
+        REQUIRE_FALSE(t.parse(iniString, EXT));
+    }
 }
 
 TEST_CASE("Data.Ini.Settings")
