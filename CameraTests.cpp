@@ -10,7 +10,7 @@ public:
 protected:
     auto get_size() const -> size_i override { return _size; }
     void set_size(size_i newsize) override { _size = newsize; }
-    void prepare_render() override { }
+    void prepare_render(render_properties const&) override { }
 
     size_i _size;
 };
