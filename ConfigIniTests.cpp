@@ -314,6 +314,7 @@ TEST_CASE("Data.Ini.Save")
     save["long"]                                                 = std::string(600, 'a');
     save["max"]                                                  = std::numeric_limits<u64>::max();
 
+    using point_particle_emitter                         = particle_emitter<point_particle>;
     save["section4"]["point_particle_emitter::settings"] = point_particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100};
 
     save["monostate"] = std::monostate {};
