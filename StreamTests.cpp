@@ -489,3 +489,105 @@ TEST_CASE("IO.Stream.Filter")
         REQUIRE(std::ranges::equal(data, input, [](std::byte a, u8 b) { return a == static_cast<std::byte>(b); }));
     }
 }
+
+TEST_CASE("IO.Stream.Peek")
+{
+    SUBCASE("file_sink")
+    {
+        std::string const file {"test.Peek"};
+        PrepareFile(file);
+
+        {
+            io::ofstream fs {file};
+            fs << static_cast<i32>(10) << static_cast<i32>(20) << static_cast<i32>(30);
+        }
+        REQUIRE(io::get_file_size(file) == 3 * sizeof(i32));
+
+        {
+            io::ifstream fs {file};
+
+            // Peek should not advance position
+            REQUIRE(fs.peek<i32>() == 10);
+            REQUIRE(fs.peek<i32>() == 10);
+            REQUIRE(fs.tell() == 0);
+
+            // Read should advance position
+            REQUIRE(fs.read<i32>() == 10);
+            REQUIRE(fs.tell() == sizeof(i32));
+
+            // Peek at second value
+            REQUIRE(fs.peek<i32>() == 20);
+            REQUIRE(fs.peek<i32>() == 20);
+            REQUIRE(fs.tell() == sizeof(i32));
+
+            // Read second value
+            REQUIRE(fs.read<i32>() == 20);
+
+            // Peek and read third value
+            REQUIRE(fs.peek<i32>() == 30);
+            REQUIRE(fs.read<i32>() == 30);
+
+            REQUIRE(fs.is_eof());
+        }
+
+        io::delete_file(file);
+    }
+
+    SUBCASE("span_sink")
+    {
+        std::vector<std::byte> out;
+        out.resize(3 * sizeof(i32));
+
+        {
+            io::osstream fs {out};
+            fs << static_cast<i32>(100) << static_cast<i32>(200) << static_cast<i32>(300);
+        }
+
+        {
+            io::isstream fs {out};
+
+            REQUIRE(fs.peek<i32>() == 100);
+            REQUIRE(fs.peek<i32>() == 100);
+            REQUIRE(fs.tell() == 0);
+
+            REQUIRE(fs.read<i32>() == 100);
+            REQUIRE(fs.peek<i32>() == 200);
+            REQUIRE(fs.read<i32>() == 200);
+            REQUIRE(fs.peek<i32>() == 300);
+            REQUIRE(fs.read<i32>() == 300);
+        }
+    }
+
+    SUBCASE("memory_sink")
+    {
+        io::iomstream fs {};
+
+        fs << "abc";
+        fs.seek(0, io::seek_dir::Begin);
+
+        REQUIRE(fs.peek<char>() == 'a');
+        REQUIRE(fs.tell() == 0);
+        REQUIRE(fs.read<char>() == 'a');
+        REQUIRE(fs.tell() == sizeof(char));
+
+        REQUIRE(fs.peek<char>() == 'b');
+        REQUIRE(fs.peek<char>() == 'b');
+        REQUIRE(fs.read<char>() == 'b');
+
+        REQUIRE(fs.peek<char>() == 'c');
+        REQUIRE(fs.read<char>() == 'c');
+    }
+
+    SUBCASE("endianness")
+    {
+        io::iomstream fs {};
+
+        fs.write<i32, std::endian::little>(0x12345678);
+        fs.seek(0, io::seek_dir::Begin);
+
+        REQUIRE(fs.peek<i32, std::endian::little>() == 0x12345678);
+        REQUIRE(fs.tell() == 0);
+        REQUIRE(fs.read<i32, std::endian::little>() == 0x12345678);
+        REQUIRE(fs.tell() == sizeof(i32));
+    }
+}
