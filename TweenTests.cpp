@@ -688,10 +688,10 @@ TEST_CASE("Core.Tween.Curve")
     {
         f32                           out {0};
         std::vector<curve_point<f32>> points {
-            {0.00f, 00.f},
-            {0.10f, 10.f},
-            {0.90f, 05.f},
-            {1.00f, 02.f}};
+            {.Position = 0.00f, .Value = 00.f},
+            {.Position = 0.10f, .Value = 10.f},
+            {.Position = 0.90f, .Value = 05.f},
+            {.Position = 1.00f, .Value = 02.f}};
         curve_tween<f32> contr {milliseconds {1000}, {points}};
         contr.add_output(&out);
 
@@ -714,11 +714,11 @@ TEST_CASE("Core.Tween.Curve")
     {
         point_f                           out1;
         std::vector<curve_point<point_f>> points {
-            {0.00f, {00.f, 00.f}},
-            {0.25f, {10.f, 20.f}},
-            {0.50f, {20.f, 10.f}},
-            {0.75f, {40.f, 00.f}},
-            {1.00f, {40.f, 80.f}}};
+            {.Position = 0.00f, .Value = {00.f, 00.f}},
+            {.Position = 0.75f, .Value = {40.f, 00.f}},
+            {.Position = 0.50f, .Value = {20.f, 10.f}},
+            {.Position = 0.25f, .Value = {10.f, 20.f}},
+            {.Position = 1.00f, .Value = {40.f, 80.f}}};
         curve_tween<point_f> contr {milliseconds {1000}, {points}};
         contr.add_output(&out1);
 
@@ -753,10 +753,10 @@ TEST_CASE("Core.Tween.Curve")
     {
         point_f                           out1;
         std::vector<curve_point<point_f>> points {
-            {0.00f, {00.f, 00.f}},
-            {0.50f, {20.f, 10.f}},
-            {0.75f, {40.f, 00.f}},
-            {1.00f, {40.f, 80.f}}};
+            {.Position = 0.00f, .Value = {00.f, 00.f}},
+            {.Position = 0.50f, .Value = {20.f, 10.f}},
+            {.Position = 0.75f, .Value = {40.f, 00.f}},
+            {.Position = 1.00f, .Value = {40.f, 80.f}}};
         curve_tween<point_f> contr {milliseconds {1000}, {points}};
         contr.add_output(&out1);
 
@@ -797,7 +797,11 @@ TEST_CASE("Core.Tween.Animation")
         std::string out;
 
         frame_animation ani {};
-        ani.Frames = {{"0", 10ms}, {"1", 10ms}, {"2", 10ms}, {"3", 10ms}, {"4", 10ms}};
+        ani.Frames = {{.Name = "0", .Duration = 10ms},
+                      {.Name = "1", .Duration = 10ms},
+                      {.Name = "2", .Duration = 10ms},
+                      {.Name = "3", .Duration = 10ms},
+                      {.Name = "4", .Duration = 10ms}};
 
         frame_animation_tween contr {ani.duration(), ani};
         contr.add_output(&out);
@@ -822,7 +826,11 @@ TEST_CASE("Core.Tween.Animation")
         std::string out;
 
         frame_animation ani {};
-        ani.Frames = {{"0", 100ms}, {"1", 100ms}, {"2", 100ms}, {"3", 100ms}, {"4", 50ms}};
+        ani.Frames = {{.Name = "0", .Duration = 100ms},
+                      {.Name = "1", .Duration = 100ms},
+                      {.Name = "2", .Duration = 100ms},
+                      {.Name = "3", .Duration = 100ms},
+                      {.Name = "4", .Duration = 50ms}};
 
         frame_animation_tween contr {ani.duration() * 2, ani};
         contr.add_output(&out);
@@ -1046,16 +1054,9 @@ TEST_CASE("Core.Tween.LambdaFunction")
         i32 out {-1};
 
         auto constexpr lambda {[](f64 val) -> i32 {
-            if (val <= 0.25) {
-                return 0;
-            }
-            if (val <= 0.5) {
-                return 1;
-            }
-            if (val <= 0.75) {
-                return 2;
-            }
-
+            if (val <= 0.25) { return 0; }
+            if (val <= 0.50) { return 1; }
+            if (val <= 0.75) { return 2; }
             return 3;
         }};
 
