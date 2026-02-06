@@ -450,12 +450,12 @@ TEST_CASE("Core.Tween.SineWaveFunction")
     }
 }
 
-TEST_CASE("Core.Tween.CircularFunction")
+TEST_CASE("Core.Tween.CircularMotionFunction")
 {
     {
         point_f out;
 
-        circular_tween contr {milliseconds {1000}, {0_deg, 360_deg}};
+        circular_motion_tween contr {milliseconds {1000}, {0_deg, 360_deg}};
 
         contr.add_output(&out);
 
