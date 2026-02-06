@@ -232,7 +232,7 @@ TEST_CASE("Core.Tween.LinearFunction")
     }
 }
 
-TEST_CASE("Core.Tween.PowerFunction")
+TEST_CASE("Core.Tween.PolynomialFunction")
 {
     {
         f32 out {};
