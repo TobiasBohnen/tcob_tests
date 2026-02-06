@@ -237,7 +237,7 @@ TEST_CASE("Core.Tween.PowerFunction")
     {
         f32 out {};
 
-        power_tween<f32> contr {milliseconds {1000}};
+        polynomial_tween<f32> contr {milliseconds {1000}};
         contr.Function.Start    = 10;
         contr.Function.End      = 50;
         contr.Function.Exponent = 2;
@@ -258,7 +258,7 @@ TEST_CASE("Core.Tween.PowerFunction")
         color c2 {0xFF, 0, 0xFF, 0};
         color out;
 
-        power_tween<color> contr {milliseconds {1000}, {c1, c2, 2.f}};
+        polynomial_tween<color> contr {milliseconds {1000}, {c1, c2, 2.f}};
 
         contr.add_output(&out);
         contr.start();
