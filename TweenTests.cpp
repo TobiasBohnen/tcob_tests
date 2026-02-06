@@ -1060,7 +1060,7 @@ TEST_CASE("Core.Tween.LambdaFunction")
             return 3;
         }};
 
-        function_tween<lambda> contr {milliseconds {1000}, {}};
+        callable_tween<decltype(lambda)> contr {milliseconds {1000}, lambda};
         contr.Value = out;
         contr.add_output(&out);
 
