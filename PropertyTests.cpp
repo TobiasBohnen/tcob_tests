@@ -25,7 +25,7 @@ TEST_CASE("Core.Property.Event")
 TEST_CASE("Core.Property.Validate")
 {
     i32 const     expected = 32;
-    prop_val<i32> prop {{[&](i32 const&) { return expected; }}};
+    prop_chk<i32> prop {{[&](i32 const&) { return expected; }}};
     prop.Changed.connect([&](i32 const& val) { REQUIRE(val == expected); });
     prop = 300;
     REQUIRE(expected == 32);
