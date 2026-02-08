@@ -796,12 +796,12 @@ TEST_CASE("Core.Tween.Animation")
     {
         std::string out;
 
-        frame_animation ani {};
-        ani.Frames = {{.Name = "0", .Duration = 10ms},
-                      {.Name = "1", .Duration = 10ms},
-                      {.Name = "2", .Duration = 10ms},
-                      {.Name = "3", .Duration = 10ms},
-                      {.Name = "4", .Duration = 10ms}};
+        auto            frames = std::vector<frame> {{.Name = "0", .Duration = 10ms},
+                                                     {.Name = "1", .Duration = 10ms},
+                                                     {.Name = "2", .Duration = 10ms},
+                                                     {.Name = "3", .Duration = 10ms},
+                                                     {.Name = "4", .Duration = 10ms}};
+        frame_animation ani {frames};
 
         frame_animation_tween contr {ani.duration(), ani};
         contr.add_output(&out);
@@ -825,12 +825,12 @@ TEST_CASE("Core.Tween.Animation")
     {
         std::string out;
 
-        frame_animation ani {};
-        ani.Frames = {{.Name = "0", .Duration = 100ms},
-                      {.Name = "1", .Duration = 100ms},
-                      {.Name = "2", .Duration = 100ms},
-                      {.Name = "3", .Duration = 100ms},
-                      {.Name = "4", .Duration = 50ms}};
+        auto            frames = std::vector<frame> {{.Name = "0", .Duration = 100ms},
+                                                     {.Name = "1", .Duration = 100ms},
+                                                     {.Name = "2", .Duration = 100ms},
+                                                     {.Name = "3", .Duration = 100ms},
+                                                     {.Name = "4", .Duration = 50ms}};
+        frame_animation ani {frames};
 
         frame_animation_tween contr {ani.duration() * 2, ani};
         contr.add_output(&out);
