@@ -266,6 +266,22 @@ TEST_CASE("Core.Helper.RoundToMultiple")
         REQUIRE(helper::round_to_multiple(11, 5) == 10);
     }
 
+    SUBCASE("5u")
+    {
+        REQUIRE(helper::round_to_multiple(0u, 5u) == 0);
+        REQUIRE(helper::round_to_multiple(1u, 5u) == 0);
+        REQUIRE(helper::round_to_multiple(2u, 5u) == 0);
+        REQUIRE(helper::round_to_multiple(3u, 5u) == 5);
+        REQUIRE(helper::round_to_multiple(4u, 5u) == 5);
+        REQUIRE(helper::round_to_multiple(5u, 5u) == 5);
+        REQUIRE(helper::round_to_multiple(6u, 5u) == 5);
+        REQUIRE(helper::round_to_multiple(7u, 5u) == 5);
+        REQUIRE(helper::round_to_multiple(8u, 5u) == 10);
+        REQUIRE(helper::round_to_multiple(9u, 5u) == 10);
+        REQUIRE(helper::round_to_multiple(10u, 5u) == 10);
+        REQUIRE(helper::round_to_multiple(11u, 5u) == 10);
+    }
+
     SUBCASE("4")
     {
         REQUIRE(helper::round_to_multiple(-11, 4) == -12);
@@ -291,6 +307,22 @@ TEST_CASE("Core.Helper.RoundToMultiple")
         REQUIRE(helper::round_to_multiple(9, 4) == 8);
         REQUIRE(helper::round_to_multiple(10, 4) == 8);
         REQUIRE(helper::round_to_multiple(11, 4) == 12);
+    }
+
+    SUBCASE("4u")
+    {
+        REQUIRE(helper::round_to_multiple(0u, 4u) == 0);
+        REQUIRE(helper::round_to_multiple(1u, 4u) == 0);
+        REQUIRE(helper::round_to_multiple(2u, 4u) == 0);
+        REQUIRE(helper::round_to_multiple(3u, 4u) == 4);
+        REQUIRE(helper::round_to_multiple(4u, 4u) == 4);
+        REQUIRE(helper::round_to_multiple(5u, 4u) == 4);
+        REQUIRE(helper::round_to_multiple(6u, 4u) == 4);
+        REQUIRE(helper::round_to_multiple(7u, 4u) == 8);
+        REQUIRE(helper::round_to_multiple(8u, 4u) == 8);
+        REQUIRE(helper::round_to_multiple(9u, 4u) == 8);
+        REQUIRE(helper::round_to_multiple(10u, 4u) == 8);
+        REQUIRE(helper::round_to_multiple(11u, 4u) == 12);
     }
 
     SUBCASE("0.15")
