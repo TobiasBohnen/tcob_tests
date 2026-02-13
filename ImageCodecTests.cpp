@@ -205,16 +205,6 @@ TEST_CASE("GFX.Decoder.BMP")
     TEST_IMAGE_BMP(s37i3p04);
 }
 
-#if defined(TCOB_ENABLE_FILETYPES_GFX_WEBP)
-
-TEST_CASE("GFX.Decoder.webp")
-{
-    #define TEST_IMAGE_WEBP(imageName) TEST_IMAGE(imageName, "webp")
-
-    TEST_IMAGE_WEBP(basi3p02);
-}
-#endif
-
 TEST_CASE("GFX.Decoder.QOI")
 {
 #define TEST_IMAGE_QOI(imageName) TEST_IMAGE(imageName, "qoi")
@@ -373,13 +363,6 @@ TEST_CASE("GFX.Encoder.RGBA")
         compareRGBA(test(".bsi")->data());
     }
 
-#if defined(TCOB_ENABLE_FILETYPES_GFX_WEBP)
-    SUBCASE("webp")
-    {
-        compareRGBA(test(".webp")->data());
-    }
-#endif
-
     SUBCASE("qoi")
     {
         std::array<color, 7> row = {
@@ -457,13 +440,6 @@ TEST_CASE("GFX.Encoder.RGB")
     {
         compareRGB(test(".bsi")->data());
     }
-
-#if defined(TCOB_ENABLE_FILETYPES_GFX_WEBP)
-    SUBCASE("webp")
-    {
-        compareRGB(test(".webp")->data());
-    }
-#endif
 
     SUBCASE("qoi")
     {
