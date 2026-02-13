@@ -615,9 +615,9 @@ TEST_CASE("Data.Config.TcobTypes")
         REQUIRE(obj.is<rect_f>("rect"));
         REQUIRE(obj["rect"].as<rect_f>() == rect_f {4.5f, 2.5f, 30.1f, 45.01f});
 
-        obj["alignments"] = alignments {.Horizontal = horizontal_alignment::Centered, .Vertical = vertical_alignment::Middle};
-        REQUIRE(obj.is<alignments>("alignments"));
-        REQUIRE(obj["alignments"].as<alignments>() == alignments {.Horizontal = horizontal_alignment::Centered, .Vertical = vertical_alignment::Middle});
+        obj["alignment"] = alignment {.Horizontal = horizontal_alignment::Centered, .Vertical = vertical_alignment::Middle};
+        REQUIRE(obj.is<alignment>("alignment"));
+        REQUIRE(obj["alignment"].as<alignment>() == alignment {.Horizontal = horizontal_alignment::Centered, .Vertical = vertical_alignment::Middle});
 
         using point_particle_emitter            = particle_emitter<point_particle>;
         obj["point_particle_emitter::settings"] = point_particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100, .Lifetime = 100s};
