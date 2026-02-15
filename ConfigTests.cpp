@@ -619,13 +619,12 @@ TEST_CASE("Data.Config.TcobTypes")
         REQUIRE(obj.is<alignment>("alignment"));
         REQUIRE(obj["alignment"].as<alignment>() == alignment {.Horizontal = horizontal_alignment::Centered, .Vertical = vertical_alignment::Middle});
 
-        using point_particle_emitter            = particle_emitter<point_particle>;
-        obj["point_particle_emitter::settings"] = point_particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100, .Lifetime = 100s};
-        REQUIRE(obj.is<point_particle_emitter::settings>("point_particle_emitter::settings"));
-        REQUIRE(obj["point_particle_emitter::settings"].as<point_particle_emitter::settings>() == point_particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100, .Lifetime = 100s});
-        obj["point_particle_emitter::settings2"] = point_particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100};
-        REQUIRE(obj.is<point_particle_emitter::settings>("point_particle_emitter::settings2"));
-        REQUIRE(obj["point_particle_emitter::settings2"].as<point_particle_emitter::settings>() == point_particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100});
+        obj["particle_emitter::settings"] = particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100, .Lifetime = 100s};
+        REQUIRE(obj.is<particle_emitter::settings>("particle_emitter::settings"));
+        REQUIRE(obj["particle_emitter::settings"].as<particle_emitter::settings>() == particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100, .Lifetime = 100s});
+        obj["particle_emitter::settings2"] = particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100};
+        REQUIRE(obj.is<particle_emitter::settings>("particle_emitter::settings2"));
+        REQUIRE(obj["particle_emitter::settings2"].as<particle_emitter::settings>() == particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100});
     }
 
     SUBCASE("from object")

@@ -314,8 +314,7 @@ TEST_CASE("Data.Ini.Save")
     save["long"]                                                 = std::string(600, 'a');
     save["max"]                                                  = std::numeric_limits<u64>::max();
 
-    using point_particle_emitter                         = particle_emitter<point_particle>;
-    save["section4"]["point_particle_emitter::settings"] = point_particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100};
+    save["section4"]["particle_emitter::settings"] = particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100};
 
     save["monostate"] = std::monostate {};
 
@@ -393,7 +392,7 @@ TEST_CASE("Data.Ini.Save")
             REQUIRE(load["section3"]["valueSection"]["subsection"]["a"].as<i64>() == 100);
             REQUIRE(load["section3"]["valueSection"]["subsection"]["a.b"]["x.y"].as<i64>() == 100);
 
-            REQUIRE(load["section4"]["point_particle_emitter::settings"].as<point_particle_emitter::settings>() == point_particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100});
+            REQUIRE(load["section4"]["particle_emitter::settings"].as<particle_emitter::settings>() == particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100});
 
             REQUIRE(load["max"].as<u64>() == std::numeric_limits<u64>::max());
         }
