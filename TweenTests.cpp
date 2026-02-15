@@ -794,7 +794,7 @@ TEST_CASE("Core.Tween.Animation")
 {
     SUBCASE("Normal")
     {
-        std::string out;
+        std::string_view out;
 
         auto            frames = std::vector<frame> {{.Name = "0", .Duration = 10ms},
                                                      {.Name = "1", .Duration = 10ms},
@@ -823,7 +823,7 @@ TEST_CASE("Core.Tween.Animation")
 
     SUBCASE("Alternated")
     {
-        std::string out;
+        std::string_view out;
 
         auto            frames = std::vector<frame> {{.Name = "0", .Duration = 100ms},
                                                      {.Name = "1", .Duration = 100ms},
