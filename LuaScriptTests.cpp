@@ -1909,10 +1909,10 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
     {
         {
             auto s0 = create_table();
-            s0["x"] = 100;
-            s0["y"] = 200;
+            s0["a"] = 100;
+            s0["b"] = 200;
             point_f p;
-            REQUIRE(s0.try_make<f32, f32>(p, "x", "y"));
+            REQUIRE(s0.try_make<f32, f32>(p, "a", "b"));
             REQUIRE(p == point_f {100, 200});
         }
         {
