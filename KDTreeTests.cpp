@@ -99,12 +99,12 @@ TEST_CASE("Core.KDTree.2D")
 
 TEST_CASE("Core.KDTree.3D")
 {
-    using tree_3d               = kd_tree<TestValue3D, 3, 2, 8>;
-    tree_3d::bounds_type bounds = {{0, 0, 0}, {255, 255, 255}};
-    tree_3d              tree(bounds);
-
     SUBCASE("Color Space Palette Matching")
     {
+        using tree_3d               = kd_tree<TestValue3D, 3, 2, 8>;
+        tree_3d::bounds_type bounds = {{0, 0, 0}, {255, 255, 255}};
+        tree_3d              tree(bounds);
+
         tree.add({.Position = {255, 0, 0}, .ID = 0xFF0000}); // Red
         tree.add({.Position = {0, 255, 0}, .ID = 0x00FF00}); // Green
         tree.add({.Position = {0, 0, 255}, .ID = 0x0000FF}); // Blue
@@ -181,6 +181,10 @@ TEST_CASE("Core.KDTree.3D")
 
     SUBCASE("find_nearest")
     {
+        using tree_3d               = kd_tree<TestValue3D, 3, 2, 8>;
+        tree_3d::bounds_type bounds = {{0, 0, 0}, {255, 255, 255}};
+        tree_3d              tree(bounds);
+
         tree.add({.Position = {127.0f, 128.0f, 128.0f}, .ID = 1}); // Side 0 (Left)
         tree.add({.Position = {140.0f, 128.0f, 128.0f}, .ID = 2}); // Side 1 (Right)
         tree.add({.Position = {250.0f, 250.0f, 250.0f}, .ID = 3}); // Side 1 (Right)
