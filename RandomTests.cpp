@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "tests.hpp"
 
 TEST_CASE("Core.Random.MinMax")
@@ -400,5 +402,119 @@ TEST_CASE("Core.Random.Shuffle")
         random::shuffle<i32> r0 {54321};
         r0(v);
         REQUIRE(v == std::array<i32, 10> {8, 5, 2, 4, 0, 3, 7, 6, 1, 9});
+    }
+}
+
+TEST_CASE("Core.Random.ShuffledRangeDistribution")
+{
+    SUBCASE("basic_range")
+    {
+        rng                                 r0 {12345};
+        random::shuffled_range_distribution dist {0, 9, 1};
+
+        std::vector<i64> results;
+        results.reserve(10);
+        for (i32 i = 0; i < 10; i++) {
+            results.push_back(dist(r0));
+        }
+
+        // Should contain each value exactly once
+        std::vector<i64> sorted {results};
+        std::ranges::sort(sorted);
+        REQUIRE(sorted == std::vector<i64> {0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
+    }
+
+    SUBCASE("with_period")
+    {
+        rng                                 r0 {54321};
+        random::shuffled_range_distribution dist {1, 3, 2};
+
+        std::vector<i64> results;
+        results.reserve(6);
+        for (i32 i = 0; i < 6; i++) {
+            results.push_back(dist(r0));
+        }
+
+        // Should contain each value exactly twice
+        std::vector<i64> sorted {results};
+        std::ranges::sort(sorted);
+        REQUIRE(sorted == std::vector<i64> {1, 1, 2, 2, 3, 3});
+    }
+
+    SUBCASE("negative_range")
+    {
+        rng                                 r0 {99999};
+        random::shuffled_range_distribution dist {-5, -1, 1};
+
+        std::vector<i64> results;
+        results.reserve(5);
+        for (i32 i = 0; i < 5; i++) {
+            results.push_back(dist(r0));
+        }
+
+        std::vector<i64> sorted {results};
+        std::ranges::sort(sorted);
+        REQUIRE(sorted == std::vector<i64> {-5, -4, -3, -2, -1});
+    }
+
+    SUBCASE("single_value")
+    {
+        rng                                 r0 {42};
+        random::shuffled_range_distribution dist {7, 7, 3};
+
+        for (i32 i = 0; i < 3; i++) {
+            REQUIRE(dist(r0) == 7);
+        }
+    }
+
+    SUBCASE("deterministic_sequence")
+    {
+        rng                                 r0 {11111};
+        random::shuffled_range_distribution dist {0, 4, 1};
+
+        std::vector<i64> v;
+        v.reserve(5);
+        for (i32 i = 0; i < 5; i++) {
+            v.push_back(dist(r0));
+        }
+
+        // With this seed, should produce specific sequence
+        REQUIRE(v == std::vector<i64> {0, 2, 1, 4, 3});
+    }
+
+    SUBCASE("large_period")
+    {
+        rng                                 r0 {77777};
+        random::shuffled_range_distribution dist {0, 2, 5};
+
+        std::array<i32, 3> counts {0, 0, 0};
+        for (i32 i = 0; i < 15; i++) {
+            i64 val = dist(r0);
+            REQUIRE(val >= 0);
+            REQUIRE(val <= 2);
+            counts[val]++;
+        }
+
+        // Each value should appear exactly 5 times
+        REQUIRE(counts[0] == 5);
+        REQUIRE(counts[1] == 5);
+        REQUIRE(counts[2] == 5);
+    }
+
+    SUBCASE("copy_state")
+    {
+        rng                                 r0 {33333};
+        random::shuffled_range_distribution dist1 {0, 9, 2};
+
+        // Consume some values
+        for (i32 i = 0; i < 5; i++) {
+            dist1(r0);
+        }
+
+        // Copy and verify both produce same sequence
+        random::shuffled_range_distribution dist2 {dist1};
+        for (i32 i = 0; i < 10; i++) {
+            REQUIRE(dist1(r0) == dist2(r0));
+        }
     }
 }
