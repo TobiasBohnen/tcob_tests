@@ -360,7 +360,7 @@ private:
 
 TEST_CASE("Core.Property.CustomSource")
 {
-    tcob::detail::prop_base<i32, queue_source<i32>> prop {};
+    tcob::detail::prop<i32, queue_source<i32>> prop {};
     prop = 100;
     prop = 200;
     prop = 400;
