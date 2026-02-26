@@ -456,6 +456,230 @@ TEST_CASE("Data.Config.Object")
         REQUIRE(t.get_type("object") == type::Object);
         REQUIRE(t.get_type("foobar") == type::Null);
     }
+
+    SUBCASE("nullptr on never-set key is no-op")
+    {
+        object t;
+        t["never_set"] = nullptr;
+        REQUIRE_FALSE(t.has("never_set"));
+    }
+
+    SUBCASE("overwrite object node with scalar then back to object")
+    {
+        object t;
+        t["key"]["a"] = 100;
+        t["key"]["b"] = 200;
+        REQUIRE(t["key"].is<object>());
+
+        // stomp with scalar
+        t["key"] = 42;
+        REQUIRE(t["key"].as<i32>() == 42);
+        REQUIRE_FALSE(t["key"].is<object>());
+
+        // make it an object again — old keys must not leak
+        t["key"]["c"] = 300;
+        REQUIRE(t["key"].is<object>());
+        REQUIRE_FALSE(t["key"].as<object>().has("a"));
+        REQUIRE_FALSE(t["key"].as<object>().has("b"));
+        REQUIRE(t["key"]["c"].as<i32>() == 300);
+    }
+
+    SUBCASE("overwrite scalar with object then scalar again")
+    {
+        object t;
+        t["key"] = 99;
+        REQUIRE(t["key"].as<i32>() == 99);
+
+        t["key"]["x"] = 1;
+        REQUIRE(t["key"].is<object>());
+
+        t["key"] = 55;
+        REQUIRE(t["key"].as<i32>() == 55);
+        REQUIRE_FALSE(t["key"].is<object>());
+    }
+
+    SUBCASE("duplicate key assignment overwrites cleanly")
+    {
+        object t;
+        t["key"] = 1;
+        t["key"] = 2;
+        t["key"] = 3;
+        REQUIRE(t["key"].as<i32>() == 3);
+
+        // no duplicate entries in iteration
+        i32 count = 0;
+        for (auto const& [k, v] : t) {
+            if (k == "key") { count++; }
+        }
+        REQUIRE(count == 1);
+    }
+
+    SUBCASE("clone(false) is shallow — mutations share state")
+    {
+        object original;
+        original["section"]["a"] = 100;
+
+        object shallow = original.clone(false);
+        REQUIRE(shallow["section"]["a"].as<i32>() == 100);
+
+        // mutating shallow should affect original (shared underlying state)
+        shallow["section"]["a"] = 999;
+        REQUIRE(original["section"]["a"].as<i32>() == 999);
+    }
+
+    SUBCASE("clone(true) deep — nested objects fully independent")
+    {
+        object original;
+        original["s"]["nested"]["val"] = 42;
+
+        object deep                = original.clone(true);
+        deep["s"]["nested"]["val"] = 999;
+
+        REQUIRE(original["s"]["nested"]["val"].as<i32>() == 42);
+        REQUIRE(deep["s"]["nested"]["val"].as<i32>() == 999);
+    }
+
+    SUBCASE("self-assignment does not corrupt data")
+    {
+        object t;
+        t["section"]["a"] = 100;
+        t["section"]["b"] = 200;
+
+        object sec   = t["section"].as<object>();
+        t["section"] = sec;
+
+        REQUIRE(t["section"]["a"].as<i32>() == 100);
+        REQUIRE(t["section"]["b"].as<i32>() == 200);
+    }
+
+    SUBCASE("merge object into itself")
+    {
+        object t;
+        t["a"] = 1;
+        t["b"] = 2;
+
+        t.merge(t, true);
+
+        REQUIRE(t["a"].as<i32>() == 1);
+        REQUIRE(t["b"].as<i32>() == 2);
+    }
+
+    SUBCASE("merge where source has array and dest has object at same key")
+    {
+        object s0;
+        s0["key"] = object {{"a", 1}};
+
+        object s1;
+        s1["key"] = array {1, 2, 3};
+
+        // overwrite=true: array replaces object
+        s0.merge(s1, true);
+        REQUIRE(s0["key"].is<array>());
+    }
+
+    SUBCASE("merge where source has scalar and dest has object")
+    {
+        object s0;
+        s0["key"]["a"] = 100;
+
+        object s1;
+        s1["key"] = 42;
+
+        s0.merge(s1, true);
+        REQUIRE(s0["key"].as<i32>() == 42);
+        REQUIRE_FALSE(s0["key"].is<object>());
+    }
+
+    SUBCASE("merge empty into populated")
+    {
+        object s0;
+        s0["a"] = 1;
+
+        object s1; // empty
+        s0.merge(s1, true);
+
+        REQUIRE(s0["a"].as<i32>() == 1);
+    }
+
+    SUBCASE("merge populated into empty")
+    {
+        object s0; // empty
+
+        object s1;
+        s1["a"] = 1;
+        s1["b"] = 2;
+
+        s0.merge(s1, true);
+
+        REQUIRE(s0["a"].as<i32>() == 1);
+        REQUIRE(s0["b"].as<i32>() == 2);
+    }
+
+    SUBCASE("empty object iteration yields no elements")
+    {
+        object t;
+
+        i32 count = 0;
+        for (auto const& _ : t) { count++; }
+        REQUIRE(count == 0);
+    }
+
+    SUBCASE("empty string key")
+    {
+        object t;
+        t[""] = 42;
+        REQUIRE(t.has(""));
+        REQUIRE(t[""].as<i32>() == 42);
+    }
+
+    SUBCASE("special character keys round-trip with is/has/as")
+    {
+        object t;
+        t["section"]["value.Str"] = "dotted";
+        t["section"]["value=Str"] = "equals";
+
+        REQUIRE(t.has("section", "value.Str"));
+        REQUIRE(t.has("section", "value=Str"));
+        REQUIRE(t["section"]["value.Str"].as<std::string>() == "dotted");
+        REQUIRE(t["section"]["value=Str"].as<std::string>() == "equals");
+        REQUIRE(t["section"]["value.Str"].is<std::string>());
+        REQUIRE(t["section"]["value=Str"].is<std::string>());
+    }
+
+    SUBCASE("try_get nested path with missing intermediate key creates no ghost keys")
+    {
+        object t;
+        t["a"]["b"] = 1;
+
+        i32 val {0};
+        REQUIRE_FALSE(t.try_get<i32>(val, "a", "x", "deep"));
+        REQUIRE_FALSE(t.has("a", "x"));
+    }
+
+    SUBCASE("try_get on monostate value")
+    {
+        object t;
+        t["key"] = std::monostate {};
+
+        i32 val {0};
+        REQUIRE_FALSE(t.try_get<i32>(val, "key"));
+    }
+
+    SUBCASE("deleting already-null nested key creates no ghost keys")
+    {
+        object t;
+        t["c"]["x"]["s"] = nullptr;
+        REQUIRE_FALSE(t.has("c"));
+        REQUIRE_FALSE(t.has("c", "x"));
+        REQUIRE_FALSE(t.has("c", "x", "s"));
+    }
+
+    SUBCASE("u64 max value round-trip")
+    {
+        object t;
+        t["max"] = std::numeric_limits<u64>::max();
+        REQUIRE(t["max"].as<u64>() == std::numeric_limits<u64>::max());
+    }
 }
 
 TEST_CASE("Data.Config.Array")
@@ -590,6 +814,261 @@ TEST_CASE("Data.Config.Array")
             point_f point {pointArr.make<point_f, f32, f32>(1, 3)};
             REQUIRE(point == point_f {12, 23});
         }
+    }
+
+    SUBCASE("negative index behavior")
+    {
+        array a;
+        a.add(1);
+        a.add(2);
+        a.add(3);
+        // negative index — should fail gracefully, not wrap or crash
+        auto result = a[-1].get<i32>();
+        REQUIRE(result.error() == error_code::Undefined);
+    }
+
+    SUBCASE("get<T>() on out-of-bounds index returns error")
+    {
+        array a;
+        a.add(1);
+        auto result = a[99].get<i32>();
+        REQUIRE(result.error() == error_code::Undefined);
+    }
+
+    SUBCASE("get<T>() on empty array returns error")
+    {
+        array a;
+        auto  result = a[0].get<i32>();
+        REQUIRE(result.error() == error_code::Undefined);
+    }
+
+    SUBCASE("auto grow leaves intermediate indices as null")
+    {
+        array a;
+        a[5] = 99;
+        REQUIRE(a.size() == 6);
+        REQUIRE(a[5].as<i32>() == 99);
+        // indices 0-4 should be null/monostate
+        for (isize i = 0; i < 5; ++i) {
+            REQUIRE(a[i].is<std::monostate>());
+        }
+    }
+
+    SUBCASE("add after pop_back to empty array")
+    {
+        array a;
+        a.add(1);
+        a.pop_back();
+        REQUIRE(a.size() == 0);
+        a.add(2);
+        REQUIRE(a.size() == 1);
+        REQUIRE(a[0].as<i32>() == 2);
+    }
+
+    SUBCASE("pop_back reduces size and removes last element")
+    {
+        array a;
+        a.add(1);
+        a.add(2);
+        a.add(3);
+        a.pop_back();
+        REQUIRE(a.size() == 2);
+        REQUIRE(a[0].as<i32>() == 1);
+        REQUIRE(a[1].as<i32>() == 2);
+    }
+
+    SUBCASE("empty array iteration yields no elements")
+    {
+        array a;
+        i32   count = 0;
+        for (auto const& _ : a) { count++; }
+        REQUIRE(count == 0);
+    }
+
+    SUBCASE("overwrite element with different type")
+    {
+        array a;
+        a.add(42);
+        REQUIRE(a[0].is<i64>());
+
+        a[0] = "hello";
+        REQUIRE(a[0].is<std::string>());
+        REQUIRE(a[0].as<std::string>() == "hello");
+        REQUIRE_FALSE(a[0].is<i64>());
+    }
+
+    SUBCASE("overwrite element with object then scalar — no stale data")
+    {
+        array a;
+        a[0]["x"] = 10;
+        a[0]["y"] = 20;
+        REQUIRE(a[0].is<object>());
+
+        a[0] = 99;
+        REQUIRE(a[0].as<i32>() == 99);
+        REQUIRE_FALSE(a[0].is<object>());
+
+        // make it an object again — old keys must not leak
+        a[0]["z"] = 30;
+        REQUIRE_FALSE(a[0].as<object>().has("x"));
+        REQUIRE_FALSE(a[0].as<object>().has("y"));
+        REQUIRE(a[0]["z"].as<i32>() == 30);
+    }
+
+    SUBCASE("nested array of arrays — access and mutation")
+    {
+        array outer;
+        outer.add(array {1, 2, 3});
+        outer.add(array {4, 5, 6});
+
+        REQUIRE(outer[0].is<array>());
+        REQUIRE(outer[1].is<array>());
+
+        array inner0 = outer[0].as<array>();
+        REQUIRE(inner0[1].as<i32>() == 2);
+
+        inner0[1] = 99;
+        REQUIRE(outer[0].as<array>()[1].as<i32>() == 99); // shared — mutation visible
+    }
+
+    SUBCASE("array containing objects — nested access and mutation")
+    {
+        array a;
+        a[0]["x"] = 10;
+        a[0]["y"] = 20;
+        a[1]["x"] = 30;
+        a[1]["y"] = 40;
+
+        REQUIRE(a[0].is<object>());
+        REQUIRE(a[0]["x"].as<i32>() == 10);
+        REQUIRE(a[1]["y"].as<i32>() == 40);
+
+        a[0]["x"] = 99;
+        REQUIRE(a[0]["x"].as<i32>() == 99);
+        REQUIRE(a[1]["x"].as<i32>() == 30); // sibling unaffected
+    }
+
+    SUBCASE("array containing objects round-trip integrity")
+    {
+        array a;
+        a[0]["x"] = 10;
+        a[0]["y"] = 20;
+        a[1]["x"] = 30;
+        a[1]["y"] = 40;
+
+        object t;
+        t["arr"] = a;
+
+        REQUIRE(t["arr"][0]["x"].as<i32>() == 10);
+        REQUIRE(t["arr"][0]["y"].as<i32>() == 20);
+        REQUIRE(t["arr"][1]["x"].as<i32>() == 30);
+        REQUIRE(t["arr"][1]["y"].as<i32>() == 40);
+    }
+
+    SUBCASE("self-assignment via shared node does not silently lose data")
+    {
+        object t;
+        t["arr"] = array {1, 2, 3, 4, 5};
+
+        auto a   = t["arr"].as<array>();
+        t["arr"] = a; // a and t["arr"] share the same underlying data
+
+        REQUIRE(t["arr"].is<array>());
+        auto result = t["arr"].as<array>();
+        REQUIRE(result.size() == 5);
+        REQUIRE(result[0].as<i32>() == 1);
+        REQUIRE(result[4].as<i32>() == 5);
+    }
+
+    SUBCASE("self-assignment with nested objects does not silently lose data")
+    {
+        object t;
+        t["arr"][0]["x"] = 10;
+        t["arr"][1]["x"] = 20;
+
+        auto a   = t["arr"].as<array>();
+        t["arr"] = a;
+
+        REQUIRE(t["arr"][0]["x"].as<i32>() == 10);
+        REQUIRE(t["arr"][1]["x"].as<i32>() == 20);
+    }
+
+    SUBCASE("equality with identical arrays")
+    {
+        array a {1, 2, 3};
+        array b {1, 2, 3};
+        REQUIRE(a == b);
+    }
+
+    SUBCASE("equality fails on different size")
+    {
+        array a {1, 2, 3};
+        array b {1, 2};
+        REQUIRE_FALSE(a == b);
+    }
+
+    SUBCASE("equality fails on same size different values")
+    {
+        array a {1, 2, 3};
+        array b {1, 2, 4};
+        REQUIRE_FALSE(a == b);
+    }
+
+    SUBCASE("equality fails on same values different types")
+    {
+        array a {1, 2, 3};
+        array b {1, true, 3}; // 2 vs true
+        REQUIRE_FALSE(a == b);
+    }
+
+    SUBCASE("empty arrays are equal")
+    {
+        array a;
+        array b;
+        REQUIRE(a == b);
+    }
+
+    SUBCASE("get_type on out-of-bounds index returns Null")
+    {
+        array a {1, 2, 3};
+        REQUIRE(a.get_type(99) == type::Null);
+        REQUIRE(a.get_type(-1) == type::Null);
+    }
+
+    SUBCASE("as<string>() on array")
+    {
+        object t;
+        t["arr"] = array {1, 2, 3};
+        REQUIRE(t["arr"].as<std::string>() == "[ 1, 2, 3 ]");
+    }
+
+    SUBCASE("as<string>() on empty array")
+    {
+        object t;
+        t["arr"] = array {};
+        REQUIRE(t["arr"].as<std::string>() == "[  ]");
+    }
+
+    SUBCASE("from vector with empty vector")
+    {
+        std::vector<i32> vec {};
+        array            a {std::span<i32 const> {vec}};
+        REQUIRE(a.size() == 0);
+    }
+
+    SUBCASE("from values — single element")
+    {
+        array a {42};
+        REQUIRE(a.size() == 1);
+        REQUIRE(a[0].as<i32>() == 42);
+    }
+
+    SUBCASE("monostate element round-trip")
+    {
+        array a;
+        a.add(std::monostate {});
+        REQUIRE(a.size() == 1);
+        REQUIRE(a[0].is<std::monostate>());
     }
 }
 
