@@ -54,7 +54,7 @@ target_include_directories(tcob_tests PRIVATE . PRIVATE ../../tcob/include)
 target_compile_options(tcob_tests PRIVATE
   $<$<CXX_COMPILER_ID:MSVC>: /W4>
   $<$<CXX_COMPILER_ID:Clang>: -Wall -Wextra -Wconversion -Wpedantic
-  -Wno-sign-conversion
+  -Wno-sign-conversion -Wno-c2y-extensions
   >
   $<$<CXX_COMPILER_ID:GNU>: -Wall -Wextra -pedantic>
 )
