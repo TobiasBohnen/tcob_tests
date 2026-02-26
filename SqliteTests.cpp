@@ -531,6 +531,34 @@ TEST_CASE("Data.Sqlite.Insert")
             REQUIRE(rows[0] == "Replaced");
         }
     }
+
+    SUBCASE("Upsert")
+    {
+        REQUIRE(dbTable->insert_into("ID", "Name", "Age")(std::tuple {1, "First", 10}));
+
+        SUBCASE("updates specified columns on conflict")
+        {
+            REQUIRE(dbTable->upsert_into({"ID", {"Name"}}, "ID", "Name", "Age")(std::tuple {1, "Updated", 99}));
+            auto rows {dbTable->select_from<string, i32>("Name", "Age")()};
+            REQUIRE(rows.size() == 1);
+            REQUIRE(rows[0] == std::tuple {"Updated", 10}); // Age unchanged
+        }
+
+        SUBCASE("updates all columns on conflict when no columns specified")
+        {
+            REQUIRE(dbTable->upsert_into({"ID", {}}, "ID", "Name", "Age")(std::tuple {1, "Updated", 99}));
+            auto rows {dbTable->select_from<string, i32>("Name", "Age")()};
+            REQUIRE(rows.size() == 1);
+            REQUIRE(rows[0] == std::tuple {"Updated", 99}); // both updated
+        }
+
+        SUBCASE("inserts normally when no conflict")
+        {
+            REQUIRE(dbTable->upsert_into({"ID", {}}, "ID", "Name", "Age")(std::tuple {2, "Second", 20}));
+            auto rows {dbTable->select_from<i32>("ID")()};
+            REQUIRE(rows.size() == 2);
+        }
+    }
 }
 
 TEST_CASE("Data.Sqlite.Update")
