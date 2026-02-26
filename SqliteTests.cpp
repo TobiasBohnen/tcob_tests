@@ -1342,3 +1342,73 @@ TEST_CASE("Data.Sqlite.SetOperations")
         REQUIRE(rows[0] == std::tuple {2, string {"B"}});
     }
 }
+
+TEST_CASE("Data.Sqlite.Index")
+{
+    string tableName {"testTable"};
+
+    database db {database::OpenMemory()};
+    auto     dbTable {db.create_table(tableName,
+                                      int_column<primary_key> {.Name = "ID", .NotNull = true},
+                                      text_column {.Name = "Name"},
+                                      int_column {.Name = "Age"})};
+    REQUIRE(dbTable);
+
+    std::vector<std::tuple<string, i32>> vec;
+    for (i32 i {1}; i <= 10; ++i) {
+        vec.emplace_back(std::to_string(i), i * 100);
+    }
+    REQUIRE(dbTable->insert_into("Name", "Age")(vec));
+
+    SUBCASE("create and exists")
+    {
+        REQUIRE_FALSE(dbTable->index_exists("idx_name"));
+        REQUIRE(dbTable->create_index("idx_name", "Name"));
+        REQUIRE(dbTable->index_exists("idx_name"));
+    }
+
+    SUBCASE("create unique")
+    {
+        REQUIRE(dbTable->create_index(unique_index, "idx_name", "Name"));
+        REQUIRE(dbTable->index_exists("idx_name"));
+
+        // unique index should reject duplicate values
+        REQUIRE_FALSE(dbTable->insert_into("Name", "Age")(std::tuple {"1", 999}));
+    }
+
+    SUBCASE("create composite")
+    {
+        REQUIRE(dbTable->create_index("idx_name_age", "Name", "Age"));
+        REQUIRE(dbTable->index_exists("idx_name_age"));
+    }
+
+    SUBCASE("create unique composite")
+    {
+        REQUIRE(dbTable->create_index(unique_index, "idx_name_age", "Name", "Age"));
+        REQUIRE(dbTable->index_exists("idx_name_age"));
+
+        // duplicate Name+Age combination should fail
+        REQUIRE_FALSE(dbTable->insert_into("Name", "Age")(std::tuple {"1", 100}));
+        // same Name, different Age should succeed
+        REQUIRE(dbTable->insert_into("Name", "Age")(std::tuple {"1", 999}));
+    }
+
+    SUBCASE("drop")
+    {
+        REQUIRE(dbTable->create_index("idx_name", "Name"));
+        REQUIRE(dbTable->index_exists("idx_name"));
+        REQUIRE(dbTable->drop_index("idx_name"));
+        REQUIRE_FALSE(dbTable->index_exists("idx_name"));
+    }
+
+    SUBCASE("create if not exists is idempotent")
+    {
+        REQUIRE(dbTable->create_index("idx_name", "Name"));
+        REQUIRE(dbTable->create_index("idx_name", "Name")); // should not fail
+    }
+
+    SUBCASE("drop if exists is idempotent")
+    {
+        REQUIRE(dbTable->drop_index("idx_name")); // does not exist, should not fail
+    }
+}
