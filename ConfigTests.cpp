@@ -457,7 +457,7 @@ TEST_CASE("Data.Config.Object")
         REQUIRE(t.get_type("foobar") == type::Null);
     }
 
-    SUBCASE("nullptr on never-set key is no-op")
+    SUBCASE("nullptr on never-set key")
     {
         object t;
         t["never_set"] = nullptr;
