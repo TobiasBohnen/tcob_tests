@@ -96,6 +96,18 @@ TEST_CASE("Core.Helper.SplitStrings")
         std::string test = "1,2,3,4,5,";
         REQUIRE(helper::split(test, ',') == std::vector<std::string_view> {"1", "2", "3", "4", "5"});
     }
+    {
+        std::string test = "1,2,3,4,5,";
+        REQUIRE(helper::split(test, ',') == std::vector<std::string_view> {"1", "2", "3", "4", "5"});
+    }
+    {
+        std::string test = "1, 2, 3, 4, 5, 6";
+        REQUIRE(helper::split(test, ", ") == std::vector<std::string_view> {"1", "2", "3", "4", "5", "6"});
+    }
+    {
+        std::string test = "1, 2, 3, 4, 5, ";
+        REQUIRE(helper::split(test, ", ") == std::vector<std::string_view> {"1", "2", "3", "4", "5"});
+    }
 }
 
 TEST_CASE("Core.Helper.SplitOnceStrings")
@@ -103,6 +115,10 @@ TEST_CASE("Core.Helper.SplitOnceStrings")
     {
         std::string test = "1,2,3,4,5,6";
         REQUIRE(helper::split_once(test, ',') == std::pair<std::string_view, std::string_view> {"1", "2,3,4,5,6"});
+    }
+    {
+        std::string test = "1, 2, 3, 4, 5, 6";
+        REQUIRE(helper::split_once(test, ", ") == std::pair<std::string_view, std::string_view> {"1", "2, 3, 4, 5, 6"});
     }
 }
 

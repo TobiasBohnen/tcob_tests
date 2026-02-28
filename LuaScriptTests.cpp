@@ -63,6 +63,115 @@ static auto func_float_return() -> float { return 4.2f; }
 static auto func_float_return_2(std::expected<f32, error_code> f, std::expected<f32, error_code> x, i32 i) -> f32 { return f.value() * x.value() * static_cast<f32>(i); }
 static auto func_pair_return(std::pair<i32, f32> const& p) -> f32 { return static_cast<f32>(p.first) * p.second; }
 
+TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Addons")
+{
+    open_addons();
+
+    SUBCASE("math.clamp")
+    {
+        REQUIRE(*run<f32>("return math.clamp(5, 0, 10)") == 5.0f);
+        REQUIRE(*run<f32>("return math.clamp(-1, 0, 10)") == 0.0f);
+        REQUIRE(*run<f32>("return math.clamp(11, 0, 10)") == 10.0f);
+        REQUIRE(*run<f32>("return math.clamp(0, 0, 10)") == 0.0f);
+        REQUIRE(*run<f32>("return math.clamp(10, 0, 10)") == 10.0f);
+    }
+
+    SUBCASE("math.lerp")
+    {
+        REQUIRE(*run<f32>("return math.lerp(0, 10, 0.5)") == 5.0f);
+        REQUIRE(*run<f32>("return math.lerp(0, 10, 0.0)") == 0.0f);
+        REQUIRE(*run<f32>("return math.lerp(0, 10, 1.0)") == 10.0f);
+        REQUIRE(*run<f32>("return math.lerp(2, 4, 0.25)") == 2.5f);
+    }
+
+    SUBCASE("math.round")
+    {
+        REQUIRE(*run<f32>("return math.round(1.4)") == 1.0f);
+        REQUIRE(*run<f32>("return math.round(1.5)") == 2.0f);
+        REQUIRE(*run<f32>("return math.round(-1.5)") == -2.0f);
+        REQUIRE(*run<f32>("return math.round(0.0)") == 0.0f);
+    }
+
+    SUBCASE("math.sign")
+    {
+        REQUIRE(*run<f32>("return math.sign(5.0)") == 1.0f);
+        REQUIRE(*run<f32>("return math.sign(-5.0)") == -1.0f);
+        REQUIRE(*run<f32>("return math.sign(0.0)") == 0.0f);
+    }
+
+    SUBCASE("math.saturate")
+    {
+        REQUIRE(*run<f32>("return math.saturate(0.5)") == 0.5f);
+        REQUIRE(*run<f32>("return math.saturate(-1.0)") == 0.0f);
+        REQUIRE(*run<f32>("return math.saturate(2.0)") == 1.0f);
+        REQUIRE(*run<f32>("return math.saturate(0.0)") == 0.0f);
+        REQUIRE(*run<f32>("return math.saturate(1.0)") == 1.0f);
+    }
+
+    SUBCASE("math.wrap")
+    {
+        REQUIRE(*run<f32>("return math.wrap(5, 0, 4)") == 1.0f);
+        REQUIRE(*run<f32>("return math.wrap(0, 0, 4)") == 0.0f);
+        REQUIRE(*run<f32>("return math.wrap(-1, 0, 4)") == 3.0f);
+        REQUIRE(*run<f32>("return math.wrap(4, 0, 4)") == 0.0f);
+    }
+
+    SUBCASE("string.trim")
+    {
+        REQUIRE(*run<std::string>("return string.trim('  hello  ')") == "hello");
+        REQUIRE(*run<std::string>("return string.trim('  hello')") == "hello");
+        REQUIRE(*run<std::string>("return string.trim('hello  ')") == "hello");
+        REQUIRE(*run<std::string>("return string.trim('hello')") == "hello");
+        REQUIRE(*run<std::string>("return string.trim('   ')") == "");
+    }
+
+    SUBCASE("string.starts_with")
+    {
+        REQUIRE(*run<bool>("return string.starts_with('hello world', 'hello')") == true);
+        REQUIRE(*run<bool>("return string.starts_with('hello world', 'world')") == false);
+        REQUIRE(*run<bool>("return string.starts_with('hello', 'hello')") == true);
+        REQUIRE(*run<bool>("return string.starts_with('', 'hello')") == false);
+        REQUIRE(*run<bool>("return string.starts_with('hello', '')") == true);
+    }
+
+    SUBCASE("string.ends_with")
+    {
+        REQUIRE(*run<bool>("return string.ends_with('hello world', 'world')") == true);
+        REQUIRE(*run<bool>("return string.ends_with('hello world', 'hello')") == false);
+        REQUIRE(*run<bool>("return string.ends_with('hello', 'hello')") == true);
+        REQUIRE(*run<bool>("return string.ends_with('', 'hello')") == false);
+        REQUIRE(*run<bool>("return string.ends_with('hello', '')") == true);
+    }
+
+    SUBCASE("string.split")
+    {
+        {
+            auto res = run("t = string.split('a,b,c', ',')");
+            REQUIRE(res);
+            auto vec = global["t"].as<std::vector<std::string>>();
+            REQUIRE(vec == std::vector<std::string> {"a", "b", "c"});
+        }
+        {
+            auto res = run("t = string.split('hello', ',')");
+            REQUIRE(res);
+            auto vec = global["t"].as<std::vector<std::string>>();
+            REQUIRE(vec == std::vector<std::string> {"hello"});
+        }
+        {
+            auto res = run("t = string.split('a,,b', ',')");
+            REQUIRE(res);
+            auto vec = global["t"].as<std::vector<std::string>>();
+            REQUIRE(vec == std::vector<std::string> {"a", "", "b"});
+        }
+        {
+            auto res = run("t = string.split('', ',')");
+            REQUIRE(res);
+            auto vec = global["t"].as<std::vector<std::string>>();
+            REQUIRE(vec.empty());
+        }
+    }
+}
+
 TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Closures")
 {
     SUBCASE("misc")
