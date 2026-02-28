@@ -170,6 +170,83 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Addons")
             REQUIRE(vec.empty());
         }
     }
+    SUBCASE("table.contains")
+    {
+        {
+            auto res = run("t = { a = 1, b = 2, c = 3 }");
+            REQUIRE(res);
+            REQUIRE(*run<bool>("return table.contains(t, 'a')") == true);
+            REQUIRE(*run<bool>("return table.contains(t, 'b')") == true);
+            REQUIRE(*run<bool>("return table.contains(t, 'd')") == false);
+        }
+        {
+            // integer keys
+            auto res = run("t = { 10, 20, 30 }");
+            REQUIRE(res);
+            REQUIRE(*run<bool>("return table.contains(t, 1)") == true);
+            REQUIRE(*run<bool>("return table.contains(t, 3)") == true);
+            REQUIRE(*run<bool>("return table.contains(t, 5)") == false);
+        }
+        {
+            // mixed keys
+            auto res = run("t = { a = 1, 10, 20 }");
+            REQUIRE(res);
+            REQUIRE(*run<bool>("return table.contains(t, 'a')") == true);
+            REQUIRE(*run<bool>("return table.contains(t, 1)") == true);
+            REQUIRE(*run<bool>("return table.contains(t, 'b')") == false);
+            REQUIRE(*run<bool>("return table.contains(t, 3)") == false);
+        }
+        {
+            // empty table
+            auto res = run("t = { }");
+            REQUIRE(res);
+            REQUIRE(*run<bool>("return table.contains(t, 'a')") == false);
+            REQUIRE(*run<bool>("return table.contains(t, 1)") == false);
+        }
+    }
+    SUBCASE("table.keys")
+    {
+        {
+            // string keys
+            auto res = run("t = { a = 1, b = 2, c = 3 }");
+            REQUIRE(res);
+            auto                     keys = *run<std::vector<std::variant<i32, std::string>>>("return table.keys(t)");
+            std::vector<std::string> strkeys;
+            strkeys.reserve(keys.size());
+            for (auto const& k : keys) {
+                strkeys.push_back(std::get<std::string>(k));
+            }
+            std::ranges::sort(strkeys);
+            REQUIRE(strkeys == std::vector<std::string> {"a", "b", "c"});
+        }
+        {
+            // integer keys
+            auto res = run("t = { 10, 20, 30 }");
+            REQUIRE(res);
+            auto             keys = *run<std::vector<std::variant<i32, std::string>>>("return table.keys(t)");
+            std::vector<i32> intkeys;
+            intkeys.reserve(keys.size());
+            for (auto const& k : keys) {
+                intkeys.push_back(std::get<i32>(k));
+            }
+            std::ranges::sort(intkeys);
+            REQUIRE(intkeys == std::vector<i32> {1, 2, 3});
+        }
+        {
+            // mixed keys
+            auto res = run("t = { a = 1, 10, 20 }");
+            REQUIRE(res);
+            auto keys = *run<std::vector<std::variant<i32, std::string>>>("return table.keys(t)");
+            REQUIRE(keys.size() == 3);
+        }
+        {
+            // empty table
+            auto res = run("t = { }");
+            REQUIRE(res);
+            auto keys = *run<std::vector<std::variant<i32, std::string>>>("return table.keys(t)");
+            REQUIRE(keys.empty());
+        }
+    }
 }
 
 TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Closures")
