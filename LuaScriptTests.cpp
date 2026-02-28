@@ -170,6 +170,14 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Addons")
             REQUIRE(vec.empty());
         }
     }
+    SUBCASE("string.replace")
+    {
+        REQUIRE(*run<std::string>("return string.replace('hello world', 'world', 'lua')") == "hello lua");
+        REQUIRE(*run<std::string>("return string.replace('aaa', 'a', 'b')") == "bbb");
+        REQUIRE(*run<std::string>("return string.replace('hello', 'x', 'y')") == "hello");
+        REQUIRE(*run<std::string>("return string.replace('a.b.c', '.', '/')") == "a/b/c");
+        REQUIRE(*run<std::string>("return string.replace('', 'a', 'b')") == "");
+    }
     SUBCASE("table.contains")
     {
         {

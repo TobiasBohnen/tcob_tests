@@ -76,10 +76,10 @@ TEST_CASE("Core.Helper.JoinContainer")
     }
 }
 
-TEST_CASE("Core.Helper.JoinStringView")
+TEST_CASE("Core.Helper.RepString")
 {
-    REQUIRE(helper::join("C", 5, ",") == "C,C,C,C,C");
-    REQUIRE(helper::join("CD", 5, ", ") == "CD, CD, CD, CD, CD");
+    REQUIRE(helper::rep("C", 5, ",") == "C,C,C,C,C");
+    REQUIRE(helper::rep("CD", 5, ", ") == "CD, CD, CD, CD, CD");
 }
 
 TEST_CASE("Core.Helper.SplitStrings")
