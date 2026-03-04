@@ -85,7 +85,7 @@ TEST_CASE("Core.POD.Color")
         color pexp {0x7f, 0x7f, 0x7f, 0xFF};
         color p1 {0, 0, 0, 0xFF};
         color p2 {0xFF, 0xFF, 0xFF, 0xFF};
-        color pact = color::Lerp(p1, p2, 0.5);
+        color pact = helper::lerp(p1, p2, 0.5);
         REQUIRE(pact == pexp);
     }
 

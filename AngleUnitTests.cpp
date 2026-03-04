@@ -100,7 +100,7 @@ TEST_CASE("Core.POD.AngleUnits")
         {
             auto deg0 = degree_f {90};
             auto deg1 = degree_f {270};
-            REQUIRE(degree_f::Lerp(deg0, deg1, 0.5f) == degree_f(180));
+            REQUIRE(helper::lerp(deg0, deg1, 0.5f) == degree_f(180));
         }
     }
     SUBCASE("normalize")

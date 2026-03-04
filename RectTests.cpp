@@ -551,7 +551,7 @@ TEST_CASE("Core.POD.Rect")
     {
         rect_f r1 {5, 8, 16, 25};
         rect_f r2 {10, 16, 32, 50};
-        rect_f r3 {rect_f::Lerp(r1, r2, 0.5f)};
+        rect_f r3 {helper::lerp(r1, r2, 0.5f)};
         REQUIRE(r3.left() == 7.5f);
         REQUIRE(r3.top() == 12.f);
         REQUIRE(r3.width() == 24.f);

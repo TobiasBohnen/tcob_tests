@@ -226,12 +226,12 @@ TEST_CASE("Core.Math.PointOnLine")
     {
         point_f p0 {0, 0};
         point_f p1 {3, 3};
-        REQUIRE(point_f::Lerp(p0, p1, 0.5f) == point_f {1.5f, 1.5f});
+        REQUIRE(helper::lerp(p0, p1, 0.5f) == point_f {1.5f, 1.5f});
     }
     {
         point_f p0 {10.f, 10.f};
         point_f p1 {2.f, 5.f};
-        REQUIRE(point_f::Lerp(p0, p1, 0.1f) == point_f {9.2f, 9.5f});
+        REQUIRE(helper::lerp(p0, p1, 0.1f) == point_f {9.2f, 9.5f});
     }
 }
 
