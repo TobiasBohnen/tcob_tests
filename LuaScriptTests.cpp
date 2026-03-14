@@ -330,13 +330,11 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Closures")
             REQUIRE(x == 5.0f);
         }
         {
-            static auto func_expected_return {[](bool succeed) -> std::expected<f32, error_code> {
+            global["testFunc"] = +[](bool succeed) -> std::expected<f32, error_code> {
                 if (succeed) { return 42.f; }
                 return std::unexpected {error_code::Error};
-            }};
-
-            global["testFunc"] = &func_expected_return;
-            auto x             = *run<f32>("return testFunc(true)");
+            };
+            auto x = *run<f32>("return testFunc(true)");
             REQUIRE(x == 42.f);
             auto res = run<std::pair<std::nullptr_t, string>>("return testFunc(false)");
             REQUIRE(res.has_value());
@@ -1497,6 +1495,38 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Hook")
         REQUIRE(x == 100);
         REQUIRE(y == 400);
         REQUIRE(z == "ok");
+    }
+
+    SUBCASE("InstructionLimit")
+    {
+        SUBCASE("terminates infinite loop")
+        {
+            set_hook([count = 0](debug const& dbg) mutable {
+                if (dbg.Event == debug_event::Count) {
+                    if (++count >= 100) {
+                        count = 0;
+                        dbg.view().error("instruction limit exceeded");
+                    }
+                }
+            });
+            auto res = run("while true do end");
+            REQUIRE_FALSE(res.has_value());
+            REQUIRE(res.error() == error_code::Error);
+        }
+        SUBCASE("allows short scripts")
+        {
+            set_hook([count = 0](debug const& dbg) mutable {
+                if (dbg.Event == debug_event::Count) {
+                    if (++count >= 100) {
+                        count = 0;
+                        dbg.view().error("instruction limit exceeded");
+                    }
+                }
+            });
+            auto res = run<i32>("return 1 + 1");
+            REQUIRE(res.has_value());
+            REQUIRE(res.value() == 2);
+        }
     }
 }
 
