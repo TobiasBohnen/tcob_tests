@@ -329,6 +329,19 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Closures")
             REQUIRE(res);
             REQUIRE(x == 5.0f);
         }
+        {
+            static auto func_expected_return {[](bool succeed) -> std::expected<f32, error_code> {
+                if (succeed) { return 42.f; }
+                return std::unexpected {error_code::Error};
+            }};
+
+            global["testFunc"] = &func_expected_return;
+            auto x             = *run<f32>("return testFunc(true)");
+            REQUIRE(x == 42.f);
+            auto res = run<std::pair<std::nullptr_t, string>>("return testFunc(false)");
+            REQUIRE(res.has_value());
+            REQUIRE(res->second == "Error");
+        }
     }
     SUBCASE("return table")
     {
