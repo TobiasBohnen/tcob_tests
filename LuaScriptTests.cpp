@@ -37,7 +37,7 @@ struct converter<foo> {
 
     static void To(state_view ls, foo const& value)
     {
-        ls.new_table();
+        ls.create_table(0, 0);
         table lt {table::Acquire(ls, -1)};
 
         lt["x"] = value.x;
