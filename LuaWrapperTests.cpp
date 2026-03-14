@@ -368,7 +368,7 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.PlayerWrapper")
     wrapper["health"]          = property {&Player::get_health, &Player::set_health};
     wrapper["name"]            = getter {[&name] { return name; }};
 
-    auto f1                     = static_cast<void (Player::*)(std::string const&)>(&Player::add_to_inventory);
+    auto f1                     = static_cast<void (Player::*)(std::string const&)>(&Player::add_to_inventory); // NOLINT(readability-redundant-casting)
     auto f2                     = static_cast<void (Player::*)(int)>(&Player::add_to_inventory);
     wrapper["add_to_inventory"] = overload {f1, f2};
 
