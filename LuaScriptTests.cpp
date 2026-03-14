@@ -1354,7 +1354,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Hook")
         i32 instcount {0};
 
         auto func = [&](debug const& debug) {
-            if (debug.Source == "TEST") {
+            if (debug.get_info().Source == "TEST") {
                 switch (debug.Event) {
                 case debug_event::Line:
                     linecount++;
@@ -1383,7 +1383,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Hook")
         REQUIRE(instcount == 12);
 
         auto func2 = [&](debug const& debug) {
-            if (debug.Source == "TEST") {
+            if (debug.get_info().Source == "TEST") {
                 switch (debug.Event) {
                 case debug_event::Line:
                     linecount--;
@@ -1428,7 +1428,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Hook")
         i32 linecount {0};
 
         auto func = [&](debug const& debug) {
-            if (debug.Source == "TEST") {
+            if (debug.get_info().Source == "TEST") {
                 switch (debug.Event) {
                 case debug_event::Line:
                     linecount++;
@@ -1464,7 +1464,7 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Hook")
         std::string z;
 
         auto func = [&](debug const& debug) {
-            if (debug.Source == "TEST" && debug.Event == debug_event::Return) {
+            if (debug.get_info().Source == "TEST" && debug.Event == debug_event::Return) {
                 auto const vw {view()};
                 auto const guard {vw.create_scoped_stack()};
 
