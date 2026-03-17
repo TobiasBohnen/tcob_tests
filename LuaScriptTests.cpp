@@ -1843,6 +1843,33 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Results")
     }
 }
 
+TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Stack")
+{
+    std::function testStack = [&]() {
+        auto stk1 {view().get_stack(1, "Slutnr")};
+        REQUIRE(stk1);
+        REQUIRE(stk1->Name == "baz");
+        REQUIRE(stk1->Source == "TestFile.lua");
+
+        auto stk2 {view().get_stack(2, "Slutnr")};
+        REQUIRE(stk2);
+        REQUIRE(stk2->Name == "foo");
+        REQUIRE(stk2->Source == "TestFile.lua");
+    };
+
+    global["stack"] = &testStack;
+    auto res {run(R"(
+        function baz() stack() end
+        local bar = {}     
+        function bar:foo() 
+            baz() 
+        end 
+        bar:foo()
+        )",
+                  "TestFile.lua")};
+    REQUIRE(res);
+}
+
 TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Table")
 {
     SUBCASE("nested table chaining")
