@@ -1473,11 +1473,11 @@ TEST_CASE_FIXTURE(LuaScriptTests, "Script.Lua.Hook")
                     if (val.empty() || val[0] == '(') { break; }
 
                     if (val == "x") {
-                        vw.pull_convert_idx(-1, x);
+                        vw.pull_convert_top(x);
                     } else if (val == "y") {
-                        vw.pull_convert_idx(-1, y);
+                        vw.pull_convert_top(y);
                     } else if (val == "z") {
-                        vw.pull_convert_idx(-1, z);
+                        vw.pull_convert_top(z);
                     }
                 }
             }
