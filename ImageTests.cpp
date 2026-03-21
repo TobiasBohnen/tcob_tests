@@ -327,16 +327,16 @@ TEST_CASE("GFX.Image.OctTreeQuant")
 {
     SUBCASE("single color")
     {
-        octree_quantizer quantizer {256};
-        auto             img {quantizer(create_solid_color_image(10, 10, color {255, 0, 0}))};
+        octree_quant quantizer {256};
+        auto         img {quantizer(create_solid_color_image(10, 10, color {255, 0, 0}))};
 
         REQUIRE(img.count_colors() == 1);
     }
 
     SUBCASE("two colors")
     {
-        octree_quantizer quantizer {256};
-        auto             img {image::CreateEmpty(size_i {10, 10}, image::format::RGB)};
+        octree_quant quantizer {256};
+        auto         img {image::CreateEmpty(size_i {10, 10}, image::format::RGB)};
 
         for (i32 y {0}; y < 10; y++) {
             for (i32 x {0}; x < 10; x++) {
@@ -349,24 +349,24 @@ TEST_CASE("GFX.Image.OctTreeQuant")
 
     SUBCASE("16 color limit")
     {
-        octree_quantizer quantizer {16};
-        auto             img {create_gradient_image(256, 10)};
+        octree_quant quantizer {16};
+        auto         img {create_gradient_image(256, 10)};
 
         REQUIRE(quantizer(img).count_colors() <= 16);
     }
 
     SUBCASE("8 color limit")
     {
-        octree_quantizer quantizer {8};
-        auto             img {create_gradient_image(256, 10)};
+        octree_quant quantizer {8};
+        auto         img {create_gradient_image(256, 10)};
 
         REQUIRE(quantizer(img).count_colors() <= 8);
     }
 
     SUBCASE("256 color limit")
     {
-        octree_quantizer quantizer {256};
-        auto             img {create_gradient_image(256, 10)};
+        octree_quant quantizer {256};
+        auto         img {create_gradient_image(256, 10)};
 
         REQUIRE(quantizer(img).count_colors() <= 256);
     }
@@ -393,7 +393,7 @@ TEST_CASE("GFX.Image.OctTreeQuant")
         img.set_pixel(point_i {2, 1}, p[6]);
         img.set_pixel(point_i {3, 1}, p[7]);
 
-        auto                      pal {octree_quantizer::GetPalette(img, 256)};
+        auto                      pal {octree_quant::GetPalette(img, 256)};
         std::unordered_set<color> colors {pal.begin(), pal.end()};
 
         REQUIRE(colors.size() == 8);
@@ -404,8 +404,8 @@ TEST_CASE("GFX.Image.OctTreeQuant")
 
     SUBCASE("single pixel image")
     {
-        octree_quantizer quantizer {256};
-        auto             img {image::CreateEmpty(size_i {1, 1}, image::format::RGB)};
+        octree_quant quantizer {256};
+        auto         img {image::CreateEmpty(size_i {1, 1}, image::format::RGB)};
         img.set_pixel(point_i {0, 0}, color {0, 0, 0});
 
         REQUIRE(quantizer(img).count_colors() == 1);
@@ -413,8 +413,8 @@ TEST_CASE("GFX.Image.OctTreeQuant")
 
     SUBCASE("100x100 image")
     {
-        octree_quantizer quantizer {256};
-        auto             img {create_gradient_image(100, 100)};
+        octree_quant quantizer {256};
+        auto         img {create_gradient_image(100, 100)};
 
         REQUIRE(quantizer(img).count_colors() <= 256);
     }
