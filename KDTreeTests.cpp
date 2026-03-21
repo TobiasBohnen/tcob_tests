@@ -1,26 +1,26 @@
 #include "tests.hpp"
 
 struct TestValue2D {
-    std::array<f32, 2> Position;
+    std::array<f64, 2> Position;
     u32                ID;
 
-    auto get_dimensions() const -> std::array<f32, 2> { return Position; }
+    auto get_dimensions() const -> std::array<f64, 2> { return Position; }
     auto operator==(TestValue2D const& other) const -> bool { return ID == other.ID; }
 };
 
 struct TestValue3D {
-    std::array<f32, 3> Position;
+    std::array<f64, 3> Position;
     u32                ID;
 
-    auto get_dimensions() const -> std::array<f32, 3> { return Position; }
+    auto get_dimensions() const -> std::array<f64, 3> { return Position; }
     auto operator==(TestValue3D const& other) const -> bool { return ID == other.ID; }
 };
 
 struct TestValue4D {
-    std::array<f32, 4> Position;
+    std::array<f64, 4> Position;
     u32                ID;
 
-    auto get_dimensions() const -> std::array<f32, 4> { return Position; }
+    auto get_dimensions() const -> std::array<f64, 4> { return Position; }
     auto operator==(TestValue4D const& other) const -> bool { return ID == other.ID; }
 };
 
@@ -33,9 +33,9 @@ TEST_CASE("Core.KDTree.2D")
 
     SUBCASE("Insertion and Query")
     {
-        tree.add({.Position = {10.0f, 10.0f}, .ID = 1});
-        tree.add({.Position = {20.0f, 20.0f}, .ID = 2});
-        tree.add({.Position = {80.0f, 80.0f}, .ID = 3});
+        tree.add({.Position = {10.0, 10.0}, .ID = 1});
+        tree.add({.Position = {20.0, 20.0}, .ID = 2});
+        tree.add({.Position = {80.0, 80.0}, .ID = 3});
 
         auto results = tree.query({{0.0f, 0.0f}, {30.0f, 30.0f}});
         REQUIRE(results.size() == 2);
@@ -123,9 +123,9 @@ TEST_CASE("Core.KDTree.3D")
         // 1. Create a 256-color palette
         std::vector<TestValue3D> palette;
         for (u32 i = 0; i < 256; ++i) {
-            f32 r = static_cast<f32>((i * 131) % 256);
-            f32 g = static_cast<f32>((i * 193) % 256);
-            f32 b = static_cast<f32>((i * 241) % 256);
+            f64 r = static_cast<f64>((i * 131) % 256);
+            f64 g = static_cast<f64>((i * 193) % 256);
+            f64 b = static_cast<f64>((i * 241) % 256);
 
             TestValue3D entry = {.Position = {r, g, b}, .ID = i};
             palette.push_back(entry);
@@ -133,14 +133,14 @@ TEST_CASE("Core.KDTree.3D")
         }
 
         // 2. Define the brute-force reference function
-        auto find_nearest = [&](std::array<f32, 3> const& c) -> u32 {
+        auto find_nearest = [&](std::array<f64, 3> const& c) -> u32 {
             u32 bestIdx {0};
-            f32 minDist {std::numeric_limits<f32>::max()};
+            f64 minDist {std::numeric_limits<f64>::max()};
             for (auto const& p : palette) {
-                f32 dr   = p.Position[0] - c[0];
-                f32 dg   = p.Position[1] - c[1];
-                f32 db   = p.Position[2] - c[2];
-                f32 dist = (dr * dr) + (dg * dg) + (db * db);
+                f64 dr   = p.Position[0] - c[0];
+                f64 dg   = p.Position[1] - c[1];
+                f64 db   = p.Position[2] - c[2];
+                f64 dist = (dr * dr) + (dg * dg) + (db * db);
                 if (dist < minDist) {
                     minDist = dist;
                     bestIdx = p.ID;
@@ -152,7 +152,7 @@ TEST_CASE("Core.KDTree.3D")
         // 3. Test a variety of sample colors
         SUBCASE("Verify parity across color spectrum")
         {
-            std::vector<std::array<f32, 3>> testColors = {
+            std::vector<std::array<f64, 3>> testColors = {
                 {10.5f, 10.5f, 10.5f},
                 {250.0f, 0.0f, 0.0f},
                 {128.0f, 128.0f, 128.0f},
@@ -169,10 +169,10 @@ TEST_CASE("Core.KDTree.3D")
         {
             // Check 100 random points to ensure no edge cases in the backtracking logic
             for (int i = 0; i < 100; ++i) {
-                f32                r     = static_cast<f32>(rand() % 256);
-                f32                g     = static_cast<f32>(rand() % 256);
-                f32                b     = static_cast<f32>(rand() % 256);
-                std::array<f32, 3> color = {r, g, b};
+                f64                r     = static_cast<f64>(rand() % 256);
+                f64                g     = static_cast<f64>(rand() % 256);
+                f64                b     = static_cast<f64>(rand() % 256);
+                std::array<f64, 3> color = {r, g, b};
 
                 REQUIRE(tree.find_nearest(color)->ID == find_nearest(color));
             }
@@ -227,7 +227,7 @@ TEST_CASE("Core.KDTree.4D")
     SUBCASE("Exhaustive Axis Cycling")
     {
         for (u32 i = 0; i < 20; ++i) {
-            f32 v = static_cast<f32>(i * 4);
+            f64 v = static_cast<f64>(i * 4);
             tree.add({.Position = {v, v, v, v}, .ID = i});
         }
 
