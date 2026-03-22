@@ -31,7 +31,7 @@ struct Derived : public Base {
 
     static inline int Count {0};
 };
-struct Foo { };
+
 TEST_CASE("Core.Assets.Cast")
 {
     {
