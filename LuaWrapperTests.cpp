@@ -872,47 +872,88 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Serializable")
     SUBCASE("point")
     {
         create_wrapper<point_f>("pf");
-        point_f obj {2, 56};
-        global["wrap"] = &obj;
+        SUBCASE("get")
+        {
+            point_f obj {2, 56};
+            global["wrap"] = &obj;
 
-        auto const res0 = run<std::pair<f32, f32>>("return wrap.x, wrap.y");
-        REQUIRE(res0);
-        REQUIRE(res0->first == obj.X);
-        REQUIRE(res0->second == obj.Y);
+            auto const res0 = run<std::pair<f32, f32>>("return wrap.x, wrap.y");
+            REQUIRE(res0);
+            REQUIRE(res0->first == obj.X);
+            REQUIRE(res0->second == obj.Y);
 
-        auto const res1 = run<std::pair<f32, f32>>("return wrap.left, wrap.top");
-        REQUIRE(res1);
-        REQUIRE(res1->first == obj.X);
-        REQUIRE(res1->second == obj.Y);
+            auto const res1 = run<std::pair<f32, f32>>("return wrap.left, wrap.top");
+            REQUIRE(res1);
+            REQUIRE(res1->first == obj.X);
+            REQUIRE(res1->second == obj.Y);
+        }
+        SUBCASE("set")
+        {
+            point_f obj {2, 56};
+            global["wrap"] = &obj;
+
+            auto const res0 = run("wrap.x = 100 wrap.y = 500");
+            REQUIRE(res0);
+            REQUIRE(obj.X == 100.f);
+            REQUIRE(obj.Y == 500.f);
+        }
     }
     SUBCASE("size")
     {
         create_wrapper<size_f>("sf");
-        size_f obj {48, 126};
-        global["wrap"] = &obj;
+        SUBCASE("get")
+        {
+            size_f obj {48, 126};
+            global["wrap"] = &obj;
 
-        auto const res0 = run<std::pair<f32, f32>>("return wrap.width, wrap.height");
-        REQUIRE(res0);
-        REQUIRE(res0->first == obj.Width);
-        REQUIRE(res0->second == obj.Height);
+            auto const res0 = run<std::pair<f32, f32>>("return wrap.width, wrap.height");
+            REQUIRE(res0);
+            REQUIRE(res0->first == obj.Width);
+            REQUIRE(res0->second == obj.Height);
 
-        auto const res1 = run<std::pair<f32, f32>>("return wrap.w, wrap.h");
-        REQUIRE(res1);
-        REQUIRE(res1->first == obj.Width);
-        REQUIRE(res1->second == obj.Height);
+            auto const res1 = run<std::pair<f32, f32>>("return wrap.w, wrap.h");
+            REQUIRE(res1);
+            REQUIRE(res1->first == obj.Width);
+            REQUIRE(res1->second == obj.Height);
+        }
+        SUBCASE("set")
+        {
+            size_f obj {2, 56};
+            global["wrap"] = &obj;
+
+            auto const res0 = run("wrap.w = 100 wrap.h = 500");
+            REQUIRE(res0);
+            REQUIRE(obj.Width == 100.f);
+            REQUIRE(obj.Height == 500.f);
+        }
     }
     SUBCASE("rect")
     {
         create_wrapper<rect_f>("rf");
-        rect_f obj {48, 126, 66, 89};
-        global["wrap"] = &obj;
+        SUBCASE("get")
+        {
+            rect_f obj {48, 126, 66, 89};
+            global["wrap"] = &obj;
 
-        auto const res0 = run<std::tuple<f32, f32, f32, f32>>("return wrap.x, wrap.y, wrap.w, wrap.h");
-        REQUIRE(res0);
-        REQUIRE(std::get<0>(*res0) == obj.left());
-        REQUIRE(std::get<1>(*res0) == obj.top());
-        REQUIRE(std::get<2>(*res0) == obj.width());
-        REQUIRE(std::get<3>(*res0) == obj.height());
+            auto const res0 = run<std::tuple<f32, f32, f32, f32>>("return wrap.x, wrap.y, wrap.w, wrap.h");
+            REQUIRE(res0);
+            REQUIRE(std::get<0>(*res0) == obj.left());
+            REQUIRE(std::get<1>(*res0) == obj.top());
+            REQUIRE(std::get<2>(*res0) == obj.width());
+            REQUIRE(std::get<3>(*res0) == obj.height());
+        }
+        SUBCASE("set")
+        {
+            rect_f obj {48, 126, 66, 89};
+            global["wrap"] = &obj;
+
+            auto const res0 = run("wrap.x = 1 wrap.y = 2 wrap.w = 3 wrap.h = 5");
+            REQUIRE(res0);
+            REQUIRE(obj.left() == 1.f);
+            REQUIRE(obj.top() == 2.f);
+            REQUIRE(obj.width() == 3.f);
+            REQUIRE(obj.height() == 5.f);
+        }
     }
     SUBCASE("custom")
     {
