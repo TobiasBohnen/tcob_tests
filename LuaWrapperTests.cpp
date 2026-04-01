@@ -866,3 +866,72 @@ TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Null")
     REQUIRE(res.has_value());
     REQUIRE(res.value());
 }
+
+TEST_CASE_FIXTURE(LuaWrapperTests, "Script.LuaWrapper.Serializable")
+{
+    SUBCASE("point")
+    {
+        create_wrapper<point_f>("pf");
+        point_f obj {2, 56};
+        global["wrap"] = &obj;
+
+        auto const res0 = run<std::pair<f32, f32>>("return wrap.x, wrap.y");
+        REQUIRE(res0);
+        REQUIRE(res0->first == obj.X);
+        REQUIRE(res0->second == obj.Y);
+
+        auto const res1 = run<std::pair<f32, f32>>("return wrap.left, wrap.top");
+        REQUIRE(res1);
+        REQUIRE(res1->first == obj.X);
+        REQUIRE(res1->second == obj.Y);
+    }
+    SUBCASE("size")
+    {
+        create_wrapper<size_f>("sf");
+        size_f obj {48, 126};
+        global["wrap"] = &obj;
+
+        auto const res0 = run<std::pair<f32, f32>>("return wrap.width, wrap.height");
+        REQUIRE(res0);
+        REQUIRE(res0->first == obj.Width);
+        REQUIRE(res0->second == obj.Height);
+
+        auto const res1 = run<std::pair<f32, f32>>("return wrap.w, wrap.h");
+        REQUIRE(res1);
+        REQUIRE(res1->first == obj.Width);
+        REQUIRE(res1->second == obj.Height);
+    }
+    SUBCASE("rect")
+    {
+        create_wrapper<rect_f>("rf");
+        rect_f obj {48, 126, 66, 89};
+        global["wrap"] = &obj;
+
+        auto const res0 = run<std::tuple<f32, f32, f32, f32>>("return wrap.x, wrap.y, wrap.w, wrap.h");
+        REQUIRE(res0);
+        REQUIRE(std::get<0>(*res0) == obj.left());
+        REQUIRE(std::get<1>(*res0) == obj.top());
+        REQUIRE(std::get<2>(*res0) == obj.width());
+        REQUIRE(std::get<3>(*res0) == obj.height());
+    }
+    SUBCASE("custom")
+    {
+        struct foo {
+            bool b;
+            f32  f;
+            i32  i;
+
+            static auto constexpr Members() { return make_members<&foo::b, &foo::f, &foo::i>("b", "f", "i"); }
+        };
+        REQUIRE(Serializable<foo>);
+        create_wrapper<foo>("foo");
+        foo obj {.b = true, .f = 0.54f, .i = 100};
+        global["wrap"] = &obj;
+
+        auto const res0 = run<std::tuple<bool, f32, i32>>("return wrap.b, wrap.f, wrap.i");
+        REQUIRE(res0);
+        REQUIRE(std::get<0>(*res0) == obj.b);
+        REQUIRE(std::get<1>(*res0) == obj.f);
+        REQUIRE(std::get<2>(*res0) == obj.i);
+    }
+}
