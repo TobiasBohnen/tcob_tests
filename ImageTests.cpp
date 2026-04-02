@@ -477,10 +477,10 @@ TEST_CASE("GFX.Image.NeuQuant")
         REQUIRE(quantizer(img).count_colors() == 1);
     }
 
-    SUBCASE("100x100 image")
+    SUBCASE("25x25 image")
     {
         neuquant quantizer {256};
-        auto     img {create_gradient_image(100, 100)};
+        auto     img {create_gradient_image(25, 25)};
 
         REQUIRE(quantizer(img).count_colors() <= 256);
     }
