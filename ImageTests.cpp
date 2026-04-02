@@ -327,16 +327,12 @@ TEST_CASE("GFX.Image.OctTreeQuant")
 {
     SUBCASE("single color")
     {
-        octree_quant quantizer {256};
-        auto         img {quantizer(create_solid_color_image(10, 10, color {255, 0, 0}))};
-
-        REQUIRE(img.count_colors() == 1);
+        REQUIRE(octree_quant::GetPalette(create_solid_color_image(10, 10, color {255, 0, 0}), 256).size() == 1);
     }
 
     SUBCASE("two colors")
     {
-        octree_quant quantizer {256};
-        auto         img {image::CreateEmpty(size_i {10, 10}, image::format::RGB)};
+        auto img {image::CreateEmpty(size_i {10, 10}, image::format::RGB)};
 
         for (i32 y {0}; y < 10; y++) {
             for (i32 x {0}; x < 10; x++) {
@@ -344,31 +340,22 @@ TEST_CASE("GFX.Image.OctTreeQuant")
             }
         }
 
-        REQUIRE(quantizer(img).count_colors() == 2);
-    }
-
-    SUBCASE("16 color limit")
-    {
-        octree_quant quantizer {16};
-        auto         img {create_gradient_image(256, 10)};
-
-        REQUIRE(quantizer(img).count_colors() <= 16);
+        REQUIRE(octree_quant::GetPalette(img, 256).size() == 2);
     }
 
     SUBCASE("8 color limit")
     {
-        octree_quant quantizer {8};
-        auto         img {create_gradient_image(256, 10)};
+        REQUIRE(octree_quant::GetPalette(create_gradient_image(256, 10), 8).size() <= 8);
+    }
 
-        REQUIRE(quantizer(img).count_colors() <= 8);
+    SUBCASE("16 color limit")
+    {
+        REQUIRE(octree_quant::GetPalette(create_gradient_image(256, 10), 16).size() <= 16);
     }
 
     SUBCASE("256 color limit")
     {
-        octree_quant quantizer {256};
-        auto         img {create_gradient_image(256, 10)};
-
-        REQUIRE(quantizer(img).count_colors() <= 256);
+        REQUIRE(octree_quant::GetPalette(create_gradient_image(256, 10), 256).size() <= 256);
     }
 
     SUBCASE("colors preserved")
@@ -404,19 +391,16 @@ TEST_CASE("GFX.Image.OctTreeQuant")
 
     SUBCASE("single pixel image")
     {
-        octree_quant quantizer {256};
-        auto         img {image::CreateEmpty(size_i {1, 1}, image::format::RGB)};
+        auto img {image::CreateEmpty(size_i {1, 1}, image::format::RGB)};
         img.set_pixel(point_i {0, 0}, color {0, 0, 0});
 
-        REQUIRE(quantizer(img).count_colors() == 1);
+        REQUIRE(octree_quant::GetPalette(img, 256).size() == 1);
     }
 
     SUBCASE("100x100 image")
     {
-        octree_quant quantizer {256};
-        auto         img {create_gradient_image(100, 100)};
-
-        REQUIRE(quantizer(img).count_colors() <= 256);
+        auto img {create_gradient_image(100, 100)};
+        REQUIRE(octree_quant::GetPalette(img, 256).size() <= 256);
     }
 }
 
@@ -424,16 +408,12 @@ TEST_CASE("GFX.Image.NeuQuant")
 {
     SUBCASE("single color")
     {
-        neuquant quantizer {256};
-        auto     img {quantizer(create_solid_color_image(10, 10, color {255, 0, 0}))};
-
-        REQUIRE(img.count_colors() == 1);
+        REQUIRE(neuquant::GetPalette(create_solid_color_image(10, 10, color {255, 0, 0}), 256).size() == 1);
     }
 
     SUBCASE("two colors")
     {
-        neuquant quantizer {256};
-        auto     img {image::CreateEmpty(size_i {10, 10}, image::format::RGB)};
+        auto img {image::CreateEmpty(size_i {10, 10}, image::format::RGB)};
 
         for (i32 y {0}; y < 10; y++) {
             for (i32 x {0}; x < 10; x++) {
@@ -441,47 +421,35 @@ TEST_CASE("GFX.Image.NeuQuant")
             }
         }
 
-        REQUIRE(quantizer(img).count_colors() == 2);
-    }
-
-    SUBCASE("16 color limit")
-    {
-        neuquant quantizer {16};
-        auto     img {create_gradient_image(256, 10)};
-
-        REQUIRE(quantizer(img).count_colors() <= 16);
+        REQUIRE(neuquant::GetPalette(img, 256).size() == 2);
     }
 
     SUBCASE("8 color limit")
     {
-        neuquant quantizer {8};
-        auto     img {create_gradient_image(256, 10)};
+        REQUIRE(neuquant::GetPalette(create_gradient_image(256, 10), 8).size() <= 8);
+    }
 
-        REQUIRE(quantizer(img).count_colors() <= 8);
+    SUBCASE("16 color limit")
+    {
+        REQUIRE(neuquant::GetPalette(create_gradient_image(256, 10), 16).size() <= 16);
     }
 
     SUBCASE("256 color limit")
     {
-        neuquant quantizer {256};
-        auto     img {create_gradient_image(256, 10)};
-
-        REQUIRE(quantizer(img).count_colors() <= 256);
+        REQUIRE(neuquant::GetPalette(create_gradient_image(256, 10), 256).size() <= 256);
     }
 
     SUBCASE("single pixel image")
     {
-        neuquant quantizer {256};
-        auto     img {image::CreateEmpty(size_i {1, 1}, image::format::RGB)};
+        auto img {image::CreateEmpty(size_i {1, 1}, image::format::RGB)};
         img.set_pixel(point_i {0, 0}, color {0, 0, 0});
 
-        REQUIRE(quantizer(img).count_colors() == 1);
+        REQUIRE(neuquant::GetPalette(img, 256).size() == 1);
     }
 
     SUBCASE("25x25 image")
     {
-        neuquant quantizer {256};
-        auto     img {create_gradient_image(25, 25)};
-
-        REQUIRE(quantizer(img).count_colors() <= 256);
+        auto img {create_gradient_image(25, 25)};
+        REQUIRE(neuquant::GetPalette(img, 256).size() <= 256);
     }
 }
