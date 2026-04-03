@@ -282,7 +282,7 @@ TEST_CASE("GFX.Image.DataRect")
     REQUIRE(data6 == target6);
 }
 
-TEST_CASE("GFX.Image.RemoveAlpha")
+TEST_CASE("GFX.Image.AlphaRemove")
 {
 
     u32 const                                           channels {4};
@@ -299,7 +299,7 @@ TEST_CASE("GFX.Image.RemoveAlpha")
         48, 49, 50, 52, 53, 54, 56, 57, 58, 60, 61, 62};
 
     auto            image {image::Create(size, image::format::RGBA, source)};
-    auto            newImage {remove_alpha {}(image)};
+    auto            newImage {alpha_remove {}(image)};
     std::vector<u8> data1 {newImage.data().begin(), newImage.data().end()};
     REQUIRE(data1 == target);
 }
@@ -408,7 +408,9 @@ TEST_CASE("GFX.Image.NeuQuant")
 {
     SUBCASE("single color")
     {
-        REQUIRE(neuquant::GetPalette(create_solid_color_image(10, 10, color {255, 0, 0}), 256).size() == 1);
+        auto img {create_solid_color_image(10, 10, color {255, 0, 0})};
+        auto pal {neuquant::GetPalette(img, 255)};
+        REQUIRE(nearest_neighbor_dither {pal}(img).count_colors() == 1);
     }
 
     SUBCASE("two colors")
@@ -421,7 +423,7 @@ TEST_CASE("GFX.Image.NeuQuant")
             }
         }
 
-        REQUIRE(neuquant::GetPalette(img, 256).size() == 2);
+        REQUIRE(neuquant::GetPalette(img, 2).size() == 2);
     }
 
     SUBCASE("8 color limit")
@@ -444,7 +446,7 @@ TEST_CASE("GFX.Image.NeuQuant")
         auto img {image::CreateEmpty(size_i {1, 1}, image::format::RGB)};
         img.set_pixel(point_i {0, 0}, color {0, 0, 0});
 
-        REQUIRE(neuquant::GetPalette(img, 256).size() == 1);
+        REQUIRE(neuquant::GetPalette(img, 1).size() == 1);
     }
 
     SUBCASE("25x25 image")
