@@ -299,7 +299,7 @@ TEST_CASE("GFX.Image.AlphaRemove")
         48, 49, 50, 52, 53, 54, 56, 57, 58, 60, 61, 62};
 
     auto            image {image::Create(size, image::format::RGBA, source)};
-    auto            newImage {alpha_remove {}(image)};
+    auto            newImage {alpha_remover {}(image)};
     std::vector<u8> data1 {newImage.data().begin(), newImage.data().end()};
     REQUIRE(data1 == target);
 }
