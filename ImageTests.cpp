@@ -410,7 +410,7 @@ TEST_CASE("GFX.Image.NeuQuant")
     {
         auto img {create_solid_color_image(10, 10, color {255, 0, 0})};
         auto pal {neuquant::GetPalette(img, 255)};
-        REQUIRE(nearest_neighbor_dither {pal}(img).count_colors() == 1);
+        REQUIRE(no_dither {pal}(img).count_colors() == 1);
     }
 
     SUBCASE("two colors")
