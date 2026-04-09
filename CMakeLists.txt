@@ -1,6 +1,7 @@
 add_executable(tcob_tests)
 
 set(TEST_SRCFILES
+  NodeGraphTests.cpp
   LuaScriptTests.cpp
   LuaWrapperTests.cpp
   AudioCodecTests.cpp
