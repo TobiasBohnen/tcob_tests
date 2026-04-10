@@ -191,7 +191,7 @@ TEST_CASE("Core.NodeGraph.CanConnect")
         uid const  b {g.create_node({.Title = "B", .Outputs = {{.ID = 1, .Name = "Out"}}})};
         uid const  c {g.create_node({.Title = "C", .Inputs = {{.ID = 1, .Name = "In"}}})};
         REQUIRE(g.create_connection(a, 1, c, 1));
-        REQUIRE_FALSE(g.can_connect(b, 1, c, 1));
+        REQUIRE_FALSE(g.create_connection(b, 1, c, 1));
     }
 
     SUBCASE("fan-out accepted")
