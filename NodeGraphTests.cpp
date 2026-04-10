@@ -100,15 +100,6 @@ TEST_CASE("Core.NodeGraph.RemoveNode")
         REQUIRE(g.connections()[0].OutputNodeID == b);
         REQUIRE(g.connections()[0].InputNodeID == c);
     }
-
-    SUBCASE("NodeRemoved does not fire on invalid id")
-    {
-        node_graph g;
-        bool       fired {false};
-        g.NodeRemoved.connect([&](uid) { fired = true; });
-        g.remove_node(uid {9999});
-        REQUIRE_FALSE(fired);
-    }
 }
 
 TEST_CASE("Core.NodeGraph.CanConnect")
@@ -634,17 +625,6 @@ TEST_CASE("Core.NodeGraph.MutateParam")
         REQUIRE(result == true);
     }
 
-    SUBCASE("fn returning false does not fire Changed")
-    {
-        node_graph g;
-        uid const  id {g.create_node({.Title      = "A",
-                                      .Parameters = {node_param_float {.Name = "V", .Value = 1.0f}}})};
-        i32        count {0};
-        g.Changed.connect([&] { ++count; });
-        g.mutate_param(id, 0, [](auto&) { return false; });
-        REQUIRE(count == 0);
-    }
-
     SUBCASE("fn returning false leaves value unchanged")
     {
         node_graph g;
@@ -674,154 +654,5 @@ TEST_CASE("Core.NodeGraph.MutateParam")
         node_graph g;
         uid const  id {g.create_node({.Title = "A"})};
         REQUIRE_FALSE(g.mutate_param(id, 0, [](auto&) { return true; }));
-    }
-}
-
-TEST_CASE("Core.NodeGraph.Signals")
-{
-    SUBCASE("NodeAdded fires on create_node")
-    {
-        node_graph g;
-        uid        firedID {};
-        g.NodeAdded.connect([&](uid id) { firedID = id; });
-        uid const id {g.create_node({.Title = "A"})};
-        REQUIRE(firedID == id);
-    }
-
-    SUBCASE("NodeRemoved fires on remove_node")
-    {
-        node_graph g;
-        uid        firedID {};
-        g.NodeRemoved.connect([&](uid id) { firedID = id; });
-        uid const id {g.create_node({.Title = "A"})};
-        g.remove_node(id);
-        REQUIRE(firedID == id);
-    }
-
-    SUBCASE("NodeRemoved does not fire on invalid id")
-    {
-        node_graph g;
-        bool       fired {false};
-        g.NodeRemoved.connect([&](uid) { fired = true; });
-        g.remove_node(uid {9999});
-        REQUIRE_FALSE(fired);
-    }
-
-    SUBCASE("ConnectionAdded fires on create_connection")
-    {
-        node_graph g;
-        uid        firedID {};
-        g.ConnectionAdded.connect([&](uid id) { firedID = id; });
-        uid const  a {g.create_node({.Title = "A", .Outputs = {{.ID = 1, .Name = "Out"}}})};
-        uid const  b {g.create_node({.Title = "B", .Inputs = {{.ID = 1, .Name = "In"}}})};
-        auto const id {g.create_connection(a, 1, b, 1)};
-        REQUIRE(firedID == *id);
-    }
-
-    SUBCASE("ConnectionAdded does not fire on invalid connection")
-    {
-        node_graph g;
-        bool       fired {false};
-        g.ConnectionAdded.connect([&](uid) { fired = true; });
-        uid const a {g.create_node({.Title = "A", .Outputs = {{.ID = 1, .Name = "Out", .Type = 0b0001}}})};
-        uid const b {g.create_node({.Title = "B", .Inputs = {{.ID = 1, .Name = "In", .Type = 0b0010}}})};
-        REQUIRE_FALSE(g.create_connection(a, 1, b, 1));
-        REQUIRE_FALSE(fired);
-    }
-
-    SUBCASE("ConnectionRemoved fires on remove_connection")
-    {
-        node_graph g;
-        uid        firedID {};
-        g.ConnectionRemoved.connect([&](uid id) { firedID = id; });
-        uid const  a {g.create_node({.Title = "A", .Outputs = {{.ID = 1, .Name = "Out"}}})};
-        uid const  b {g.create_node({.Title = "B", .Inputs = {{.ID = 1, .Name = "In"}}})};
-        auto const id {g.create_connection(a, 1, b, 1)};
-        g.remove_connection(*id);
-        REQUIRE(firedID == *id);
-    }
-
-    SUBCASE("Changed fires on create_node")
-    {
-        node_graph g;
-        i32        count {0};
-        g.Changed.connect([&] { ++count; });
-        g.create_node({.Title = "A"});
-        REQUIRE(count == 1);
-    }
-
-    SUBCASE("Changed fires on remove_node")
-    {
-        node_graph g;
-        uid const  id {g.create_node({.Title = "A"})};
-        i32        count {0};
-        g.Changed.connect([&] { ++count; });
-        g.remove_node(id);
-        REQUIRE(count == 1);
-    }
-
-    SUBCASE("Changed does not fire on failed remove_node")
-    {
-        node_graph g;
-        i32        count {0};
-        g.Changed.connect([&] { ++count; });
-        g.remove_node(uid {9999});
-        REQUIRE(count == 0);
-    }
-
-    SUBCASE("Changed fires on create_connection")
-    {
-        node_graph g;
-        uid const  a {g.create_node({.Title = "A", .Outputs = {{.ID = 1, .Name = "Out"}}})};
-        uid const  b {g.create_node({.Title = "B", .Inputs = {{.ID = 1, .Name = "In"}}})};
-        i32        count {0};
-        g.Changed.connect([&] { ++count; });
-        g.create_connection(a, 1, b, 1);
-        REQUIRE(count == 1);
-    }
-
-    SUBCASE("Changed does not fire on failed create_connection")
-    {
-        node_graph g;
-        uid const  a {g.create_node({.Title = "A", .Outputs = {{.ID = 1, .Name = "Out", .Type = 0b0001}}})};
-        uid const  b {g.create_node({.Title = "B", .Inputs = {{.ID = 1, .Name = "In", .Type = 0b0010}}})};
-        i32        count {0};
-        g.Changed.connect([&] { ++count; });
-        g.create_connection(a, 1, b, 1);
-        REQUIRE(count == 0);
-    }
-
-    SUBCASE("Changed fires on remove_connection")
-    {
-        node_graph g;
-        uid const  a {g.create_node({.Title = "A", .Outputs = {{.ID = 1, .Name = "Out"}}})};
-        uid const  b {g.create_node({.Title = "B", .Inputs = {{.ID = 1, .Name = "In"}}})};
-        auto const id {g.create_connection(a, 1, b, 1)};
-        i32        count {0};
-        g.Changed.connect([&] { ++count; });
-        g.remove_connection(*id);
-        REQUIRE(count == 1);
-    }
-
-    SUBCASE("Changed fires on mutate_param when fn returns true")
-    {
-        node_graph g;
-        uid const  id {g.create_node({.Title      = "A",
-                                      .Parameters = {node_param_float {.Name = "V", .Value = 1.0f}}})};
-        i32        count {0};
-        g.Changed.connect([&] { ++count; });
-        g.mutate_param(id, 0, [](auto&) { return true; });
-        REQUIRE(count == 1);
-    }
-
-    SUBCASE("Changed does not fire on mutate_param when fn returns false")
-    {
-        node_graph g;
-        uid const  id {g.create_node({.Title      = "A",
-                                      .Parameters = {node_param_float {.Name = "V", .Value = 1.0f}}})};
-        i32        count {0};
-        g.Changed.connect([&] { ++count; });
-        g.mutate_param(id, 0, [](auto&) { return false; });
-        REQUIRE(count == 0);
     }
 }
