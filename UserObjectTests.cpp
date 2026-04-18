@@ -5,7 +5,7 @@ TEST_CASE("Core.UserObject.Construction")
     SUBCASE("default state")
     {
         user_object obj;
-        REQUIRE(!obj.has_value());
+        REQUIRE_FALSE(obj.has_value());
         REQUIRE(obj.type() == typeid(void));
         REQUIRE(obj.get<i32>() == nullptr);
     }
@@ -145,13 +145,13 @@ TEST_CASE("Core.UserObject.Is")
     SUBCASE("is() false on mismatch")
     {
         user_object obj {42};
-        REQUIRE(!obj.is<f64>());
-        REQUIRE(!obj.is<string>());
+        REQUIRE_FALSE(obj.is<f64>());
+        REQUIRE_FALSE(obj.is<string>());
     }
     SUBCASE("is() false when empty")
     {
         user_object obj;
-        REQUIRE(!obj.is<i32>());
+        REQUIRE_FALSE(obj.is<i32>());
     }
     SUBCASE("is() with const T")
     {
@@ -203,7 +203,7 @@ TEST_CASE("Core.UserObject.Reset")
         user_object obj {42};
         REQUIRE(obj.has_value());
         obj.reset();
-        REQUIRE(!obj.has_value());
+        REQUIRE_FALSE(obj.has_value());
         REQUIRE(obj.type() == typeid(void));
         REQUIRE(obj.get<i32>() == nullptr);
     }
@@ -212,7 +212,7 @@ TEST_CASE("Core.UserObject.Reset")
         user_object obj {string("test")};
         REQUIRE(obj.has_value());
         obj.reset();
-        REQUIRE(!obj.has_value());
+        REQUIRE_FALSE(obj.has_value());
         REQUIRE(obj.type() == typeid(void));
         REQUIRE(obj.get<string>() == nullptr);
     }
@@ -223,7 +223,7 @@ TEST_CASE("Core.UserObject.Reset")
         REQUIRE(ptr.use_count() == 2);
         obj.reset();
         REQUIRE(ptr.use_count() == 1);
-        REQUIRE(!obj.has_value());
+        REQUIRE_FALSE(obj.has_value());
     }
 }
 
@@ -232,7 +232,7 @@ TEST_CASE("Core.UserObject.CopyMove")
     SUBCASE("copy SBO")
     {
         user_object a {7};
-        user_object b {a}; // NOLINT
+        user_object b {a};
         REQUIRE(*b.get<i32>() == 7);
     }
     SUBCASE("move SBO")
@@ -244,7 +244,7 @@ TEST_CASE("Core.UserObject.CopyMove")
     SUBCASE("copy heap")
     {
         user_object a {string("hello")};
-        user_object b {a}; // NOLINT
+        user_object b {a};
         REQUIRE(*b.get<string>() == "hello");
     }
     SUBCASE("move heap")
@@ -257,7 +257,7 @@ TEST_CASE("Core.UserObject.CopyMove")
     {
         auto        ptr {std::make_shared<i32>(7)};
         user_object a {ptr};
-        user_object b {a}; // NOLINT
+        user_object b {a};
         REQUIRE(ptr.use_count() == 3);
         REQUIRE(*b.get<i32>() == 7);
     }
