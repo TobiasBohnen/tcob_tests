@@ -1,10 +1,6 @@
 add_executable(tcob_tests)
 
 set(TEST_SRCFILES
-  UserObjectTests.cpp
-  NodeGraphTests.cpp
-  LuaScriptTests.cpp
-  LuaWrapperTests.cpp
   AudioCodecTests.cpp
   AngleUnitTests.cpp
   AssetTests.cpp
@@ -23,6 +19,10 @@ set(TEST_SRCFILES
   ImageTests.cpp
   KDTreeTests.cpp
   LSystemTests.cpp
+  LuaScriptTests.cpp
+  LuaWrapperTests.cpp
+  NodeGraphTests.cpp
+  OrderedMapTests.cpp
   PointTests.cpp
   PropertyTests.cpp
   QuadtreeTests.cpp
@@ -37,6 +37,7 @@ set(TEST_SRCFILES
   TransformTests.cpp
   TweenTests.cpp
   UITests.cpp
+  UserObjectTests.cpp
   UTFTests.cpp
   main.cpp
 )
