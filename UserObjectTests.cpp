@@ -105,6 +105,12 @@ TEST_CASE("Core.UserObject.TypeAndAccess")
         REQUIRE(obj.type() == typeid(f64));
     }
 
+    SUBCASE("type reporting with is")
+    {
+        user_object obj {3.14};
+        REQUIRE(obj.is<f64>());
+    }
+
     SUBCASE("get returns nullptr on mismatch")
     {
         user_object obj {100};
