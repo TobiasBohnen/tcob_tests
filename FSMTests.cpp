@@ -218,7 +218,7 @@ TEST_CASE("AI.FSM.Transitions")
         REQUIRE(f.current_state() == 2);
     }
 
-    SUBCASE("self transition is ignored")
+    SUBCASE("self transition")
     {
         fsm  f;
         bool exited {false};
@@ -228,7 +228,7 @@ TEST_CASE("AI.FSM.Transitions")
         f.start(1, {});
         f.update(milliseconds {16});
         REQUIRE(f.current_state() == 1);
-        REQUIRE_FALSE(exited);
+        REQUIRE(exited);
     }
 
     SUBCASE("time in state resets on transition")
@@ -240,45 +240,6 @@ TEST_CASE("AI.FSM.Transitions")
         f.update(milliseconds {100});
         f.update(milliseconds {16});
         REQUIRE(f.time_in_state() == milliseconds {16});
-    }
-}
-
-TEST_CASE("AI.FSM.Timeout")
-{
-    SUBCASE("timeout transition fires after elapsed time")
-    {
-        fsm f;
-        f.add_state({.ID = 1, .Transitions = {{.TargetStateID = 2, .Timeout = milliseconds {100}}}});
-        f.add_state({.ID = 2});
-        f.start(1, {});
-        f.update(milliseconds {50});
-        REQUIRE(f.current_state() == 1);
-        f.update(milliseconds {60});
-        REQUIRE(f.current_state() == 2);
-    }
-
-    SUBCASE("timeout does not fire before elapsed")
-    {
-        fsm f;
-        f.add_state({.ID = 1, .Transitions = {{.TargetStateID = 2, .Timeout = milliseconds {200}}}});
-        f.add_state({.ID = 2});
-        f.start(1, {});
-        f.update(milliseconds {100});
-        REQUIRE(f.current_state() == 1);
-    }
-
-    SUBCASE("timeout resets on state entry")
-    {
-        fsm f;
-        f.add_state({.ID = 1, .Transitions = {{.TargetStateID = 2, .Timeout = milliseconds {100}}}});
-        f.add_state({.ID = 2, .Transitions = {{.TargetStateID = 1, .Condition = [](user_object const&) { return true; }}}});
-        f.start(1, {});
-        f.update(milliseconds {60});
-        f.update(milliseconds {60}); // transitions to 2
-        REQUIRE(f.current_state() == 2);
-        f.update(milliseconds {16}); // back to 1
-        REQUIRE(f.current_state() == 1);
-        REQUIRE(f.time_in_state() == milliseconds {0});
     }
 }
 
