@@ -14,6 +14,7 @@
 using namespace tcob;
 using namespace tcob::gfx;
 using namespace tcob::ui;
+using namespace tcob::ai;
 
 namespace tcob {
 template <Arithmetic T>

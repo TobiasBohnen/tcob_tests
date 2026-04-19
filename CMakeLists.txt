@@ -14,6 +14,7 @@ set(TEST_SRCFILES
   ConfigXMLTests.cpp
   DisplayModeTests.cpp
   FontFamilyTests.cpp
+  FSMTests.cpp
   HelperTests.cpp
   ImageCodecTests.cpp
   ImageTests.cpp
