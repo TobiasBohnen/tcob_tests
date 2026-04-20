@@ -47,6 +47,8 @@ TEST_CASE("Core.UserObject.Construction")
         REQUIRE(obj.type() == typeid(i32));
         REQUIRE(obj.is<i32>());
         REQUIRE(*obj.get<i32>() == 99);
+        *ptr = 77;
+        REQUIRE(*obj.get<i32>() == 77);
     }
     SUBCASE("shared_ptr construction shares ownership")
     {
