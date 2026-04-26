@@ -1098,12 +1098,20 @@ TEST_CASE("Data.Config.TcobTypes")
         REQUIRE(obj.is<alignment>("alignment"));
         REQUIRE(obj["alignment"].as<alignment>() == alignment {.Horizontal = horizontal_alignment::Centered, .Vertical = vertical_alignment::Middle});
 
-        obj["particle_emitter::settings"] = particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100, .Lifetime = 100s};
+        particle_emitter::settings pes0 {.Template = {}, .Pattern = particle_emitter::emit_linear {.Rate = 10}, .SpawnArea = {1, 2, 3, 4}, .Lifetime = 100s};
+        obj["particle_emitter::settings"] = pes0;
         REQUIRE(obj.is<particle_emitter::settings>("particle_emitter::settings"));
-        REQUIRE(obj["particle_emitter::settings"].as<particle_emitter::settings>() == particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100, .Lifetime = 100s});
-        obj["particle_emitter::settings2"] = particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100};
+        REQUIRE(obj["particle_emitter::settings"].as<particle_emitter::settings>() == pes0);
+
+        particle_emitter::settings pes1 {.Template = {}, .Pattern = particle_emitter::emit_linear {.Rate = 10}, .SpawnArea = {1, 2, 3, 4}};
+        obj["particle_emitter::settings1"] = pes1;
+        REQUIRE(obj.is<particle_emitter::settings>("particle_emitter::settings1"));
+        REQUIRE(obj["particle_emitter::settings1"].as<particle_emitter::settings>() == pes1);
+
+        particle_emitter::settings pes2 {.Template = {}, .Pattern = particle_emitter::emit_burst {.Count = 10, .Interval = 100s, .Repeats = 3}, .SpawnArea = {1, 2, 3, 4}};
+        obj["particle_emitter::settings2"] = pes2;
         REQUIRE(obj.is<particle_emitter::settings>("particle_emitter::settings2"));
-        REQUIRE(obj["particle_emitter::settings2"].as<particle_emitter::settings>() == particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100});
+        REQUIRE(obj["particle_emitter::settings2"].as<particle_emitter::settings>() == pes2);
     }
 
     SUBCASE("from object")

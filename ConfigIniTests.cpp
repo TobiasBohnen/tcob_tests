@@ -314,7 +314,8 @@ TEST_CASE("Data.Ini.Save")
     save["long"]                                                 = std::string(600, 'a');
     save["max"]                                                  = std::numeric_limits<u64>::max();
 
-    save["section4"]["particle_emitter::settings"] = particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100};
+    particle_emitter::settings pes {.Template = {}, .Pattern = particle_emitter::emit_linear {.Rate = 10}, .SpawnArea = {1, 2, 3, 4}};
+    save["section4"]["particle_emitter::settings"] = pes;
 
     save["monostate"] = std::monostate {};
 
@@ -392,7 +393,7 @@ TEST_CASE("Data.Ini.Save")
             REQUIRE(load["section3"]["valueSection"]["subsection"]["a"].as<i64>() == 100);
             REQUIRE(load["section3"]["valueSection"]["subsection"]["a.b"]["x.y"].as<i64>() == 100);
 
-            REQUIRE(load["section4"]["particle_emitter::settings"].as<particle_emitter::settings>() == particle_emitter::settings {.Template = {}, .IsExplosion = true, .SpawnArea = {1, 2, 3, 4}, .SpawnRate = 100});
+            REQUIRE(load["section4"]["particle_emitter::settings"].as<particle_emitter::settings>() == pes);
 
             REQUIRE(load["max"].as<u64>() == std::numeric_limits<u64>::max());
         }
