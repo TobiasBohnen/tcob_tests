@@ -392,15 +392,15 @@ TEST_CASE("Core.Random.Seq")
 TEST_CASE("Core.Random.Shuffle")
 {
     {
-        std::vector<i32>     v {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-        random::shuffle<i32> r0 {54321};
-        r0(v);
+        std::vector<i32> v {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        random::shuffle  r0 {54321};
+        r0(std::span {v});
         REQUIRE(v == std::vector<i32> {8, 5, 2, 4, 0, 3, 7, 6, 1, 9});
     }
     {
-        std::array<i32, 10>  v {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-        random::shuffle<i32> r0 {54321};
-        r0(v);
+        std::array<i32, 10> v {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        random::shuffle     r0 {54321};
+        r0(std::span<i32> {v});
         REQUIRE(v == std::array<i32, 10> {8, 5, 2, 4, 0, 3, 7, 6, 1, 9});
     }
 }
