@@ -117,6 +117,23 @@ TEST_CASE("Core.POD.Color")
         REQUIRE(color::FromString("#FAB9") == color {0XFF, 0XAA, 0XBB, 0x99});
     }
 
+    SUBCASE("ToString")
+    {
+        REQUIRE(color::ToString(colors::Red) == "#ff0000ff");
+        REQUIRE(color::ToString(colors::Blue) == "#0000ffff");
+        REQUIRE(color::ToString(colors::RebeccaPurple) == "#663399ff");
+
+        REQUIRE(color::ToString(color {0xFF, 0x00, 0xFF, 0xFF}) == "#ff00ffff");
+        REQUIRE(color::ToString(color {0xAB, 0xCD, 0x01, 0xFF}) == "#abcd01ff");
+        REQUIRE(color::ToString(color {0xFF, 0xAA, 0xBB, 0x14}) == "#ffaabb14");
+        REQUIRE(color::ToString(color {1, 2, 3, 4}) == "#01020304");
+
+        // round-trip checks
+        REQUIRE(color::ToString(color::FromString("#FF00FF")) == "#ff00ffff");
+        REQUIRE(color::ToString(color::FromString("#123")) == "#112233ff");
+        REQUIRE(color::ToString(color::FromString("#1236")) == "#11223366");
+    }
+
     SUBCASE("Literals")
     {
         using namespace tcob::literals;
