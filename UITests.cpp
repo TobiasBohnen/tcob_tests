@@ -7,7 +7,7 @@ TEST_CASE("GFX.UI.Bounds")
     form  form0 {{.Name = "", .Bounds = rect_i {60, 80, 800, 700}}};
     auto& panel0 {form0.create_container<panel>(dock_style::Fill, "Panel0")};
     auto& panel0Layout {panel0.get_layout<manual_layout>()};
-    panel0.Flex = {.Width = 100_pct, .Height = 100_pct};
+    panel0.RelativeSize = {.Width = 100_pct, .Height = 100_pct};
     auto& button0 {panel0Layout.create_widget<button>({10, 20, 200, 100}, "button0")};
 
     auto& cPanel0 {panel0Layout.create_widget<panel>({230, 280, 250, 500}, "cPanel0")};
