@@ -40,7 +40,7 @@ TEST_CASE("Data.Json.Save")
             save["section3"]["valueArray"] = saveArray;
 
             io::delete_file(file);
-            save.save(file);
+            REQUIRE(save.save(file));
 
             {
                 object load;
@@ -64,6 +64,8 @@ TEST_CASE("Data.Json.Save")
                 REQUIRE(load["section3"]["valueSection"]["xyz"].as<bool>() == true);
 
                 REQUIRE(load["section3"]["valueSection"]["subsection"]["a"].as<i64>() == 100);
+
+                REQUIRE(load.has("monostate"));
             }
 
             io::delete_file(file);
@@ -78,7 +80,7 @@ TEST_CASE("Data.Json.Save")
             save["section2"]["key1"] = 789.;
 
             io::delete_file(file);
-            save.save(file);
+            REQUIRE(save.save(file));
 
             {
                 object t;

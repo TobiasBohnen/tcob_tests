@@ -40,7 +40,7 @@ TEST_CASE("Data.XML.Save")
             save["section3"]["valueArray"] = saveArray;
 
             io::delete_file(file);
-            save.save(file);
+            REQUIRE(save.save(file));
 
             {
                 object load;
@@ -78,7 +78,7 @@ TEST_CASE("Data.XML.Save")
             save["section2"]["key1"] = 789.;
 
             io::delete_file(file);
-            save.save(file);
+            REQUIRE(save.save(file));
 
             {
                 object t;

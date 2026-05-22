@@ -147,12 +147,11 @@ TEST_CASE("Data.Ini.Sections")
             c = @
 
             ["section1"]
-            'example.com' = 43 
+            'example.com' = 43
         )";
 
         object t;
         REQUIRE(t.parse(iniString, EXT));
-
         REQUIRE(t["section1"]["id153"].is<object>());
         object id153 {t["section1"]["id153"].as<object>()};
         REQUIRE(id153["size"].as<size_u>() == size_u {16, 23});
@@ -267,6 +266,38 @@ TEST_CASE("Data.Ini.DefaultSection")
     }
 }
 
+TEST_CASE("Data.Ini.Null")
+{
+    {
+        std::string const iniString =
+            R"(
+            key1 =
+        )";
+
+        {
+            object t;
+            REQUIRE(t.parse(iniString, EXT));
+            REQUIRE(t.has("key1"));
+        }
+    }
+    {
+        std::string const iniString =
+            R"(
+            key0 = 100
+            key1 =
+            key2 = 200 
+        )";
+
+        {
+            object t;
+            REQUIRE(t.parse(iniString, EXT));
+            REQUIRE(t.has("key1"));
+            REQUIRE(t["key0"].as<i32>() == 100);
+            REQUIRE(t["key2"].as<i32>() == 200);
+        }
+    }
+}
+
 TEST_CASE("Data.Ini.Save")
 {
     object save;
@@ -341,7 +372,7 @@ TEST_CASE("Data.Ini.Save")
 
         {
             io::delete_file(file);
-            save.save(file);
+            REQUIRE(save.save(file));
         }
 
         {
@@ -396,6 +427,7 @@ TEST_CASE("Data.Ini.Save")
             REQUIRE(load["section4"]["particle_emitter::settings"].as<particle_emitter::settings>() == pes);
 
             REQUIRE(load["max"].as<u64>() == std::numeric_limits<u64>::max());
+            REQUIRE(load.has("monostate"));
         }
 
         io::delete_file(file);
@@ -435,7 +467,7 @@ TEST_CASE("Data.Ini.Save")
 
         {
             io::delete_file(file);
-            save.save(file);
+            REQUIRE(save.save(file));
         }
 
         {
@@ -538,8 +570,8 @@ TEST_CASE("Data.Ini.Parse")
     REQUIRE(object::Parse("a.a=a", EXT));
     REQUIRE(object::Parse("", EXT));
     REQUIRE(object::Parse("'a=b'=1", EXT));
+    REQUIRE(object::Parse("a=", EXT));
 
-    REQUIRE_FALSE(object::Parse("a=", EXT));
     REQUIRE_FALSE(object::Parse("=a", EXT));
     REQUIRE_FALSE(object::Parse("=", EXT));
     REQUIRE_FALSE(object::Parse("[]", EXT));
