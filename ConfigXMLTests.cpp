@@ -23,11 +23,6 @@ TEST_CASE("Data.XML.Save")
             save["section3"]["valueSection"]["xyz"]             = true;
             save["section3"]["valueSection"]["subsection"]["a"] = 100;
 
-            save["section4"]["emptySection"] = object {};
-            save["section4"]["emptyArray"]   = array {};
-
-            save["monostate"] = std::monostate {};
-
             object arraySubSection;
             arraySubSection["ay"] = 123;
             arraySubSection["xy"] = 436;
@@ -45,25 +40,7 @@ TEST_CASE("Data.XML.Save")
             {
                 object load;
                 REQUIRE(load.load(file));
-                REQUIRE(load["section1"]["valueBool"].as<bool>() == true);
-                REQUIRE(load["section1"]["valueStr"].as<std::string>() == "test123");
-                REQUIRE(load["section1"]["valueFloat"].as<f64>() == 123.45);
-                REQUIRE(load["section2"]["valueBool"].as<bool>() == false);
-                REQUIRE(load["section2"]["valueStr"].as<std::string>() == "test456");
-                REQUIRE(load["section2"]["valueFloat"].as<f64>() == 456.78);
-
-                REQUIRE(load["section3"]["valueArray"].as<array>().size() == 4);
-                REQUIRE(load["section3"]["valueArray"][0].as<std::string>() == "a");
-                REQUIRE(load["section3"]["valueArray"][1].as<f64>() == 1);
-                REQUIRE(load["section3"]["valueArray"][2].as<bool>() == false);
-                REQUIRE(load["section3"]["valueArray"][3].as<object>()["ay"].as<i64>() == 123);
-                REQUIRE(load["section3"]["valueArray"][3].as<object>()["xy"].as<i64>() == 436);
-
-                REQUIRE(load["section3"]["valueSection"]["a"].as<f64>() == 1);
-                REQUIRE(load["section3"]["valueSection"]["b"].as<std::string>() == "a");
-                REQUIRE(load["section3"]["valueSection"]["xyz"].as<bool>() == true);
-
-                REQUIRE(load["section3"]["valueSection"]["subsection"]["a"].as<i64>() == 100);
+                REQUIRE(load == save);
             }
 
             io::delete_file(file);

@@ -401,39 +401,139 @@ TEST_CASE("Data.Config.Object")
     SUBCASE("equality")
     {
         object test;
-        test["a"]      = 100;
-        test["b"]      = 200;
-        test["c"]      = array {1, 2, 3};
-        test["d"]["a"] = 100;
-        test["d"]["b"] = 300;
-        test["d"]["c"] = 400;
+        test["a"]             = 100;
+        test["b"]             = 200;
+        test["c"]             = array {1, 2, 3};
+        test["d"]["a"]        = 100;
+        test["d"]["b"]        = 300;
+        test["d"]["c"]        = 400;
+        test["quoted.key"]    = "hello";
+        test["nested"]["arr"] = array {true, false, "abc"};
+        test["nested"]["obj"] = object {{"x", 1}, {"y", 2}};
+        test["monostate"]     = std::monostate {};
+        test["float"]         = 123.456;
+        test["string"]        = "test";
 
         object good;
-        good["a"]      = 100;
-        good["b"]      = 200;
-        good["c"]      = array {1, 2, 3};
-        good["d"]["a"] = 100;
-        good["d"]["b"] = 300;
-        good["d"]["c"] = 400;
+        good["a"]             = 100;
+        good["b"]             = 200;
+        good["c"]             = array {1, 2, 3};
+        good["d"]["a"]        = 100;
+        good["d"]["b"]        = 300;
+        good["d"]["c"]        = 400;
+        good["quoted.key"]    = "hello";
+        good["nested"]["arr"] = array {true, false, "abc"};
+        good["nested"]["obj"] = object {{"x", 1}, {"y", 2}};
+        good["monostate"]     = std::monostate {};
+        good["float"]         = 123.456;
+        good["string"]        = "test";
 
         REQUIRE(test == good);
+        REQUIRE(good == test);
 
-        object bad0;
-        bad0["a"] = 100;
-        bad0["b"] = 200;
-        bad0["c"] = true;
-        bad0["d"] = false;
+        SUBCASE("different types")
+        {
+            object bad;
+            bad["a"] = 100;
+            bad["b"] = 200;
+            bad["c"] = true;
+            bad["d"] = false;
 
-        REQUIRE_FALSE(test == bad0);
+            REQUIRE_FALSE(test == bad);
+            REQUIRE_FALSE(bad == test);
+        }
 
-        object bad1;
-        bad1["a"]      = 100;
-        bad1["b"]      = 200;
-        bad1["c"]      = array {1, 2, 1};
-        bad1["d"]["a"] = 100;
-        bad1["d"]["b"] = 300;
-        bad1["d"]["c"] = 400;
-        REQUIRE_FALSE(test == bad1);
+        SUBCASE("different array value")
+        {
+            object bad = good;
+            bad["c"]   = array {1, 2, 1};
+
+            REQUIRE_FALSE(test == bad);
+        }
+
+        SUBCASE("different array size")
+        {
+            object bad = good;
+            bad["c"]   = array {1, 2, 3, 4};
+
+            REQUIRE_FALSE(test == bad);
+        }
+
+        SUBCASE("different nested object value")
+        {
+            object bad;
+            bad["a"]             = 100;
+            bad["b"]             = 200;
+            bad["c"]             = array {1, 2, 3};
+            bad["d"]["a"]        = 100;
+            bad["d"]["b"]        = 999;
+            bad["d"]["c"]        = 400;
+            bad["quoted.key"]    = "hello";
+            bad["nested"]["arr"] = array {true, false, "abc"};
+            bad["nested"]["obj"] = object {{"x", 1}, {"y", 2}};
+            bad["monostate"]     = std::monostate {};
+            bad["float"]         = 123.456;
+            bad["string"]        = "test";
+
+            REQUIRE_FALSE(test == bad);
+        }
+
+        SUBCASE("missing key")
+        {
+            object bad    = good;
+            bad["string"] = nullptr;
+
+            REQUIRE_FALSE(test == bad);
+        }
+
+        SUBCASE("extra key")
+        {
+            object bad   = good;
+            bad["extra"] = 999;
+
+            REQUIRE_FALSE(test == bad);
+        }
+
+        SUBCASE("different key names")
+        {
+            object bad    = good;
+            bad["string"] = nullptr;
+            bad["STRING"] = "test";
+
+            REQUIRE_FALSE(test == bad);
+        }
+
+        SUBCASE("different scalar type")
+        {
+            object bad = good;
+            bad["a"]   = 100.0;
+
+            REQUIRE_FALSE(test == bad);
+        }
+
+        SUBCASE("different nested array content")
+        {
+            object bad           = good;
+            bad["nested"]["arr"] = array {true, false, "xyz"};
+
+            REQUIRE_FALSE(test == bad);
+        }
+
+        SUBCASE("different nested object content")
+        {
+            object bad                = good;
+            bad["nested"]["obj"]["y"] = 999;
+
+            REQUIRE_FALSE(test == bad);
+        }
+
+        SUBCASE("monostate vs value")
+        {
+            object bad       = good;
+            bad["monostate"] = 0;
+
+            REQUIRE_FALSE(test == bad);
+        }
     }
 
     SUBCASE("get_type")
@@ -782,6 +882,41 @@ TEST_CASE("Data.Config.Array")
         array bad {1, true, 3};
 
         REQUIRE_FALSE(test == bad);
+
+        SUBCASE("equality with identical arrays")
+        {
+            array a {1, 2, 3};
+            array b {1, 2, 3};
+            REQUIRE(a == b);
+        }
+
+        SUBCASE("equality fails on different size")
+        {
+            array a {1, 2, 3};
+            array b {1, 2};
+            REQUIRE_FALSE(a == b);
+        }
+
+        SUBCASE("equality fails on same size different values")
+        {
+            array a {1, 2, 3};
+            array b {1, 2, 4};
+            REQUIRE_FALSE(a == b);
+        }
+
+        SUBCASE("equality fails on same values different types")
+        {
+            array a {1, 2, 3};
+            array b {1, true, 3}; // 2 vs true
+            REQUIRE_FALSE(a == b);
+        }
+
+        SUBCASE("empty arrays are equal")
+        {
+            array a;
+            array b;
+            REQUIRE(a == b);
+        }
     }
 
     SUBCASE("get_type")
@@ -991,41 +1126,6 @@ TEST_CASE("Data.Config.Array")
 
         REQUIRE(t["arr"][0]["x"].as<i32>() == 10);
         REQUIRE(t["arr"][1]["x"].as<i32>() == 20);
-    }
-
-    SUBCASE("equality with identical arrays")
-    {
-        array a {1, 2, 3};
-        array b {1, 2, 3};
-        REQUIRE(a == b);
-    }
-
-    SUBCASE("equality fails on different size")
-    {
-        array a {1, 2, 3};
-        array b {1, 2};
-        REQUIRE_FALSE(a == b);
-    }
-
-    SUBCASE("equality fails on same size different values")
-    {
-        array a {1, 2, 3};
-        array b {1, 2, 4};
-        REQUIRE_FALSE(a == b);
-    }
-
-    SUBCASE("equality fails on same values different types")
-    {
-        array a {1, 2, 3};
-        array b {1, true, 3}; // 2 vs true
-        REQUIRE_FALSE(a == b);
-    }
-
-    SUBCASE("empty arrays are equal")
-    {
-        array a;
-        array b;
-        REQUIRE(a == b);
     }
 
     SUBCASE("get_type on out-of-bounds index returns Null")

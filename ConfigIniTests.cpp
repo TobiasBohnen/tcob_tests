@@ -318,7 +318,7 @@ TEST_CASE("Data.Ini.Save")
     save["section2"]["valueStr6"]                                = "aaa";
     save["section2"]["valueStr7"]                                = "aaa";
     save["section2"]["valueStr8"]                                = "aaaaa";
-    save["section2"]["valueStr9"]                                = "aaaaa";
+    save["section2"]["valueStr9"]                                = "hello \"world\"";
     save["section2"]["valueInt0"]                                = 16;
     save["section2"]["valueInt1"]                                = 256;
     save["section2"]["valueInt2"]                                = 32800;
@@ -378,56 +378,7 @@ TEST_CASE("Data.Ini.Save")
         {
             object load;
             REQUIRE(load.load(file));
-            REQUIRE(load["key1"].as<f64>() == 123);
-            REQUIRE(load["key.10"].as<f64>() == 321);
-            REQUIRE(load["section1"]["valueBool"].as<bool>() == true);
-            REQUIRE(load["section1"]["valueStr"].as<std::string>() == "test123");
-            REQUIRE(load["section1"]["valueFloat"].as<f64>() == 123.45);
-
-            REQUIRE(load["section2"]["valueBool"].as<bool>() == false);
-            REQUIRE(load["section2"]["valueStr0"].as<std::string>() == "test4560");
-            REQUIRE(load["section2"]["valueStr1"].as<std::string>() == "test4561");
-            REQUIRE(load["section2"]["valueStr2"].as<std::string>() == "test4562");
-            REQUIRE(load["section2"]["valueStr3"].as<std::string>() == "test4563");
-            REQUIRE(load["section2"]["valueStr4"].as<std::string>() == "test4564");
-            REQUIRE(load["section2"]["valueInt0"].as<i64>() == 16);
-            REQUIRE(load["section2"]["valueInt1"].as<i64>() == 256);
-            REQUIRE(load["section2"]["valueInt2"].as<i64>() == 32800);
-            REQUIRE(load["section2"]["valueInt3"].as<i64>() == 4563);
-            REQUIRE(load["section2"]["valueInt4"].as<i64>() == 4564);
-            REQUIRE(load["section2"]["valueInt5"].as<i64>() == 236);
-            REQUIRE(load["section2"]["valueInt6"].as<i64>() == 12);
-            REQUIRE(load["section2"]["valueFloat0"].as<f64>() == 56.5);
-            REQUIRE(load["section2"]["valueFloat1"].as<f64>() == 156.5);
-            REQUIRE(load["section2"]["valueFloat2"].as<f64>() == 256.782);
-            REQUIRE(load["section2"]["valueFloat3"].as<f64>() == 356.783);
-            REQUIRE(load["section2"]["valueFloat4"].as<f64>() == 456.784);
-            REQUIRE(load["section2"]["valueFloat5"].as<f64>() == 556.785);
-            REQUIRE(load["section2"]["valueFloat6"].as<f64>() == 656.786);
-            REQUIRE(load["section2"]["valueFloat7"].as<f64>() == 756.787);
-            REQUIRE(load["section2"]["valueFloat8"].as<f64>() == 856.788);
-            REQUIRE(load["section2"]["valueFloat9"].as<f64>() == 956.789);
-            REQUIRE(load["section2"]["valueFloat.10"].as<f64>() == 448.789);
-            REQUIRE(load["section3"]["valueArray"].as<array>().size() == 5);
-            REQUIRE(load["section3"]["valueArray"][0].as<std::string>() == "a");
-            REQUIRE(load["section3"]["valueArray"][1].as<f64>() == 1);
-            REQUIRE(load["section3"]["valueArray"][2].as<bool>() == false);
-            REQUIRE(load["section3"]["valueArray"][3].as<object>()["ay"].as<i64>() == 123);
-            REQUIRE(load["section3"]["valueArray"][3].as<object>()["xy"].as<i64>() == 436);
-            REQUIRE(load["section3"]["valueArray"][4].as<array>()[0].as<std::string>() == "O");
-            REQUIRE(load["section3"]["valueArray"][4].as<array>()[1].as<std::string>() == "K");
-
-            REQUIRE(load["section3"]["valueSection"]["a"].as<f64>() == 1);
-            REQUIRE(load["section3"]["valueSection"]["b"].as<std::string>() == "a");
-            REQUIRE(load["section3"]["valueSection"]["xyz"].as<bool>() == true);
-
-            REQUIRE(load["section3"]["valueSection"]["subsection"]["a"].as<i64>() == 100);
-            REQUIRE(load["section3"]["valueSection"]["subsection"]["a.b"]["x.y"].as<i64>() == 100);
-
-            REQUIRE(load["section4"]["particle_emitter::settings"].as<particle_emitter::settings>() == pes);
-
-            REQUIRE(load["max"].as<u64>() == std::numeric_limits<u64>::max());
-            REQUIRE(load.has("monostate"));
+            REQUIRE(load == save);
         }
 
         io::delete_file(file);
@@ -448,13 +399,7 @@ TEST_CASE("Data.Ini.Save")
             REQUIRE(load.load(file));
 
             REQUIRE(load.size() == 5);
-            REQUIRE(load[0].as<std::string>() == "a");
-            REQUIRE(load[1].as<f64>() == 1);
-            REQUIRE(load[2].as<bool>() == false);
-            REQUIRE(load[3].as<object>()["ay"].as<i64>() == 123);
-            REQUIRE(load[3].as<object>()["xy"].as<i64>() == 436);
-            REQUIRE(load[4].as<array>()[0].as<std::string>() == "O");
-            REQUIRE(load[4].as<array>()[1].as<std::string>() == "K");
+            REQUIRE(load == saveArray);
         }
 
         io::delete_file(file);
@@ -473,62 +418,7 @@ TEST_CASE("Data.Ini.Save")
         {
             object load;
             REQUIRE(load.load(file));
-            REQUIRE(load["key1"].as<f64>() == 123);
-
-            REQUIRE(load["1"].as<std::string>() == "a");
-            REQUIRE(load["2"].as<std::string>() == "a");
-
-            REQUIRE(load["section1"]["valueBool"].as<bool>() == true);
-            REQUIRE(load["section1"]["valueStr"].as<std::string>() == "test123");
-            REQUIRE(load["section1"]["valueFloat"].as<f64>() == Approx(123.45));
-
-            REQUIRE(load["section2"]["valueBool"].as<bool>() == false);
-            REQUIRE(load["section2"]["valueStr0"].as<std::string>() == "test4560");
-            REQUIRE(load["section2"]["valueStr1"].as<std::string>() == "test4561");
-            REQUIRE(load["section2"]["valueStr2"].as<std::string>() == "test4562");
-            REQUIRE(load["section2"]["valueStr3"].as<std::string>() == "test4563");
-            REQUIRE(load["section2"]["valueStr4"].as<std::string>() == "test4564");
-            REQUIRE(load["section2"]["valueStr5"].as<std::string>() == "test4564");
-            REQUIRE(load["section2"]["valueStr6"].as<std::string>() == "aaa");
-            REQUIRE(load["section2"]["valueStr7"].as<std::string>() == "aaa");
-            REQUIRE(load["section2"]["valueStr8"].as<std::string>() == "aaaaa");
-            REQUIRE(load["section2"]["valueStr9"].as<std::string>() == "aaaaa");
-            REQUIRE(load["section2"]["valueInt0"].as<i64>() == 16);
-            REQUIRE(load["section2"]["valueInt1"].as<i64>() == 256);
-            REQUIRE(load["section2"]["valueInt2"].as<i64>() == 32800);
-            REQUIRE(load["section2"]["valueInt3"].as<i64>() == 4563);
-            REQUIRE(load["section2"]["valueInt4"].as<i64>() == 4564);
-            REQUIRE(load["section2"]["valueInt5"].as<i64>() == 236);
-            REQUIRE(load["section2"]["valueInt6"].as<i64>() == 12);
-            REQUIRE(load["section2"]["valueFloat0"].as<f64>() == 56.5);
-            REQUIRE(load["section2"]["valueFloat1"].as<f64>() == 156.5);
-            REQUIRE(load["section2"]["valueFloat2"].as<f64>() == 256.782);
-            REQUIRE(load["section2"]["valueFloat3"].as<f64>() == 356.783);
-            REQUIRE(load["section2"]["valueFloat4"].as<f64>() == 456.784);
-            REQUIRE(load["section2"]["valueFloat5"].as<f64>() == 556.785);
-            REQUIRE(load["section2"]["valueFloat6"].as<f64>() == 656.786);
-            REQUIRE(load["section2"]["valueFloat7"].as<f64>() == 756.787);
-            REQUIRE(load["section2"]["valueFloat8"].as<f64>() == 856.788);
-            REQUIRE(load["section2"]["valueFloat9"].as<f64>() == 956.789);
-
-            REQUIRE(load["section3"]["valueArray"].as<array>().size() == 5);
-            REQUIRE(load["section3"]["valueArray"][0].as<std::string>() == "a");
-            REQUIRE(load["section3"]["valueArray"][1].as<f64>() == 1);
-            REQUIRE(load["section3"]["valueArray"][2].as<bool>() == false);
-            REQUIRE(load["section3"]["valueArray"][3].as<object>()["ay"].as<i64>() == 123);
-            REQUIRE(load["section3"]["valueArray"][3].as<object>()["xy"].as<i64>() == 436);
-            REQUIRE(load["section3"]["valueArray"][4].as<array>()[0].as<std::string>() == "O");
-            REQUIRE(load["section3"]["valueArray"][4].as<array>()[1].as<std::string>() == "K");
-
-            REQUIRE(load["section3"]["valueSection"]["a"].as<f64>() == 1);
-            REQUIRE(load["section3"]["valueSection"]["b"].as<std::string>() == "a");
-            REQUIRE(load["section3"]["valueSection"]["xyz"].as<bool>() == true);
-
-            REQUIRE(load["section3"]["valueSection"]["subsection"]["a"].as<i64>() == 100);
-
-            REQUIRE(load["long"].as<std::string>() == std::string(600, 'a'));
-
-            REQUIRE(load["max"].as<u64>() == std::numeric_limits<u64>::max());
+            REQUIRE(load == save);
         }
 
         io::delete_file(file);
@@ -549,13 +439,7 @@ TEST_CASE("Data.Ini.Save")
             REQUIRE(load.load(file));
 
             REQUIRE(load.size() == 5);
-            REQUIRE(load[0].as<std::string>() == "a");
-            REQUIRE(load[1].as<f64>() == 1);
-            REQUIRE(load[2].as<bool>() == false);
-            REQUIRE(load[3].as<object>()["ay"].as<i64>() == 123);
-            REQUIRE(load[3].as<object>()["xy"].as<i64>() == 436);
-            REQUIRE(load[4].as<array>()[0].as<std::string>() == "O");
-            REQUIRE(load[4].as<array>()[1].as<std::string>() == "K");
+            REQUIRE(load == saveArray);
         }
 
         io::delete_file(file);
