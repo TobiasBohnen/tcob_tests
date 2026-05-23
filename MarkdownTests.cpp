@@ -93,6 +93,7 @@ TEST_CASE("GFX.Markdown.Inline")
 
     SUBCASE("strikethrough")
     {
+        REQUIRE(md_to_html("~strike~") == "<p><del>strike</del></p>");
         REQUIRE(md_to_html("~~strike~~") == "<p><del>strike</del></p>");
     }
 
@@ -160,6 +161,47 @@ TEST_CASE("GFX.Markdown.Inline")
     SUBCASE("color")
     {
         REQUIRE(md_to_html("{red}(color)") == "<p><span style=\"color:red\">color</span></p>");
+    }
+}
+
+TEST_CASE("GFX.Markdown.Tables")
+{
+    SUBCASE("simple table")
+    {
+        std::string const input {
+            "| Header1 | Header2 |\n"
+            "| --- | --- |\n"
+            "| Cell1 | Cell2 |"};
+        std::string const expected {
+            "<table><thead><tr><th>Header1</th><th>Header2</th></tr></thead>"
+            "<tbody><tr><td>Cell1</td><td>Cell2</td></tr></tbody></table>"};
+        REQUIRE(md_to_html(input) == expected);
+    }
+
+    SUBCASE("table with inline formatting")
+    {
+        std::string const input {
+            "| **Bold** | *Italic* |\n"
+            "| --- | --- |\n"
+            "| ~~strike~~ | `code` |"};
+        std::string const expected {
+            "<table><thead><tr><th><strong>Bold</strong></th><th><em>Italic</em></th></tr></thead>"
+            "<tbody><tr><td><del>strike</del></td><td><code>code</code></td></tr></tbody></table>"};
+        REQUIRE(md_to_html(input) == expected);
+    }
+
+    SUBCASE("table with multiple rows")
+    {
+        std::string const input {
+            "| H1 | H2 |\n"
+            "| --- | --- |\n"
+            "| R1C1 | R1C2 |\n"
+            "| R2C1 | R2C2 |"};
+        std::string const expected {
+            "<table><thead><tr><th>H1</th><th>H2</th></tr></thead>"
+            "<tbody><tr><td>R1C1</td><td>R1C2</td></tr>"
+            "<tr><td>R2C1</td><td>R2C2</td></tr></tbody></table>"};
+        REQUIRE(md_to_html(input) == expected);
     }
 }
 
