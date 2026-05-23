@@ -88,7 +88,7 @@ TEST_CASE("GFX.Markdown.Inline")
 
     SUBCASE("underscore mid-word not italic")
     {
-        CHECK(md_to_html("foo_bar_baz") == "<p>foo_bar_baz</p>");
+        REQUIRE(md_to_html("foo_bar_baz") == "<p>foo_bar_baz</p>");
     }
 
     SUBCASE("strikethrough")
@@ -119,7 +119,7 @@ TEST_CASE("GFX.Markdown.Inline")
 
     SUBCASE("bold italic ***")
     {
-        CHECK(md_to_html("***bold italic***") == "<p><strong><em>bold italic</em></strong></p>");
+        REQUIRE(md_to_html("***bold italic***") == "<p><strong><em>bold italic</em></strong></p>");
     }
 
     SUBCASE("backslash escape")
