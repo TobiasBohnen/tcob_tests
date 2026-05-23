@@ -17,6 +17,10 @@ TEST_CASE("GFX.Markdown.Headings")
         REQUIRE(md_to_html("#### H4") == "<h4>H4</h4>");
         REQUIRE(md_to_html("##### H5") == "<h5>H5</h5>");
         REQUIRE(md_to_html("###### H6") == "<h6>H6</h6>");
+
+        REQUIRE(md_to_html("#") == "<p>#</p>");
+        REQUIRE(md_to_html("# ") == "<h1></h1>");
+        REQUIRE(md_to_html("#  ") == "<h1></h1>");
     }
 
     SUBCASE("ATX trailing hashes stripped")
