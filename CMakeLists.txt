@@ -22,6 +22,7 @@ set(TEST_SRCFILES
   LSystemTests.cpp
   LuaScriptTests.cpp
   LuaWrapperTests.cpp
+  MarkdownTests.cpp
   NodeGraphTests.cpp
   OrderedMapTests.cpp
   PointTests.cpp
