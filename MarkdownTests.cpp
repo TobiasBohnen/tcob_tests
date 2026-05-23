@@ -7,7 +7,7 @@
 
 using namespace tcob::gfx::html;
 
-TEST_CASE("GFX.Html.Markdown.Headings")
+TEST_CASE("GFX.Markdown.Headings")
 {
     SUBCASE("ATX h1-h6")
     {
@@ -46,7 +46,7 @@ TEST_CASE("GFX.Html.Markdown.Headings")
     }
 }
 
-TEST_CASE("GFX.Html.Markdown.Paragraphs")
+TEST_CASE("GFX.Markdown.Paragraphs")
 {
     SUBCASE("simple paragraph")
     {
@@ -64,7 +64,7 @@ TEST_CASE("GFX.Html.Markdown.Paragraphs")
     }
 }
 
-TEST_CASE("GFX.Html.Markdown.Inline")
+TEST_CASE("GFX.Markdown.Inline")
 {
     SUBCASE("bold asterisk")
     {
@@ -150,9 +150,20 @@ TEST_CASE("GFX.Html.Markdown.Inline")
     {
         REQUIRE(md_to_html("[x](a&b)") == "<p><a href=\"a&amp;b\">x</a></p>");
     }
+
+    SUBCASE("inline HTML")
+    {
+        REQUIRE(md_to_html("inline <p>HTML</p>") == "<p>inline <p>HTML</p></p>");
+        REQUIRE(md_to_html("<a><bab><c2c>") == "<p><a><bab><c2c></p>");
+    }
+
+    SUBCASE("color")
+    {
+        REQUIRE(md_to_html("{red}(color)") == "<p><span style=\"color:red\">color</span></p>");
+    }
 }
 
-TEST_CASE("GFX.Html.Markdown.ThematicBreak")
+TEST_CASE("GFX.Markdown.ThematicBreak")
 {
     SUBCASE("dashes")
     {
@@ -180,7 +191,7 @@ TEST_CASE("GFX.Html.Markdown.ThematicBreak")
     }
 }
 
-TEST_CASE("GFX.Html.Markdown.Blockquote")
+TEST_CASE("GFX.Markdown.Blockquote")
 {
     SUBCASE("single line")
     {
@@ -199,7 +210,7 @@ TEST_CASE("GFX.Html.Markdown.Blockquote")
     }
 }
 
-TEST_CASE("GFX.Html.Markdown.Lists")
+TEST_CASE("GFX.Markdown.Lists")
 {
     SUBCASE("unordered dash")
     {
@@ -252,7 +263,7 @@ TEST_CASE("GFX.Html.Markdown.Lists")
     }
 }
 
-TEST_CASE("GFX.Html.Markdown.Code")
+TEST_CASE("GFX.Markdown.Code")
 {
     SUBCASE("fenced no language")
     {
@@ -285,7 +296,7 @@ TEST_CASE("GFX.Html.Markdown.Code")
     }
 }
 
-TEST_CASE("GFX.Html.Markdown.Mixed")
+TEST_CASE("GFX.Markdown.Mixed")
 {
     SUBCASE("heading then paragraph")
     {
