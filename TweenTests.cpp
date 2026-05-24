@@ -51,7 +51,7 @@ TEST_CASE("Core.Tween.Queue")
     while (!queue.is_empty()) {
         queue.update(250ms);
     }
-    queue.stop();
+    queue.stop_and_clear();
     REQUIRE(out == std::vector<f32> {50.0f, 40.0f, 30.0f, 20.0f, 10.0f, 50.0f, 75.0f, 100.0f, 125.0f, 150.f});
 }
 
