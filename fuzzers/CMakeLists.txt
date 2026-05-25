@@ -8,7 +8,6 @@ function(add_tcob_fuzzer TARGET SOURCE)
         PRIVATE
         ${TCOB_LIBS}
         tcob_extlibs
-        "C:/Program Files/LLVM/lib/clang/22/lib/windows/clang_rt.fuzzer-x86_64.lib"
     )
     target_include_directories(${TARGET}
         PRIVATE
@@ -43,3 +42,4 @@ add_tcob_fuzzer(tcob_fuzz_gif fuzz_gif.cpp)
 add_tcob_fuzzer(tcob_fuzz_pcx fuzz_pcx.cpp)
 add_tcob_fuzzer(tcob_fuzz_pnm fuzz_pnm.cpp)
 add_tcob_fuzzer(tcob_fuzz_tga fuzz_tga.cpp)
+add_tcob_fuzzer(tcob_fuzz_png fuzz_png.cpp)

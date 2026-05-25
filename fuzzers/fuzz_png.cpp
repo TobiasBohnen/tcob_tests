@@ -22,7 +22,7 @@ extern "C" auto LLVMFuzzerTestOneInput(uint8_t const* data, size_t size) -> int
         io::isstream stream {std::span<std::byte const> {reinterpret_cast<std::byte const*>(data), size}};
         stream.seek(0, io::seek_dir::Begin);
         gfx::image s;
-        std::ignore = s.load(stream, ".pnm");
+        std::ignore = s.load(stream, ".png");
     } catch (...) {
         // Never allow exceptions to escape
     }

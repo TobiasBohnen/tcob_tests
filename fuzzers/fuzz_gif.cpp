@@ -7,11 +7,17 @@
 
 #include <tcob/tcob.hpp>
 
+using namespace tcob;
+static std::shared_ptr<tcob::platform> pl;
+
+extern "C" auto LLVMFuzzerInitialize(int* /* argc */, char*** /* argv */) -> int
+{
+    pl = tcob::platform::HeadlessInit("tcob_tests.log");
+    return 0;
+}
+
 extern "C" auto LLVMFuzzerTestOneInput(uint8_t const* data, size_t size) -> int
 {
-    using namespace tcob;
-    auto pl {platform::HeadlessInit("tcob_tests.log")};
-
     try {
         io::isstream stream {std::span<std::byte const> {reinterpret_cast<std::byte const*>(data), size}};
         stream.seek(0, io::seek_dir::Begin);
