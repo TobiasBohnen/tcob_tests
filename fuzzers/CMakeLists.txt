@@ -16,16 +16,10 @@ function(add_tcob_fuzzer TARGET SOURCE)
     )
     target_compile_features(${TARGET} PRIVATE cxx_std_23)
     target_compile_options(${TARGET} PRIVATE
-        -Wall
-        -Wextra
-        -Wconversion
-        -Wpedantic
-        -Wno-sign-conversion
+        -Wall -Wextra -Wconversion -Wpedantic -Wno-sign-conversion
         -fsanitize=fuzzer,address
         -fno-omit-frame-pointer
         -fno-lto
-        -g
-        -O1
     )
     target_link_options(${TARGET} PRIVATE
         -fsanitize=fuzzer,address
@@ -45,3 +39,4 @@ add_tcob_fuzzer(tcob_fuzz_tga fuzz_tga.cpp)
 add_tcob_fuzzer(tcob_fuzz_png fuzz_png.cpp)
 add_tcob_fuzzer(tcob_fuzz_qoi fuzz_qoi.cpp)
 add_tcob_fuzzer(tcob_fuzz_bmp fuzz_bmp.cpp)
+add_tcob_fuzzer(tcob_fuzz_json fuzz_json.cpp)
