@@ -27,8 +27,9 @@ extern "C" auto LLVMFuzzerInitialize(int* argc, char*** argv) -> int // NOLINT
         pl = nullptr;
         std::exit(1);
     }
-    if (locate_service<data::text_reader::factory>().create(g_ext) == nullptr) {
-        std::println(stderr, "Error: no text reader registered for '{}'", g_ext);
+    if (locate_service<data::text_reader::factory>().create(g_ext) == nullptr
+        && locate_service<data::binary_reader::factory>().create(g_ext) == nullptr) {
+        std::println(stderr, "Error: no reader registered for '{}'", g_ext);
         pl = nullptr;
         std::exit(1);
     }

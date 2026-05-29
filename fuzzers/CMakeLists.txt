@@ -6,8 +6,7 @@ function(add_tcob_fuzzer TARGET SOURCE)
     add_executable(${TARGET} ${SOURCE})
     target_link_libraries(${TARGET}
         PRIVATE
-        ${TCOB_LIBS}
-        tcob_extlibs
+        tcob_static
     )
     target_include_directories(${TARGET}
         PRIVATE
