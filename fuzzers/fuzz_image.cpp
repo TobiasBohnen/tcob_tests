@@ -13,6 +13,7 @@ static std::string                     g_ext;
 extern "C" auto LLVMFuzzerInitialize(int* argc, char*** argv) -> int // NOLINT
 {
     pl = tcob::platform::HeadlessInit("tcob_tests.log");
+    io::magic::clear_signatures();
 
     for (int i {1}; i < *argc; ++i) {
         std::string_view const arg {(*argv)[i]};

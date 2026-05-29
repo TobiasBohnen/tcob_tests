@@ -31,5 +31,6 @@ function(add_tcob_fuzzer TARGET SOURCE)
     )
 endfunction()
 
+add_tcob_fuzzer(tcob_fuzz_audio fuzz_audio.cpp)
 add_tcob_fuzzer(tcob_fuzz_image fuzz_image.cpp)
 add_tcob_fuzzer(tcob_fuzz_object fuzz_object.cpp)

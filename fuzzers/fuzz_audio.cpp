@@ -24,13 +24,12 @@ extern "C" auto LLVMFuzzerInitialize(int* argc, char*** argv) -> int // NOLINT
     }
 
     if (g_ext.empty()) {
-        std::println(stderr, "Usage: fuzz_object --ext=<[FORMAT]>");
+        std::println(stderr, "Usage: fuzz_audio --ext=<[FORMAT]>");
         pl = nullptr;
         std::exit(1);
     }
-    if (locate_service<data::text_reader::factory>().create(g_ext) == nullptr
-        && locate_service<data::binary_reader::factory>().create(g_ext) == nullptr) {
-        std::println(stderr, "Error: no reader registered for '{}'", g_ext);
+    if (locate_service<audio::decoder::factory>().create(g_ext) == nullptr) {
+        std::println(stderr, "Error: no decoder registered for '{}'", g_ext);
         pl = nullptr;
         std::exit(1);
     }
@@ -40,11 +39,11 @@ extern "C" auto LLVMFuzzerInitialize(int* argc, char*** argv) -> int // NOLINT
 extern "C" auto LLVMFuzzerTestOneInput(uint8_t const* data, size_t size) -> int
 {
     try {
-        io::isstream stream {std::span<std::byte const> {
-            reinterpret_cast<std::byte const*>(data), size}};
-        stream.seek(0, io::seek_dir::Begin);
-        data::object obj;
-        std::ignore = obj.load(stream, g_ext);
+        std::shared_ptr<io::isstream> stream {std::make_shared<io::isstream>(std::span<std::byte const> {
+            reinterpret_cast<std::byte const*>(data), size})};
+        stream->seek(0, io::seek_dir::Begin);
+        audio::buffer s;
+        std::ignore = s.load(stream, g_ext, {});
     } catch (...) {
     }
     return 0;
