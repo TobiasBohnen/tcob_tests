@@ -202,4 +202,36 @@ TEST_CASE("Core.POD.AngleUnits")
         REQUIRE(degree_f::atan(0.5f) == degree_f {radian_f {std::atan(0.5f)}});
         REQUIRE(degree_f::atan2(0.5f, 0.1f) == degree_f {radian_f {std::atan2(0.5f, 0.1f)}});
     }
+
+    SUBCASE("Delta")
+    {
+        REQUIRE(degree_f::Delta(degree_f {0}, degree_f {90}) == degree_f {90});
+        REQUIRE(degree_f::Delta(degree_f {90}, degree_f {0}) == degree_f {-90});
+        REQUIRE(degree_f::Delta(degree_f {350}, degree_f {10}) == degree_f {20});
+        REQUIRE(degree_f::Delta(degree_f {10}, degree_f {350}) == degree_f {-20});
+        REQUIRE(degree_f::Delta(degree_f {0}, degree_f {0}) == degree_f {0});
+    }
+    SUBCASE("Halfway")
+    {
+        REQUIRE(degree_f::Halfway(degree_f {0}, degree_f {90}) == degree_f {45});
+        REQUIRE(degree_f::Halfway(degree_f {90}, degree_f {0}) == degree_f {45});
+        REQUIRE(degree_f::Halfway(degree_f {350}, degree_f {10}) == degree_f {0});
+        REQUIRE(degree_f::Halfway(degree_f {10}, degree_f {350}) == degree_f {0});
+    }
+    SUBCASE("is_between")
+    {
+        REQUIRE(degree_f {45}.is_between(degree_f {0}, degree_f {90}));
+        REQUIRE_FALSE(degree_f {135}.is_between(degree_f {0}, degree_f {90}));
+        REQUIRE(degree_f {5}.is_between(degree_f {350}, degree_f {10}));
+        REQUIRE_FALSE(degree_f {180}.is_between(degree_f {350}, degree_f {10}));
+        REQUIRE(degree_f {0}.is_between(degree_f {0}, degree_f {90}));
+        REQUIRE(degree_f {90}.is_between(degree_f {0}, degree_f {90}));
+    }
+    SUBCASE("reflect")
+    {
+        REQUIRE(degree_f {90}.reflect(degree_f {0}) == degree_f {-90});
+        REQUIRE(degree_f {45}.reflect(degree_f {0}) == degree_f {-45});
+        REQUIRE(degree_f {45}.reflect(degree_f {90}) == degree_f {135});
+        REQUIRE(degree_f {0}.reflect(degree_f {45}) == degree_f {90});
+    }
 }

@@ -235,24 +235,6 @@ TEST_CASE("Core.Math.PointOnLine")
     }
 }
 
-TEST_CASE("Core.Math.PointOnRectangle")
-{
-    using namespace tcob::literals;
-
-    {
-        rect_f rect {0, 0, 10, 10};
-        REQUIRE_MESSAGE(rect.find_edge(0_deg).equals({10.f, 5.f}, 0.001f), rect.find_edge(0_deg));
-        REQUIRE_MESSAGE(rect.find_edge(45_deg).equals({10.f, 10.f}, 0.001f), rect.find_edge(45_deg));
-        REQUIRE_MESSAGE(rect.find_edge(90_deg).equals({5.f, 10.f}, 0.001f), rect.find_edge(90_deg));
-        REQUIRE_MESSAGE(rect.find_edge(135_deg).equals({0.f, 10.f}, 0.001f), rect.find_edge(135_deg));
-        REQUIRE_MESSAGE(rect.find_edge(180_deg).equals({0.f, 5.f}, 0.001f), rect.find_edge(180_deg));
-        REQUIRE_MESSAGE(rect.find_edge(225_deg).equals({0.f, 0.f}, 0.001f), rect.find_edge(225_deg));
-        REQUIRE_MESSAGE(rect.find_edge(270_deg).equals({5.f, 0.f}, 0.001f), rect.find_edge(270_deg));
-        REQUIRE_MESSAGE(rect.find_edge(315_deg).equals({10.f, 0.f}, 0.001f), rect.find_edge(315_deg));
-        REQUIRE_MESSAGE(rect.find_edge(360_deg).equals({10.f, 5.f}, 0.001f), rect.find_edge(360_deg));
-    }
-}
-
 TEST_CASE("Core.Helper.RoundToMultiple")
 {
     SUBCASE("5")

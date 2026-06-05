@@ -572,4 +572,22 @@ TEST_CASE("Core.POD.Rect")
     {
         REQUIRE(std::format("{}", rect_f {10.123f, 23.434f, 20, 0.12345f}) == "(x:10.123,y:23.434,w:20,h:0.12345)");
     }
+
+    SUBCASE("find_edge")
+    {
+        using namespace tcob::literals;
+
+        {
+            rect_f rect {0, 0, 10, 10};
+            REQUIRE_MESSAGE(rect.find_edge(0_deg).equals({5.f, 0.f}, 0.001f), rect.find_edge(0_deg));
+            REQUIRE_MESSAGE(rect.find_edge(45_deg).equals({10.f, 0.f}, 0.001f), rect.find_edge(45_deg));
+            REQUIRE_MESSAGE(rect.find_edge(90_deg).equals({10.f, 5.f}, 0.001f), rect.find_edge(90_deg));
+            REQUIRE_MESSAGE(rect.find_edge(135_deg).equals({10.f, 10.f}, 0.001f), rect.find_edge(135_deg));
+            REQUIRE_MESSAGE(rect.find_edge(180_deg).equals({5.f, 10.f}, 0.001f), rect.find_edge(180_deg));
+            REQUIRE_MESSAGE(rect.find_edge(225_deg).equals({0.f, 10.f}, 0.001f), rect.find_edge(225_deg));
+            REQUIRE_MESSAGE(rect.find_edge(270_deg).equals({0.f, 5.f}, 0.001f), rect.find_edge(270_deg));
+            REQUIRE_MESSAGE(rect.find_edge(315_deg).equals({0.f, 0.f}, 0.001f), rect.find_edge(315_deg));
+            REQUIRE_MESSAGE(rect.find_edge(360_deg).equals({5.f, 0.f}, 0.001f), rect.find_edge(360_deg));
+        }
+    }
 }
