@@ -447,4 +447,44 @@ TEST_CASE("Core.POD.Point")
         REQUIRE(p1.cross(p3) == Approx(0.0));
         REQUIRE(p1.cross(p4) == Approx(2.0));
     }
+
+    SUBCASE("bresenham_line")
+    {
+        {
+            // horizontal line
+            std::vector<point_i> pts;
+            bresenham_line({0, 0}, {4, 0}, [&](point_i p) { pts.push_back(p); });
+            REQUIRE(pts == std::vector<point_i> {{0, 0}, {1, 0}, {2, 0}, {3, 0}, {4, 0}});
+        }
+        {
+            // vertical line
+            std::vector<point_i> pts;
+            bresenham_line({0, 0}, {0, 4}, [&](point_i p) { pts.push_back(p); });
+            REQUIRE(pts == std::vector<point_i> {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}});
+        }
+        {
+            // diagonal
+            std::vector<point_i> pts;
+            bresenham_line({0, 0}, {3, 3}, [&](point_i p) { pts.push_back(p); });
+            REQUIRE(pts == std::vector<point_i> {{0, 0}, {1, 1}, {2, 2}, {3, 3}});
+        }
+        {
+            // negative direction
+            std::vector<point_i> pts;
+            bresenham_line({3, 3}, {0, 0}, [&](point_i p) { pts.push_back(p); });
+            REQUIRE(pts == std::vector<point_i> {{3, 3}, {2, 2}, {1, 1}, {0, 0}});
+        }
+        {
+            // single point
+            std::vector<point_i> pts;
+            bresenham_line({2, 5}, {2, 5}, [&](point_i p) { pts.push_back(p); });
+            REQUIRE(pts == std::vector<point_i> {{2, 5}});
+        }
+        {
+            // shallow slope
+            std::vector<point_i> pts;
+            bresenham_line({0, 0}, {4, 2}, [&](point_i p) { pts.push_back(p); });
+            REQUIRE(pts == std::vector<point_i> {{0, 0}, {1, 1}, {2, 1}, {3, 2}, {4, 2}});
+        }
+    }
 }

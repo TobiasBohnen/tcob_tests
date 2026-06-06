@@ -8,32 +8,32 @@ using namespace tcob::helper;
 
 TEST_CASE("Core.Helper.LevenshteinDistance")
 {
-    REQUIRE(get_levenshtein_distance("xyu", "") == 3);
-    REQUIRE(get_levenshtein_distance("", "xyu") == 3);
+    REQUIRE(levenshtein_distance("xyu", "") == 3);
+    REQUIRE(levenshtein_distance("", "xyu") == 3);
 
-    REQUIRE(get_levenshtein_distance("ab", "abc") == 1);
-    REQUIRE(get_levenshtein_distance("abc", "ab") == 1);
+    REQUIRE(levenshtein_distance("ab", "abc") == 1);
+    REQUIRE(levenshtein_distance("abc", "ab") == 1);
 
-    REQUIRE(get_levenshtein_distance("stone", "sotne") == 2);
-    REQUIRE(get_levenshtein_distance("sotne", "stone") == 2);
+    REQUIRE(levenshtein_distance("stone", "sotne") == 2);
+    REQUIRE(levenshtein_distance("sotne", "stone") == 2);
 
-    REQUIRE(get_levenshtein_distance("car", "man") == 2);
-    REQUIRE(get_levenshtein_distance("man", "car") == 2);
+    REQUIRE(levenshtein_distance("car", "man") == 2);
+    REQUIRE(levenshtein_distance("man", "car") == 2);
 
-    REQUIRE(get_levenshtein_distance("book", "back") == 2);
-    REQUIRE(get_levenshtein_distance("back", "book") == 2);
+    REQUIRE(levenshtein_distance("book", "back") == 2);
+    REQUIRE(levenshtein_distance("back", "book") == 2);
 
-    REQUIRE(get_levenshtein_distance("kitten", "sitting") == 3);
-    REQUIRE(get_levenshtein_distance("sitting", "kitten") == 3);
+    REQUIRE(levenshtein_distance("kitten", "sitting") == 3);
+    REQUIRE(levenshtein_distance("sitting", "kitten") == 3);
 
-    REQUIRE(get_levenshtein_distance("book", "bookcase") == 4);
-    REQUIRE(get_levenshtein_distance("bookcase", "book") == 4);
+    REQUIRE(levenshtein_distance("book", "bookcase") == 4);
+    REQUIRE(levenshtein_distance("bookcase", "book") == 4);
 
-    REQUIRE(get_levenshtein_distance("bla", "bla") == 0);
-    REQUIRE(get_levenshtein_distance("bla", "bla") == 0);
+    REQUIRE(levenshtein_distance("bla", "bla") == 0);
+    REQUIRE(levenshtein_distance("bla", "bla") == 0);
 
-    REQUIRE(get_levenshtein_distance("money", "home") == 3);
-    REQUIRE(get_levenshtein_distance("home", "money") == 3);
+    REQUIRE(levenshtein_distance("money", "home") == 3);
+    REQUIRE(levenshtein_distance("home", "money") == 3);
 }
 
 TEST_CASE("Core.Helper.JoinContainer")
