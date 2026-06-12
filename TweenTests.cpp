@@ -806,7 +806,7 @@ TEST_CASE("Core.Tween.Animation")
         frame_animation_tween contr {ani.duration(), ani};
         contr.add_output(&out);
 
-        contr.start(playback_mode::Normal);
+        contr.start(playback_mode::Once);
         contr.update(10ms);
         REQUIRE(out == "0");
         contr.update(10ms);
@@ -866,7 +866,7 @@ TEST_CASE("Core.Tween.PlaybackModes")
         linear_tween<f32> contr {milliseconds {100}, {0.f, 50.f}};
         contr.Value.Changed.connect([&out](f32 val) { out.push_back(val); });
 
-        contr.start(playback_mode::Normal);
+        contr.start(playback_mode::Once);
         for (i32 i {0}; i < 10; i++) {
             contr.update(20ms);
         }
