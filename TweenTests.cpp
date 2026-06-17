@@ -796,14 +796,15 @@ TEST_CASE("Core.Tween.Animation")
     {
         std::string_view out;
 
-        auto            frames = std::vector<frame> {{.Name = "0", .Duration = 10ms},
-                                                     {.Name = "1", .Duration = 10ms},
-                                                     {.Name = "2", .Duration = 10ms},
-                                                     {.Name = "3", .Duration = 10ms},
-                                                     {.Name = "4", .Duration = 10ms}};
-        frame_animation ani {frames};
+        auto frames = std::vector<sprite_animation ::frame> {
+            {.Name = "0", .Duration = 10ms},
+            {.Name = "1", .Duration = 10ms},
+            {.Name = "2", .Duration = 10ms},
+            {.Name = "3", .Duration = 10ms},
+            {.Name = "4", .Duration = 10ms}};
+        sprite_animation ani {frames};
 
-        frame_animation_tween contr {ani.duration(), ani};
+        sprite_animation_tween contr {ani.duration(), ani};
         contr.add_output(&out);
 
         contr.start(playback_mode::Once);
@@ -825,14 +826,15 @@ TEST_CASE("Core.Tween.Animation")
     {
         std::string_view out;
 
-        auto            frames = std::vector<frame> {{.Name = "0", .Duration = 100ms},
-                                                     {.Name = "1", .Duration = 100ms},
-                                                     {.Name = "2", .Duration = 100ms},
-                                                     {.Name = "3", .Duration = 100ms},
-                                                     {.Name = "4", .Duration = 50ms}};
-        frame_animation ani {frames};
+        auto frames = std::vector<sprite_animation ::frame> {
+            {.Name = "0", .Duration = 100ms},
+            {.Name = "1", .Duration = 100ms},
+            {.Name = "2", .Duration = 100ms},
+            {.Name = "3", .Duration = 100ms},
+            {.Name = "4", .Duration = 50ms}};
+        sprite_animation ani {frames};
 
-        frame_animation_tween contr {ani.duration() * 2, ani};
+        sprite_animation_tween contr {ani.duration() * 2, ani};
         contr.add_output(&out);
 
         contr.start(playback_mode::Alternated);
