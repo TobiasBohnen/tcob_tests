@@ -235,6 +235,7 @@ TEST_CASE("Core.POD.Point")
             point_f p3 {p1 * p2};
             REQUIRE(p3.X == (p2 * p1.X));
             REQUIRE(p3.Y == (p2 * p1.Y));
+            REQUIRE(p3 == p2 * p1);
 
             p1 *= p2;
             REQUIRE(p3 == p1);
@@ -257,6 +258,7 @@ TEST_CASE("Core.POD.Point")
             point_i p3 {p1 * p2};
             REQUIRE(p3.X == (p2 * p1.X));
             REQUIRE(p3.Y == (p2 * p1.Y));
+            REQUIRE(p3 == p2 * p1);
 
             p1 *= p2;
             REQUIRE(p3 == p1);
