@@ -13,6 +13,7 @@
 
 using namespace tcob;
 using namespace tcob::gfx;
+using namespace tcob::gfx::filters;
 using namespace tcob::ui;
 using namespace tcob::ai;
 
