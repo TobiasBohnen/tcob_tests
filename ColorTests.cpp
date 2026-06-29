@@ -39,7 +39,7 @@ TEST_CASE("Core.POD.Color")
             REQUIRE(p.G == 0xee);
             REQUIRE(p.B == 0xdd);
             REQUIRE(p.A == 0xcc);
-            REQUIRE(p.value() == col);
+            REQUIRE(p.to_rgba() == col);
         }
         {
             u32   col {0xffeedd};
@@ -48,7 +48,7 @@ TEST_CASE("Core.POD.Color")
             REQUIRE(p.G == 0xee);
             REQUIRE(p.B == 0xdd);
             REQUIRE(p.A == 0xff);
-            REQUIRE(p.value() == (col << 8 | 255));
+            REQUIRE(p.to_rgba() == (col << 8 | 255));
         }
         {
             u32   col {0xffeeddcc};
@@ -57,7 +57,8 @@ TEST_CASE("Core.POD.Color")
             REQUIRE(p.B == 0xee);
             REQUIRE(p.G == 0xdd);
             REQUIRE(p.R == 0xcc);
-            REQUIRE(p.value() == std::byteswap(col));
+            REQUIRE(p.to_abgr() == col);
+            REQUIRE(p.to_rgba() == std::byteswap(col));
         }
     }
 
@@ -70,7 +71,7 @@ TEST_CASE("Core.POD.Color")
         }
         {
             color p1 {colors::Beige};
-            color p2 {color::FromRGBA(p1.value())};
+            color p2 {color::FromRGBA(p1.to_rgba())};
             REQUIRE(p1 == p2);
         }
         {
