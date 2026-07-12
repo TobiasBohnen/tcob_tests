@@ -403,7 +403,7 @@ TEST_CASE("IO.Stream.Filter")
         std::vector<std::byte> compress;
         compress.reserve(100000);
 
-        for (int x = 0; x < 100000; x++) {
+        for (i32 x {0}; x < 100000; x++) {
             compress.push_back(std::byte {'a'});
         }
         REQUIRE(stream.write_filtered(compress, io::zlib_filter {}) != -1);
@@ -411,8 +411,105 @@ TEST_CASE("IO.Stream.Filter")
         stream.seek(0, io::seek_dir::Begin);
         auto data {stream.read_filtered(stream.size_in_bytes(), io::zlib_filter {})};
         REQUIRE(data == compress);
+
+        // "Hello, World!\n" produced by: python3 zlib.compress(data, 9)
+        std::vector<std::byte> const realZlib1 {
+            std::byte {0x78}, std::byte {0xda}, std::byte {0xf3}, std::byte {0x48},
+            std::byte {0xcd}, std::byte {0xc9}, std::byte {0xc9}, std::byte {0xd7},
+            std::byte {0x51}, std::byte {0x08}, std::byte {0xcf}, std::byte {0x2f},
+            std::byte {0xca}, std::byte {0x49}, std::byte {0x51}, std::byte {0xe4},
+            std::byte {0x02}, std::byte {0x00}, std::byte {0x24}, std::byte {0x12},
+            std::byte {0x04}, std::byte {0x74}};
+
+        std::string const expected1 {"Hello, World!\n"};
+        auto              data1 {io::zlib_filter {}.from(realZlib1)};
+        REQUIRE(data1.size() == expected1.size());
+        REQUIRE(std::memcmp(data1.data(), expected1.data(), expected1.size()) == 0);
+
+        // "The quick brown fox jumps over the lazy dog.\n" produced by: python3 zlib.compress(data, 9)
+        std::vector<std::byte> const realZlib2 {
+            std::byte {0x78}, std::byte {0xda}, std::byte {0x0b}, std::byte {0xc9},
+            std::byte {0x48}, std::byte {0x55}, std::byte {0x28}, std::byte {0x2c},
+            std::byte {0xcd}, std::byte {0x4c}, std::byte {0xce}, std::byte {0x56},
+            std::byte {0x48}, std::byte {0x2a}, std::byte {0xca}, std::byte {0x2f},
+            std::byte {0xcf}, std::byte {0x53}, std::byte {0x48}, std::byte {0xcb},
+            std::byte {0xaf}, std::byte {0x50}, std::byte {0xc8}, std::byte {0x2a},
+            std::byte {0xcd}, std::byte {0x2d}, std::byte {0x28}, std::byte {0x56},
+            std::byte {0xc8}, std::byte {0x2f}, std::byte {0x4b}, std::byte {0x2d},
+            std::byte {0x52}, std::byte {0x28}, std::byte {0x01}, std::byte {0x4a},
+            std::byte {0xe7}, std::byte {0x24}, std::byte {0x56}, std::byte {0x55},
+            std::byte {0x2a}, std::byte {0xa4}, std::byte {0xe4}, std::byte {0xa7},
+            std::byte {0xeb}, std::byte {0x71}, std::byte {0x01}, std::byte {0x00},
+            std::byte {0x7b}, std::byte {0xf6}, std::byte {0x10}, std::byte {0x12}};
+
+        std::string const expected2 {"The quick brown fox jumps over the lazy dog.\n"};
+        auto              data2 {io::zlib_filter {}.from(realZlib2)};
+        REQUIRE(data2.size() == expected2.size());
+        REQUIRE(std::memcmp(data2.data(), expected2.data(), expected2.size()) == 0);
     }
 
+    SUBCASE("gzip")
+    {
+        io::iomstream stream {};
+
+        std::vector<std::byte> compress;
+        compress.reserve(100000);
+
+        for (i32 x {0}; x < 100000; x++) {
+            compress.push_back(std::byte {'a'});
+        }
+        REQUIRE(stream.write_filtered(compress, io::gzip_filter {}) != -1);
+
+        stream.seek(0, io::seek_dir::Begin);
+        auto data {stream.read_filtered(stream.size_in_bytes(), io::gzip_filter {})};
+        REQUIRE(data == compress);
+
+        // "Hello, World!\n" produced by: gzip -9 -n
+        std::vector<std::byte> const realGzip1 {
+            std::byte {0x1f}, std::byte {0x8b}, std::byte {0x08}, std::byte {0x00},
+            std::byte {0x00}, std::byte {0x00}, std::byte {0x00}, std::byte {0x00},
+            std::byte {0x02}, std::byte {0x03}, std::byte {0xf3}, std::byte {0x48},
+            std::byte {0xcd}, std::byte {0xc9}, std::byte {0xc9}, std::byte {0xd7},
+            std::byte {0x51}, std::byte {0x08}, std::byte {0xcf}, std::byte {0x2f},
+            std::byte {0xca}, std::byte {0x49}, std::byte {0x51}, std::byte {0xe4},
+            std::byte {0x02}, std::byte {0x00}, std::byte {0x84}, std::byte {0x9e},
+            std::byte {0xe8}, std::byte {0xb4}, std::byte {0x0e}, std::byte {0x00},
+            std::byte {0x00}, std::byte {0x00}};
+
+        std::string const expected1 {"Hello, World!\n"};
+        auto              data1 {io::gzip_filter {}.from(realGzip1)};
+        REQUIRE(data1.size() == expected1.size());
+        REQUIRE(std::memcmp(data1.data(), expected1.data(), expected1.size()) == 0);
+
+        // "The quick brown fox jumps over the lazy dog.\n" produced by: gzip -9 -n
+        std::vector<std::byte> const realGzip2 {
+            std::byte {0x1f}, std::byte {0x8b}, std::byte {0x08}, std::byte {0x00},
+            std::byte {0x00}, std::byte {0x00}, std::byte {0x00}, std::byte {0x00},
+            std::byte {0x02}, std::byte {0x03}, std::byte {0x0b}, std::byte {0xc9},
+            std::byte {0x48}, std::byte {0x55}, std::byte {0x28}, std::byte {0x2c},
+            std::byte {0xcd}, std::byte {0x4c}, std::byte {0xce}, std::byte {0x56},
+            std::byte {0x48}, std::byte {0x2a}, std::byte {0xca}, std::byte {0x2f},
+            std::byte {0xcf}, std::byte {0x53}, std::byte {0x48}, std::byte {0xcb},
+            std::byte {0xaf}, std::byte {0x50}, std::byte {0xc8}, std::byte {0x2a},
+            std::byte {0xcd}, std::byte {0x2d}, std::byte {0x28}, std::byte {0x56},
+            std::byte {0xc8}, std::byte {0x2f}, std::byte {0x4b}, std::byte {0x2d},
+            std::byte {0x52}, std::byte {0x28}, std::byte {0x01}, std::byte {0x4a},
+            std::byte {0xe7}, std::byte {0x24}, std::byte {0x56}, std::byte {0x55},
+            std::byte {0x2a}, std::byte {0xa4}, std::byte {0xe4}, std::byte {0xa7},
+            std::byte {0xeb}, std::byte {0x71}, std::byte {0x01}, std::byte {0x00},
+            std::byte {0x6a}, std::byte {0xcc}, std::byte {0x50}, std::byte {0xeb},
+            std::byte {0x2d}, std::byte {0x00}, std::byte {0x00}, std::byte {0x00}};
+
+        std::string const expected2 {"The quick brown fox jumps over the lazy dog.\n"};
+        auto              data2 {io::gzip_filter {}.from(realGzip2)};
+        REQUIRE(data2.size() == expected2.size());
+        REQUIRE(std::memcmp(data2.data(), expected2.data(), expected2.size()) == 0);
+
+        // corrupted trailer must be rejected
+        auto corrupted {realGzip1};
+        corrupted[corrupted.size() - 1] = std::byte {0xFF};
+        REQUIRE(io::gzip_filter {}.from(corrupted).empty());
+    }
     SUBCASE("base64")
     {
         io::iomstream stream {};
