@@ -327,4 +327,131 @@ seq:
         REQUIRE(obj["seq"][1].as<object>()["key1"].as<i32>() == 3);
         REQUIRE(obj["seq"][1].as<object>()["key2"].as<i32>() == 4);
     }
+
+    SUBCASE("empty containers")
+    {
+        object obj;
+        REQUIRE(obj.parse(R"(
+emptyMap: {}
+emptyArray: []
+)",
+                          EXT));
+
+        REQUIRE(obj["emptyMap"].as<object>().empty());
+        REQUIRE(obj["emptyArray"].as<array>().empty());
+    }
+
+    SUBCASE("negative values")
+    {
+        object obj;
+        REQUIRE(obj.parse(R"(
+i: -123
+f: -4.5
+)",
+                          EXT));
+
+        REQUIRE(obj["i"].as<i64>() == -123);
+        REQUIRE(obj["f"].as<f64>() == doctest::Approx(-4.5));
+    }
+
+    SUBCASE("empty strings")
+    {
+        object obj;
+        REQUIRE(obj.parse(R"(
+a: ""
+b: ''
+)",
+                          EXT));
+
+        REQUIRE(obj["a"].as<std::string>().empty());
+        REQUIRE(obj["b"].as<std::string>().empty());
+    }
+
+    SUBCASE("inline map")
+    {
+        object obj;
+        REQUIRE(obj.parse(R"(
+seq:
+- a: 1
+  b: 2
+- a: 3
+  b: 4
+)",
+                          EXT));
+
+        REQUIRE(obj["seq"][0]["a"].as<i32>() == 1);
+        REQUIRE(obj["seq"][0]["b"].as<i32>() == 2);
+        REQUIRE(obj["seq"][1]["a"].as<i32>() == 3);
+        REQUIRE(obj["seq"][1]["b"].as<i32>() == 4);
+    }
+
+    SUBCASE("root flow sequence")
+    {
+        array arr;
+        REQUIRE(arr.parse("[1,2,3]", EXT));
+
+        REQUIRE(arr.size() == 3);
+        REQUIRE(arr[2].as<i32>() == 3);
+    }
+
+    SUBCASE("root flow map")
+    {
+        object obj;
+        REQUIRE(obj.parse("{\"a\":1,\"b\":2}", EXT));
+
+        REQUIRE(obj["a"].as<i32>() == 1);
+        REQUIRE(obj["b"].as<i32>() == 2);
+    }
+
+    SUBCASE("comments")
+    {
+        object obj;
+        REQUIRE(obj.parse(R"(
+# one
+a: 1
+
+# two
+b: 2
+)",
+                          EXT));
+
+        REQUIRE(obj.get_entry("a")->get_comment().Text == " one");
+        REQUIRE(obj.get_entry("b")->get_comment().Text == " two");
+    }
+
+    SUBCASE("sequence anchors")
+    {
+        object obj;
+        REQUIRE(obj.parse(R"(
+seq: &x
+- 1
+- 2
+
+copy: *x
+)",
+                          EXT));
+
+        REQUIRE(obj["copy"][0].as<i32>() == 1);
+        REQUIRE(obj["copy"][1].as<i32>() == 2);
+    }
+
+    SUBCASE("unknown alias")
+    {
+        object obj;
+        REQUIRE_FALSE(obj.parse(R"(
+a: *missing
+)",
+                                EXT));
+    }
+
+    SUBCASE("invalid indentation")
+    {
+        object obj;
+        REQUIRE_FALSE(obj.parse(R"(
+a:
+   b: 1
+  c: 2
+)",
+                                EXT));
+    }
 }
