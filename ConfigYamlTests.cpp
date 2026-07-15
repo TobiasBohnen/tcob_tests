@@ -308,4 +308,23 @@ y:
         REQUIRE(obj["x"][2].as<i32>() == 3);
         REQUIRE(obj["y"].as<i32>() == 34);
     }
+    SUBCASE("object5")
+    {
+        static std::string yamlString {
+            R"(
+seq:
+  - key1: 1
+    key2: 2
+  - key1: 3
+    key2: 4
+)"};
+        object obj;
+        REQUIRE(obj.parse(yamlString, EXT));
+
+        REQUIRE(obj["seq"].as<array>().size() == 2);
+        REQUIRE(obj["seq"][0].as<object>()["key1"].as<i32>() == 1);
+        REQUIRE(obj["seq"][0].as<object>()["key2"].as<i32>() == 2);
+        REQUIRE(obj["seq"][1].as<object>()["key1"].as<i32>() == 3);
+        REQUIRE(obj["seq"][1].as<object>()["key2"].as<i32>() == 4);
+    }
 }
