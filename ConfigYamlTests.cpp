@@ -415,8 +415,8 @@ b: 2
 )",
                           EXT));
 
-        REQUIRE(obj.get_entry("a")->get_comment().Text == " one");
-        REQUIRE(obj.get_entry("b")->get_comment().Text == " two");
+        REQUIRE(obj.get_entry("a")->get_comment().Text == "one");
+        REQUIRE(obj.get_entry("b")->get_comment().Text == "two");
     }
 
     SUBCASE("sequence anchors")
