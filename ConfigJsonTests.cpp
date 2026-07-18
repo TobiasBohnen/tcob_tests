@@ -267,6 +267,20 @@ TEST_CASE("Data.Json.Parse")
         object      obj;
         REQUIRE_FALSE(obj.parse(jsonString, EXT));
     }
+    SUBCASE("unicode escape")
+    {
+        std::string jsonString {R"({ "a": "\u0041\u00DF\u6771" })"};
+        object      obj;
+        REQUIRE(obj.parse(jsonString, EXT));
+        REQUIRE(obj["a"].as<utf8_string>() == "Aß東");
+    }
+
+    SUBCASE("invalid unicode escape")
+    {
+        std::string jsonString {R"({ "a": "\u12G4" })"};
+        object      obj;
+        REQUIRE_FALSE(obj.parse(jsonString, EXT));
+    }
 }
 
 TEST_CASE("Data.Json.TcobTypes")
