@@ -6,7 +6,7 @@
 
 using namespace tcob::helper;
 
-TEST_CASE("Core.Helper.LevenshteinDistance")
+TEST_CASE("Core.StringUtils.LevenshteinDistance")
 {
     REQUIRE(levenshtein_distance("xyu", "") == 3);
     REQUIRE(levenshtein_distance("", "xyu") == 3);
@@ -36,7 +36,7 @@ TEST_CASE("Core.Helper.LevenshteinDistance")
     REQUIRE(levenshtein_distance("home", "money") == 3);
 }
 
-TEST_CASE("Core.Helper.JoinContainer")
+TEST_CASE("Core.StringUtils.JoinContainer")
 {
     SUBCASE("array")
     {
@@ -76,13 +76,13 @@ TEST_CASE("Core.Helper.JoinContainer")
     }
 }
 
-TEST_CASE("Core.Helper.RepString")
+TEST_CASE("Core.StringUtils.RepString")
 {
     REQUIRE(helper::rep("C", 5, ",") == "C,C,C,C,C");
     REQUIRE(helper::rep("CD", 5, ", ") == "CD, CD, CD, CD, CD");
 }
 
-TEST_CASE("Core.Helper.SplitStrings")
+TEST_CASE("Core.StringUtils.SplitStrings")
 {
     {
         std::string test = "1,2,3,4,5,6";
@@ -110,7 +110,7 @@ TEST_CASE("Core.Helper.SplitStrings")
     }
 }
 
-TEST_CASE("Core.Helper.SplitOnceStrings")
+TEST_CASE("Core.StringUtils.SplitOnceStrings")
 {
     {
         std::string test = "1,2,3,4,5,6";
@@ -122,7 +122,7 @@ TEST_CASE("Core.Helper.SplitOnceStrings")
     }
 }
 
-TEST_CASE("Core.Helper.SplitPreserveBrackets")
+TEST_CASE("Core.StringUtils.SplitPreserveBrackets")
 {
     {
         std::string test = "1,2,{234,12},5";
@@ -149,7 +149,7 @@ TEST_CASE("Core.Helper.SplitPreserveBrackets")
     }
 }
 
-TEST_CASE("Core.Helper.WildcardMatch")
+TEST_CASE("Core.StringUtils.WildcardMatch")
 {
     SUBCASE("w/o wildcard")
     {
@@ -235,7 +235,7 @@ TEST_CASE("Core.Math.PointOnLine")
     }
 }
 
-TEST_CASE("Core.Helper.RoundToMultiple")
+TEST_CASE("Core.Math.RoundToMultiple")
 {
     SUBCASE("5")
     {
@@ -345,7 +345,7 @@ TEST_CASE("Core.Helper.RoundToMultiple")
     }
 }
 
-TEST_CASE("Core.Helper.RoundUpToMultiple")
+TEST_CASE("Core.Math.RoundUpToMultiple")
 {
     SUBCASE("5")
     {
@@ -402,7 +402,7 @@ TEST_CASE("Core.Helper.RoundUpToMultiple")
     }
 }
 
-TEST_CASE("Core.Helper.RoundDownToMultiple")
+TEST_CASE("Core.Math.RoundDownToMultiple")
 {
     SUBCASE("5")
     {
