@@ -503,6 +503,66 @@ TEST_CASE("Core.POD.Rect")
             REQUIRE(r1.intersects(r2, true));
             REQUIRE(r2.intersects(r1, true));
         }
+        {
+            rect_d r1 {0.5, 1.5, 2.5, 3.5};
+            rect_d r2 {0.35, 0.5, 2.5, 3.5};
+            REQUIRE(r1.intersects(r2));
+            REQUIRE(r2.intersects(r1));
+        }
+        {
+            rect_d r1 {0.5, 1.5, 2.5, 3.5};
+            rect_d r2 {0.5, 5.1, 2.5, 3.5};
+            REQUIRE_FALSE(r1.intersects(r2));
+            REQUIRE_FALSE(r2.intersects(r1));
+        }
+
+        {
+            rect_u r1 {0u, 10u, 20u, 30u};
+            rect_u r2 {20u, 10u, 20u, 30u};
+            REQUIRE_FALSE(r1.intersects(r2));
+            REQUIRE_FALSE(r2.intersects(r1));
+
+            REQUIRE(r1.intersects(r2, true));
+            REQUIRE(r2.intersects(r1, true));
+        }
+
+        {
+            rect_u r1 {5u, 5u, 10u, 10u};
+            rect_u r2 {8u, 8u, 10u, 10u};
+            REQUIRE(r1.intersects(r2));
+            REQUIRE(r2.intersects(r1));
+        }
+
+        {
+            rect_f r1 {0.5f, 1.5f, 2.5f, 3.5f};
+            rect_i r2 {0, 1, 2, 3};
+            REQUIRE(r1.intersects(r2));
+            REQUIRE(r2.intersects(r1));
+        }
+
+        {
+            rect_f r1 {0.5f, 1.5f, 2.5f, 3.5f};
+            rect_i r2 {10, 10, 2, 3};
+            REQUIRE_FALSE(r1.intersects(r2));
+            REQUIRE_FALSE(r2.intersects(r1));
+        }
+
+        {
+            rect_d r1 {0.5, 1.5, 2.5, 3.5};
+            rect_f r2 {0.35f, 0.5f, 2.5f, 3.5f};
+            REQUIRE(r1.intersects(r2));
+            REQUIRE(r2.intersects(r1));
+        }
+
+        {
+            rect_i r1 {0, 10, 20, 30};
+            rect_u r2 {20u, 10u, 20u, 30u};
+            REQUIRE_FALSE(r1.intersects(r2));
+            REQUIRE_FALSE(r2.intersects(r1));
+
+            REQUIRE(r1.intersects(r2, true));
+            REQUIRE(r2.intersects(r1, true));
+        }
     }
 
     SUBCASE("AsIntersectionWith")
