@@ -536,6 +536,11 @@ TEST_CASE("Core.POD.Rect")
             REQUIRE(r1.center() == (point_f {10, 8.5f}));
             REQUIRE(r1.local_center() == (point_f {5.f, 5.5f}));
         }
+        {
+            rect_d r1 {5, 3, 10, 11};
+            REQUIRE(r1.center() == (point_d {10, 8.5}));
+            REQUIRE(r1.local_center() == (point_d {5., 5.5}));
+        }
     }
     SUBCASE("Structured Binding")
     {
