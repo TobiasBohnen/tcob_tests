@@ -29,6 +29,7 @@ Diagnostics:
             - "cppcoreguidelines-pro-type-union-access"
             - "cppcoreguidelines-no-malloc"
             - "cppcoreguidelines-narrowing-conversions"
+            - "cppcoreguidelines-pro-bounds-avoid-unchecked-container-access"
             - "bugprone-reserved-identifier"
             - "bugprone-string-literal-with-embedded-nul"
             - "bugprone-implicit-widening-of-multiplication-result"
@@ -48,4 +49,5 @@ Diagnostics:
             - "readability-convert-member-functions-to-static"
             - "readability-container-data-pointer"
             - "readability-redundant-member-init"
+            - "readability-trailing-comma"
            # - "readability-avoid-nested-conditional-operator"

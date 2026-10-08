@@ -4,7 +4,7 @@
 
 TEST_CASE("IO.Stream.ReadAll")
 {
-    SUBCASE("file_sink")
+    SUBCASE("file")
     {
         std::string const file {"test.ReadAll"};
         PrepareFile(file);
@@ -60,7 +60,7 @@ TEST_CASE("IO.Stream.ReadAll")
 
         io::delete_file(file);
     }
-    SUBCASE("span_sink")
+    SUBCASE("span")
     {
         SUBCASE("char")
         {
@@ -83,7 +83,7 @@ TEST_CASE("IO.Stream.ReadAll")
             }
         }
     }
-    SUBCASE("memory_sink")
+    SUBCASE("memory")
     {
         SUBCASE("char")
         {
@@ -107,7 +107,7 @@ TEST_CASE("IO.Stream.ReadAll")
 
 TEST_CASE("IO.Stream.ReadString")
 {
-    SUBCASE("file_sink")
+    SUBCASE("file")
     {
         std::string const file {"test.ReadString"};
         PrepareFile(file);
@@ -140,7 +140,7 @@ TEST_CASE("IO.Stream.ReadString")
 
         io::delete_file(file);
     }
-    SUBCASE("span_sink")
+    SUBCASE("span")
     {
         std::string line0 {"test"};
         std::string line1 {"123"};
@@ -172,7 +172,7 @@ TEST_CASE("IO.Stream.ReadString")
             REQUIRE(fs.read_string(static_cast<std::streamsize>(line2.size())) == line2);
         }
     }
-    SUBCASE("memory_sink")
+    SUBCASE("memory")
     {
         std::string line0 {"test"};
         std::string line1 {"123"};
@@ -245,7 +245,7 @@ TEST_CASE("IO.Stream.Open")
 
 TEST_CASE("IO.Stream.Appending")
 {
-    SUBCASE("file_sink")
+    SUBCASE("file")
     {
         std::string const file {"test.Append"};
         PrepareFile(file);
@@ -309,7 +309,7 @@ TEST_CASE("IO.Stream.Seeking")
         REQUIRE(str.read<char>() == '1');
     }};
 
-    SUBCASE("file_sink")
+    SUBCASE("file")
     {
         std::string const file {"test.Seeking"};
         PrepareFile(file);
@@ -333,7 +333,7 @@ TEST_CASE("IO.Stream.Seeking")
 
         io::delete_file(file);
     }
-    SUBCASE("span_sink")
+    SUBCASE("span")
     {
         std::vector<std::byte> out;
         out.resize(5);
@@ -354,7 +354,7 @@ TEST_CASE("IO.Stream.Seeking")
             seekEnd(fs);
         }
     }
-    SUBCASE("memory_sink")
+    SUBCASE("memory")
     {
         io::iomstream fs {};
         fs.write<char>(data);
@@ -589,7 +589,7 @@ TEST_CASE("IO.Stream.Filter")
 
 TEST_CASE("IO.Stream.Peek")
 {
-    SUBCASE("file_sink")
+    SUBCASE("file")
     {
         std::string const file {"test.Peek"};
         PrepareFile(file);
@@ -630,7 +630,7 @@ TEST_CASE("IO.Stream.Peek")
         io::delete_file(file);
     }
 
-    SUBCASE("span_sink")
+    SUBCASE("span")
     {
         std::vector<std::byte> out;
         out.resize(3 * sizeof(i32));
@@ -655,7 +655,7 @@ TEST_CASE("IO.Stream.Peek")
         }
     }
 
-    SUBCASE("memory_sink")
+    SUBCASE("memory")
     {
         io::iomstream fs {};
 
