@@ -16,6 +16,7 @@ using namespace tcob::gfx;
 using namespace tcob::gfx::filters;
 using namespace tcob::ui;
 using namespace tcob::ai;
+using namespace tcob::procgen;
 
 namespace tcob {
 template <Arithmetic T>
@@ -51,7 +52,7 @@ auto inline operator<<(std::ostream& os, color const& m) -> std::ostream&
 
 using namespace std::literals::chrono_literals;
 using namespace std::literals::string_literals;
-using Approx = doctest::Approx;
+using doctest::Approx;
 
 void inline PrepareFile(std::string const& file)
 {
